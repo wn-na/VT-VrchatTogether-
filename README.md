@@ -1,2 +1,2 @@
-# VT-Vrchat-Together-
+# VT(Vrchat Together)
 react native
