@@ -1,0 +1,42 @@
+{
+  "name": "vrc",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android-clean": "cd android && gradlew clean",
+    "android-bundle": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
+    "android-debug": "cd android && gradlew assembleDebug",
+    "android-release": "cd android && gradlew assembleRelease",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "base-64": "^0.1.0",
+    "native-base": "^2.13.12",
+    "react": "16.8.6",
+    "react-native": "0.60.0",
+    "react-native-easy-grid": "^0.2.2",
+    "react-native-elements": "^1.2.7",
+    "react-native-gesture-handler": "^1.6.1",
+    "react-native-reanimated": "^1.7.0",
+    "react-native-router-flux": "^4.2.0",
+    "react-native-screens": "^2.4.0",
+    "react-native-vector-icons": "^6.6.0",
+    "react-navigation": "^4.3.2",
+    "utf8": "^3.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.8.6",
+    "@babel/runtime": "7.8.4",
+    "@react-native-community/eslint-config": "0.0.3",
+    "babel-jest": "24.9.0",
+    "eslint": "6.8.0",
+    "jest": "24.9.0",
+    "metro-react-native-babel-preset": "0.54.1",
+    "react-test-renderer": "16.8.6"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
