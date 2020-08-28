@@ -79,11 +79,12 @@ export default class FriendListSc extends Component {
     {
         console.log("FriendListSc => getFirend");
         // 온라인 유저 get
-        fetch('https://api.vrchat.cloud/api/1/auth/user/friends?offline=false', {
-            method: 'GET',
+        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false", {
+            method: "GET",
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
             }
         })
         .then((response) => response.json())
@@ -93,11 +94,12 @@ export default class FriendListSc extends Component {
                 getFirendActive_1:responseJson
             });
         })
-        fetch('https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset=100', {
-            method: 'GET',
+        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset=100", {
+            method: "GET",
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
             }
         })
         .then((response) => response.json())
@@ -107,11 +109,12 @@ export default class FriendListSc extends Component {
                 getFirendActive_2:responseJson
             });
         })
-        fetch('https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset=200', {
-            method: 'GET',
+        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset=200", {
+            method: "GET",
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
             }
         })
         .then((response) => response.json())
@@ -122,11 +125,12 @@ export default class FriendListSc extends Component {
             });
         })
         // 오프라인 유저 get
-        fetch('https://api.vrchat.cloud/api/1/auth/user/friends?offline=true', {
-            method: 'GET',
+        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true", {
+            method: "GET",
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
             }
         })
         .then((response) => response.json())
@@ -136,11 +140,12 @@ export default class FriendListSc extends Component {
                 getFirendOff_1:responseJson
             });
         });
-        fetch('https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset=100', {
-            method: 'GET',
+        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset=100", {
+            method: "GET",
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
             }
         })
         .then((response) => response.json())
@@ -150,11 +155,12 @@ export default class FriendListSc extends Component {
                 getFirendOff_2:responseJson
             });
         });
-        fetch('https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset=200', {
-            method: 'GET',
+        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset=200", {
+            method: "GET",
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
             }
         })
         .then((response) => response.json())

@@ -58,11 +58,12 @@ export default class FriendDetail extends Component {
         console.info("FriendDetail => componentWillMount");
         
         // 검색유저 정보
-        fetch('https://api.vrchat.cloud/api/1/users/'+this.props.userId, {
-            method: 'GET',
+        fetch("https://api.vrchat.cloud/api/1/users/"+this.props.userId, {
+            method: "GET",
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
             }
         })
         .then((response) => response.json())
@@ -73,11 +74,12 @@ export default class FriendDetail extends Component {
                 getUserInfo:responseJson
             });
 
-            fetch('https://api.vrchat.cloud/api/1/worlds/'+responseJson.worldId, {
-                method: 'GET',
+            fetch("https://api.vrchat.cloud/api/1/worlds/"+responseJson.worldId, {
+                method: "GET",
                 headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
+                Accept: "application/json",
+                "User-Agent":"VT",
+                "Content-Type": "application/json",
                 }
             })
             .then((response) => response.json())

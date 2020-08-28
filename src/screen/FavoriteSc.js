@@ -72,11 +72,12 @@ export default class FavoriteSc extends Component {
     }
     getAavatar()
     {
-        fetch('https://api.vrchat.cloud/api/1/avatars/favorites', {
-            method: 'GET',
+        fetch("https://api.vrchat.cloud/api/1/avatars/favorites", {
+            method: "GET",
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
             }
         })
         .then((response) => response.json())
@@ -90,11 +91,12 @@ export default class FavoriteSc extends Component {
     }
     getWorld()
     {
-        fetch('https://api.vrchat.cloud/api/1/worlds/favorites', {
-            method: 'GET',
+        fetch("https://api.vrchat.cloud/api/1/worlds/favorites", {
+            method: "GET",
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
             }
         })
         .then((response) => response.json())

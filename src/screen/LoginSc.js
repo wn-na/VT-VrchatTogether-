@@ -78,6 +78,7 @@ export default class LoginSc extends Component {
             method: 'GET',
             headers: {
             Accept: 'application/json',
+            "User-Agent":"VT",
             'Content-Type': 'application/json'
             }
         })
@@ -95,18 +96,18 @@ export default class LoginSc extends Component {
         
         // utf8 문자 감지 후 base64 변환
         const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
-        
-        fetch('https://api.vrchat.cloud/api/1/auth/user', {
-            method: 'GET',
+
+        fetch("https://api.vrchat.cloud/api/1/auth/user", {
+            method: "GET",
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization':'Basic '+user
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "User-Agent":"VT",
+            "Authorization":"Basic "+user
             }
         })
-        .then((response) => response.json())
-        .then((responseJson) => {
-            console.log(responseJson);
+        .then(response => response.json())
+        .then(responseJson => {
             if(!responseJson.error)
             {
                 AsyncStorage.setItem("storage_id", this.state.id);
@@ -115,11 +116,14 @@ export default class LoginSc extends Component {
             else
             {
                 Alert.alert(
-                    '오류',
-                    '아이디 혹은 비밀번호가 일치하지 않습니다.',
-                    [{text: "확인", onPress: () => console.log('press login')}]
+                    "오류",
+                    "아이디 혹은 비밀번호가 일치하지 않습니다.",
+                    [{text: "확인", onPress: () => console.log("press login")}]
                 );
             }
+        })
+        .catch((r) => {
+            console.log(r);
         })
     }
 
