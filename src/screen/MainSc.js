@@ -118,6 +118,7 @@ export default class MainScSc extends Component {
             method: "GET",
             headers: {
             Accept: "application/json",
+            "User-Agent":"VT",
             "Content-Type": "application/json",
             }
         })
@@ -132,6 +133,7 @@ export default class MainScSc extends Component {
             method: "GET",
             headers: {
             Accept: "application/json",
+            "User-Agent":"VT",
             "Content-Type": "application/json",
             }
         })
@@ -146,6 +148,7 @@ export default class MainScSc extends Component {
             method: "GET",
             headers: {
             Accept: "application/json",
+            "User-Agent":"VT",
             "Content-Type": "application/json",
             }
         })
@@ -162,6 +165,7 @@ export default class MainScSc extends Component {
             method: "GET",
             headers: {
             Accept: "application/json",
+            "User-Agent":"VT",
             "Content-Type": "application/json",
             }
         })
@@ -176,6 +180,7 @@ export default class MainScSc extends Component {
             method: "GET",
             headers: {
             Accept: "application/json",
+            "User-Agent":"VT",
             "Content-Type": "application/json",
             }
         })
@@ -190,6 +195,7 @@ export default class MainScSc extends Component {
             method: "GET",
             headers: {
             Accept: "application/json",
+            "User-Agent":"VT",
             "Content-Type": "application/json",
             }
         })

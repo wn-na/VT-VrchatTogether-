@@ -7,6 +7,7 @@ import FriendListSc from './src/screen/FriendListSc';
 import FriendDetail from './src/screen/FriendDetail';
 
 import MapListSc from './src/screen/MapListSc';
+import MapDetail from './src/screen/MapDetail';
 import AvatarListSc from './src/screen/AvatarListSc';
 import FavoriteSc from './src/screen/FavoriteSc';
 import BlockSc from './src/screen/BlockSc';
@@ -25,6 +26,7 @@ export default  class App extends Component {
                 <Scene key="avatarListSc" hideNavBar={true} component={AvatarListSc} />
                 <Scene key="favoriteSc" hideNavBar={true} component={FavoriteSc} />
                 <Scene key="blockSc" hideNavBar={true} component={BlockSc} />
+                <Scene key="MapDetail" hideNavBar={true} component={MapDetail} />
             </Scene>
         </Router>
     }
