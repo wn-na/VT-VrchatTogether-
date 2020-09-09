@@ -109,7 +109,7 @@ export default class MapListSc extends Component {
         })
     }
     
-    serachMapList(){
+    searchMapList(){
         fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.search}`, {
             method: "GET",
             headers: {
@@ -163,8 +163,8 @@ export default class MapListSc extends Component {
         }
         else
         {
-            let serachCheck = serachMapList();
-            if(serachCheck.length == 0)
+            let searchCheck = searchMapList();
+            if(searchCheck.length == 0)
             {
                 Alert.alert(
                     '오류',
