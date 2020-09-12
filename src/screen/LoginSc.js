@@ -51,7 +51,8 @@ export default class LoginSc extends Component {
 
         this.state = {
             id:"",
-            pw:""
+            pw:"",
+            loginCheck:true,
         };
     }
 
@@ -68,10 +69,12 @@ export default class LoginSc extends Component {
     componentWillUnmount() {
         console.info("LoginSc => componentWillUnmount");
     }
+
     componentDidMount() {
         console.info("LoginSc => componentDidMount");
     }
-    loginCheck()
+
+    loginCheck = () =>
     {
         console.log("LoginSc => loginCheck");
         fetch('https://api.vrchat.cloud/api/1/auth/user', {
@@ -86,11 +89,15 @@ export default class LoginSc extends Component {
         .then((responseJson) => {
             if(!responseJson.error)
             {
+                this.setState({
+                    loginCheck:true
+                })
                 Actions.mainSc();
             }
-        })
+        });
     }
-    login()
+
+    login = () =>
     {
         console.log("LoginSc => login");
         
@@ -131,6 +138,7 @@ export default class LoginSc extends Component {
         console.info("LoginSc => render");
         
         return (
+            this.state.loginCheck == false ?
             <View style={{flex:1}}>
                 <View style={styles.logo}>
                     <Text>로고</Text>
@@ -170,6 +178,10 @@ export default class LoginSc extends Component {
                         </Button>
                     </View>
                 </View>
+            </View>
+            :
+            <View>
+
             </View>
         );
     }

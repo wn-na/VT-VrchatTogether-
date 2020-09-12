@@ -38,49 +38,53 @@ import {
     TextInput,
     Dimensions,
     Alert,
-    AsyncStorage
+    AsyncStorage,
+    ToastAndroid,
+    BackHandler
 } from "react-native";
 import base64 from 'base-64';
-import { Actions } from "react-native-router-flux";
+import { Actions, Router } from "react-native-router-flux";
 import { Col, Row } from "react-native-easy-grid";
 
-export default class MainScSc extends Component {
+export default class MainSc extends Component {
     constructor(props) {
         console.info("MainSc => constructor");
 
         super(props);
 
         this.state = {
-            getFirend:null,
             getUserInfo:null,
             refreshing:false,
-            getFirendOff:0,
-            getFirendOff_1:0,
-            getFirendOff_2:0,
-            getFirendOff_3:0,
-            getFirendActive:0,
-            getFirendActive_1:0,
-            getFirendActive_2:0,
-            getFirendActive_3:0,
-            getAllFriends:0
+            onCount:0,
+            offCount:0,
+            gallCount:0,
+            refreshTime:false,
+            exitApp:false
         };
     }
 
     UNSAFE_componentWillMount() {
         console.info("MainSc => componentWillMount");
-        this.getFirend();
+
         this.getUserInfo();
+        this.getFirend();
+        BackHandler.addEventListener('hardwareBackPress', this.backHandler);
     }
 
     componentWillUnmount() {
         console.info("MainSc => componentWillUnmount");
+        BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
     }
+
     componentDidMount() {
         console.info("MainSc => componentDidMount");
     }
-    logout()
+
+    // 로그아웃 처리
+    logout = () =>
     {
         console.log("LoginSc => logout");
+
         fetch("https://api.vrchat.cloud/api/1/logout", {
             method: "PUT",
             headers: {
@@ -92,9 +96,12 @@ export default class MainScSc extends Component {
             Actions.replace("loginSc");
         });
     }
-    getUserInfo()
+
+    // 자기정보 가져옴
+    getUserInfo = () =>
     {
         console.log("LoginSc => getUserInfo");
+
         fetch("https://api.vrchat.cloud/api/1/auth/user", {
             method: "GET",
             headers: {
@@ -110,117 +117,112 @@ export default class MainScSc extends Component {
             });
         })
     }
-    getFirend()
+
+    // 온라인친구 가져오기
+    getFirendOn = async(offSet) =>
+    {
+        const responseOn = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset="+offSet, {
+            method: "GET",
+            headers: {
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
+            }
+        });
+        return new Promise((resolve, reject) =>
+        setTimeout(() =>{
+            resolve(responseOn.json());
+        }, 2000) );
+    }
+
+    // 오프라인친구 가져오기
+    getFirendOff = async(offSet) =>
+    {
+        const responseOff = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset="+offSet, {
+            method: "GET",
+            headers: {
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
+            }
+        });
+        return new Promise((resolve, reject) =>
+        setTimeout(() =>{
+            resolve(responseOff.json());
+        }, 2000) );
+    }
+
+    // 온라인 & 오프라인친구 호출
+    // 온라인 오프라인을 동시에 불러오기에는 병렬처리 효과가 크게 나지않기에 분리
+    getFirend = async() =>
     {
         console.log("LoginSc => getFirend");
-        // 온라인 유저 get
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendActive_1:responseJson
-            });
-        })
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset=100", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendActive_2:responseJson
-            });
-        })
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset=200", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendActive_3:responseJson
-            });
-        })
 
-        // 오프라인 유저 get
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendOff_1:responseJson
+        let onCount  = 0;
+        let offCount = 0;
+        let offSet = 0;
+
+        // Promise.all 이용하여 병렬처리 진행
+        for(let i=0;i<10;i++)
+        {
+            Promise.all([this.getFirendOn(offSet),this.getFirendOff(offSet)])
+            .then((result) => {
+                this.setState({
+                    // result[0]은 온라인 친구 result[1]은 오프라인 친구
+                    // 배열에 넣은순서대로 결과값도 순서대로 넘어옴
+                    onCount : onCount += result[0].length,
+                    offCount : offCount += result[1].length
+                });
             });
-        })
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset=100", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendOff_2:responseJson
-            });
-        })
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset=200", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendOff_3:responseJson
-            });
-        })
+            offSet+=100;
+        }
     }
+
+    // 새로고침 시 5초 카운팅기능
     refreshData = () =>
     {
         console.log("LoginSc => refreshData");
-        this.getFirend();
-        this.getUserInfo();
-        this.setState({
-            refreshing:false
-        });
+
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+            this.getFirend();
+            this.getUserInfo();
+            this.setState({
+                refreshing:false
+            });
+        }
+        else
+        {
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
+    }
+
+    // 백핸들러
+    backHandler = () =>
+    {
+        // 메인화면일경우만 감지하여 종료실행
+        if(Actions.currentScene == "mainSc")
+        {
+            let timeout;
+            if (this.state.exitApp == false) {
+                ToastAndroid.show('한번 더 누르시면 종료됩니다.', ToastAndroid.SHORT);
+                this.state.exitApp = true;
+    
+                timeout = setTimeout(() => {
+                    this.state.exitApp = false;
+                },2500);
+            } else {
+                BackHandler.exitApp();  // 앱 종료
+            }
+        }
     }
 
     render() {
-        this.state.getFirendOff = this.state.getFirendOff_1.length + this.state.getFirendOff_2.length + this.state.getFirendOff_3.length;
-        this.state.getFirendActive = this.state.getFirendActive_1.length + this.state.getFirendActive_2.length + this.state.getFirendActive_3.length;
-        this.state.getAllFriends = this.state.getFirendActive + this.state.getFirendOff;
+        this.state.gallCount = this.state.onCount + this.state.offCount;
 
         console.info("MainSc => render");
         
@@ -260,19 +262,19 @@ export default class MainScSc extends Component {
                         <Col>
                             <Text style={styles.friendsInfo}>
                                 전체{"\n"}
-                                {this.state.getAllFriends+"명"}
+                                {this.state.gallCount+"명"}
                             </Text>
                         </Col>
                         <Col>
                             <Text style={styles.friendsInfo}>
                                 온라인{"\n"}
-                                {this.state.getFirendActive+"명"}
+                                {this.state.onCount+"명"}
                             </Text>
                         </Col>
                         <Col>
                             <Text style={styles.friendsInfo}>
                                 오프라인{"\n"}
-                                {this.state.getFirendOff+"명"}
+                                {this.state.offCount+"명"}
                             </Text>
                         </Col>
                     </Row>
