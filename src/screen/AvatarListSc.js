@@ -104,17 +104,18 @@ export default class AvatarListSc extends Component {
 										/>
 										<Text>아바타 이름 : {item.name} </Text>
 										<Text>제작자 이름 : {item.authorId} </Text>
-										<Text>업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}} </Text>
+										<Text>업데이트 날짜 : {Moment(item.updated_at).format('LLLL')} </Text>
 									</View>
 								</View>
 								<View>
 									<Button style={{marginRight:15, width:"48%", justifyContent:"center"}}>
 										<Text>즐겨찾기 등록</Text>
 									</Button>
-									<Button onPress={()=>Actions.AvatarDetail({})}
+									<Button onPress={()=>Actions.AvatarDetail({})}>
 										<Text>상세보기</Text>
 									</Button>
 								</View>
+							</View>
 						}
 					/>
 				</ScrollView>

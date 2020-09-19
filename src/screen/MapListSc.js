@@ -78,8 +78,8 @@ export default class MapListSc extends Component {
 
 
     getMapList(){
-        console.info("url : ", `https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}`);
-        fetch(`https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}`, {
+        console.info("url : ", `https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}&n=50`);
+        fetch(`https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}&n=50`, {
             method: "GET",
             headers: {
             Accept: "application/json",
