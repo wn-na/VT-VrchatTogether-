@@ -53,10 +53,11 @@ export default class MapListSc extends Component {
         this.state = {
             mapList: [],
             index: 0,
-            mapCount: 10,
+            mapCount: 50,
+            searchMapList : [],
             refreshing: false,
             count:0,
-            search:null
+            searchKeyword:null
         };
     }
 
@@ -95,7 +96,7 @@ export default class MapListSc extends Component {
                     return {
                         mapList: responseJson,
                         mapCount: responseJson.length,
-                        search:null,
+                        searchKeyword:null,
                         refreshing: false
                     }
                   }, () => {
@@ -109,8 +110,8 @@ export default class MapListSc extends Component {
         })
     }
     
-    searchMapList(){
-        fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.search}`, {
+    searchMap = () => {
+        fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.searchKeyword}&offset=${this.state.index * this.state.mapCount}&n=50`, {
             method: "GET",
             headers: {
             Accept: "application/json",
@@ -124,8 +125,8 @@ export default class MapListSc extends Component {
             if(!responseJson.error){
                 console.info(responseJson)
                 this.setState({
-                    mapList: responseJson,
-                    mapCount: responseJson.length
+                    searchMapList: responseJson,
+                    //mapCount: responseJson.length
                 })
             }
         })
@@ -151,9 +152,10 @@ export default class MapListSc extends Component {
             if(this.state.count != this.state.mapCount) this.timeout()
         } , 100)
     }
-    search() {
+
+    search = () => {
         console.log("MapListSc => search");
-        if(this.state.search == null || this.state.search == "")
+        if(this.state.searchKeyword == null || this.state.searchKeyword == "")
         {
             Alert.alert(
                 '오류',
@@ -163,8 +165,8 @@ export default class MapListSc extends Component {
         }
         else
         {
-            let searchCheck = searchMapList();
-            if(searchCheck.length == 0)
+            this.searchMap();
+            if(this.state.searchMapList.length == 0)
             {
                 Alert.alert(
                     '오류',
@@ -174,7 +176,19 @@ export default class MapListSc extends Component {
             }
             else
             {
+                this.setState({
+                    mapList:this.state.searchMapList, 
+                    mapCount : this.state.searchMapList.length, 
+                    count : 0, 
+                    refreshing:false
+                }, () => {
+                    for(var i = 0; i < this.state.mapList.length; i++){
+                        console.info(this.state.mapList[i].imageUrl)
+                        this.imageurl(i, this.state.mapList[i].thumbnailImageUrl);
+                    }
+                })
                 this.forceUpdate();
+                this.timeout();
             }
         }
     }
@@ -190,8 +204,8 @@ export default class MapListSc extends Component {
                 </Header>
                 <View style={styles.textView}>
                     <TextInput 
-                        value={this.state.search}
-                        onChangeText={(text)=>this.setState({search:text})}
+                        value={this.state.searchKeyword}
+                        onChangeText={(text)=>this.setState({searchKeyword:text})}
                         onSubmitEditing={this.search}
                         style={{width:"85%"}}/>
                     <Icon 
