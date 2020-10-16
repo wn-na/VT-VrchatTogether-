@@ -53,11 +53,10 @@ export default class MapListSc extends Component {
         this.state = {
             mapList: [],
             index: 0,
-            mapCount: 50,
-            searchMapList : [],
+            mapCount: 10,
             refreshing: false,
             count:0,
-            searchKeyword:null
+            search:null
         };
     }
 
@@ -79,8 +78,8 @@ export default class MapListSc extends Component {
 
 
     getMapList(){
-        console.info("url : ", `https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}&n=50`);
-        fetch(`https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}&n=50`, {
+        console.info("url : ", `https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}`);
+        fetch(`https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}`, {
             method: "GET",
             headers: {
             Accept: "application/json",
@@ -96,7 +95,7 @@ export default class MapListSc extends Component {
                     return {
                         mapList: responseJson,
                         mapCount: responseJson.length,
-                        searchKeyword:null,
+                        search:null,
                         refreshing: false
                     }
                   }, () => {
@@ -110,8 +109,8 @@ export default class MapListSc extends Component {
         })
     }
     
-    searchMap = () => {
-        fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.searchKeyword}&offset=${this.state.index * this.state.mapCount}&n=50`, {
+    searchMapList(){
+        fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.search}`, {
             method: "GET",
             headers: {
             Accept: "application/json",
@@ -125,8 +124,8 @@ export default class MapListSc extends Component {
             if(!responseJson.error){
                 console.info(responseJson)
                 this.setState({
-                    searchMapList: responseJson,
-                    //mapCount: responseJson.length
+                    mapList: responseJson,
+                    mapCount: responseJson.length
                 })
             }
         })
@@ -152,10 +151,9 @@ export default class MapListSc extends Component {
             if(this.state.count != this.state.mapCount) this.timeout()
         } , 100)
     }
-
-    search = () => {
+    search() {
         console.log("MapListSc => search");
-        if(this.state.searchKeyword == null || this.state.searchKeyword == "")
+        if(this.state.search == null || this.state.search == "")
         {
             Alert.alert(
                 '오류',
@@ -165,8 +163,8 @@ export default class MapListSc extends Component {
         }
         else
         {
-            this.searchMap();
-            if(this.state.searchMapList.length == 0)
+            let searchCheck = searchMapList();
+            if(searchCheck.length == 0)
             {
                 Alert.alert(
                     '오류',
@@ -176,19 +174,7 @@ export default class MapListSc extends Component {
             }
             else
             {
-                this.setState({
-                    mapList:this.state.searchMapList, 
-                    mapCount : this.state.searchMapList.length, 
-                    count : 0, 
-                    refreshing:false
-                }, () => {
-                    for(var i = 0; i < this.state.mapList.length; i++){
-                        console.info(this.state.mapList[i].imageUrl)
-                        this.imageurl(i, this.state.mapList[i].thumbnailImageUrl);
-                    }
-                })
                 this.forceUpdate();
-                this.timeout();
             }
         }
     }
@@ -204,8 +190,8 @@ export default class MapListSc extends Component {
                 </Header>
                 <View style={styles.textView}>
                     <TextInput 
-                        value={this.state.searchKeyword}
-                        onChangeText={(text)=>this.setState({searchKeyword:text})}
+                        value={this.state.search}
+                        onChangeText={(text)=>this.setState({search:text})}
                         onSubmitEditing={this.search}
                         style={{width:"85%"}}/>
                     <Icon 
