@@ -63,11 +63,11 @@ export default class MainSc extends Component {
         };
     }
 
-    UNSAFE_componentWillMount() {
+    async UNSAFE_componentWillMount() {
         console.info("MainSc => componentWillMount");
 
         this.getUserInfo();
-        this.getFirend();
+        await this.getFirend();
         BackHandler.addEventListener('hardwareBackPress', this.backHandler);
     }
 
@@ -214,7 +214,7 @@ export default class MainSc extends Component {
     
                 timeout = setTimeout(() => {
                     this.state.exitApp = false;
-                },2500);
+                }, 3000);
             } else {
                 BackHandler.exitApp();  // 앱 종료
             }
@@ -250,8 +250,14 @@ export default class MainSc extends Component {
                     {
                         this.state.getUserInfo != null ? 
                         <Image
-                            style={{width: 100, height: 90}}
-                            source={{uri:this.state.getUserInfo.currentAvatarThumbnailImageUrl}}
+                            style={{width: 100, height: 90, borderRadius:20}}
+                            source={{
+                                uri:this.state.getUserInfo.currentAvatarImageUrl,
+                                method: "get",
+                                headers: {
+                                    "User-Agent":"VT",
+                                }
+                            }}
                         />
                         : null
                     }

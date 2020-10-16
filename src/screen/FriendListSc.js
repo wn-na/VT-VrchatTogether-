@@ -51,16 +51,10 @@ export default class FriendListSc extends Component {
         this.state = {
             refreshing:false,
             option:"all",
-            getFirend:null,
+            getFirend:[],
             getFilterFirend:[],
+            getFirendOn:[],
             getFirendOff:[],
-            getFirendOff_1:[],
-            getFirendOff_2:[],
-            getFirendOff_3:[],
-            getFirendActive:[],
-            getFirendActive_1:[],
-            getFirendActive_2:[],
-            getFirendActive_3:[],
         };
     }
 
@@ -72,112 +66,86 @@ export default class FriendListSc extends Component {
     componentWillUnmount() {
         console.info("FriendListSc => componentWillUnmount");
     }
+
     componentDidMount() {
         console.info("FriendListSc => componentDidMount");
     }
+
+    async getFirendOn(offSet)
+    {
+        const responseOn = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset="+offSet, {
+            method: "GET",
+            headers: {
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
+            }
+        });
+        return new Promise((resolve, reject) =>
+        setTimeout(() =>{
+            resolve(responseOn.json());
+        }, 5000) );
+    }
+
+    async getFirendOff(offSet)
+    {
+        console.log(offSet);
+        const responseOff = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset="+offSet, {
+            method: "GET",
+            headers: {
+            Accept: "application/json",
+            "User-Agent":"VT",
+            "Content-Type": "application/json",
+            }
+        });
+        return new Promise((resolve, reject) =>
+        setTimeout(() =>{
+            resolve(responseOff.json());
+        }, 5000) );
+    }
+
     getFirend()
     {
-        console.log("FriendListSc => getFirend");
-        // 온라인 유저 get
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendActive_1:responseJson
+        let offSet = 0;
+        let promise;
+        for(let i=0;i<10;i++)
+        {
+            promise = Promise.all([this.getFirendOn(offSet)])
+            .then((result) => {
+                this.setState({
+                    getFirendOn     : this.state.getFirendOn.concat(result[0]),
+                    getFirend       : this.state.getFirend.concat(result[0])
+                });
             });
-        })
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset=100", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
+
+            offSet+=100;
+        }
+
+        promise.done(() => {
+            offSet = 0;
+            for(let i=0;i<10;i++)
+            {
+                Promise.all([this.getFirendOff(offSet)])
+                .then((result) => {
+                    this.setState({
+                        getFirendOff    : this.state.getFirendOff.concat(result[0]),
+                        getFirend       : this.state.getFirend.concat(result[0])
+                    });
+                });
+
+                offSet+=100;
             }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendActive_2:responseJson
-            });
-        })
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset=200", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendActive_3:responseJson
-            });
-        })
-        // 오프라인 유저 get
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendOff_1:responseJson
-            });
-        });
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset=100", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendOff_2:responseJson
-            });
-        });
-        fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset=200", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            this.setState({
-                getFirendOff_3:responseJson
-            });
         });
     }
-    filter=value=>
+
+    filter = value =>
     {
         console.log("FriendListSc => filter");
         this.setState({
             option:value
         });
     }
+
     search=()=>{
         console.log("FriendListSc => search");
         let serachCheck;
@@ -227,19 +195,6 @@ export default class FriendListSc extends Component {
         }
     }
     reset(){
-        
-        this.getFirend();
-
-        this.state.getFirendActive = this.state.getFirendActive_1.concat(this.state.getFirendActive_2,this.state.getFirendActive_3);
-        
-        this.state.getFirendOff = this.state.getFirendOff_1.concat(this.state.getFirendOff_2,this.state.getFirendOff_3);
-        
-        {
-            this.state.getFirendActive != null ?
-            this.state.getFirend = this.state.getFirendActive.concat(this.state.getFirendOff)
-            :null
-        }
-
         this.setState({
             refreshing:false,
             searchMode:"1",
@@ -249,6 +204,7 @@ export default class FriendListSc extends Component {
     }
 
     flist(){
+
         if(this.state.getFilterFirend != null && this.state.searchMode == "0")
         {
             return <FlatList
@@ -264,12 +220,20 @@ export default class FriendListSc extends Component {
                             <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20}}
-                                source={{uri:item.currentAvatarThumbnailImageUrl}}
+                                source={{
+                                    uri: item.currentAvatarImageUrl,
+                                    method: "get",
+                                    headers: {
+                                        "User-Agent":"VT",
+                                    }
+                                }}
+                                onError={({ nativeEvent: {error} }) => console.log('Error:', error) }
                             />
                         </View>
                         <Text style={{marginLeft:"3%"}}>
                             {item.displayName}{"  "}
                             {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
+                            {item.statusDescription != "" ? item.statusDescription+"\n" : ""}
                             {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
                         </Text>
                     </TouchableOpacity>
@@ -292,12 +256,20 @@ export default class FriendListSc extends Component {
                             <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20}}
-                                source={{uri:item.currentAvatarThumbnailImageUrl}}
+                                source={{
+                                    uri: item.currentAvatarImageUrl,
+                                    method: "get",
+                                    headers: {
+                                        "User-Agent":"VT"
+                                    }
+                                }}
+                                onError={({ nativeEvent: {error} }) => console.log('Error:', error) }
                             />
                         </View>
                         <Text style={{marginLeft:"3%"}}>
                             {item.displayName}{"  "}
                             {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
+                            {item.statusDescription != "" ? item.statusDescription+"\n" : ""}
                             {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
                         </Text>
                     </TouchableOpacity>
@@ -308,7 +280,7 @@ export default class FriendListSc extends Component {
         {
             return <FlatList
                 style={styles.list}
-                data={this.state.getFirendActive}
+                data={this.state.getFirendOn}
                 onRefresh={this.reset.bind(this)}
                 refreshing={this.state.refreshing}
                 renderItem={({item}) => 
@@ -319,12 +291,20 @@ export default class FriendListSc extends Component {
                             <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20}}
-                                source={{uri:item.currentAvatarThumbnailImageUrl}}
+                                source={{
+                                    uri: item.currentAvatarImageUrl,
+                                    method: "get",
+                                    headers: {
+                                        "User-Agent":"VT",
+                                    }
+                                }}
+                                onError={({ nativeEvent: {error} }) => console.log('Error:', error) }
                             />
                         </View>
                         <Text style={{marginLeft:"3%"}}>
                             {item.displayName}{"  "}
                             {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
+                            {item.statusDescription != "" ? item.statusDescription+"\n" : ""}
                             {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
                         </Text>
                     </TouchableOpacity>
@@ -346,12 +326,20 @@ export default class FriendListSc extends Component {
                             <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20}}
-                                source={{uri:item.currentAvatarThumbnailImageUrl}}
+                                source={{
+                                    uri:item.currentAvatarThumbnailImageUrl,
+                                    method: "get",
+                                    headers: {
+                                        "User-Agent":"VT",
+                                    }
+                                }}
+                                onError={({ nativeEvent: {error} }) => console.log('Error:', error) }
                             />
                         </View>
                         <Text style={{marginLeft:"3%"}}>
                             {item.displayName}{"  "}
                             {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
+                            {item.statusDescription != "" ? item.statusDescription+"\n" : ""}
                             {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
                         </Text>
                     </TouchableOpacity>
@@ -360,25 +348,6 @@ export default class FriendListSc extends Component {
         }
     }
     render() {
-        // {
-        //     this.state.getFirendActive_1 != null ? 
-        //     this.state.getFirendActive.concat(this.state.getFirendActive_1,this.state.getFirendActive_2,this.state.getFirendActive_3)
-        //     : null
-        // }
-        // {
-        //     this.state.getFirendOff_1 != null ?
-        //     this.state.getFirendOff.concat(this.state.getFirendOff_1,this.state.getFirendOff_1,this.state.getFirendOff_1)
-        //     : null
-        // }
-        this.state.getFirendActive = this.state.getFirendActive_1.concat(this.state.getFirendActive_2,this.state.getFirendActive_3);
-        
-        this.state.getFirendOff = this.state.getFirendOff_1.concat(this.state.getFirendOff_2,this.state.getFirendOff_3);
-        
-        {
-            this.state.getFirendActive != null ?
-            this.state.getFirend = this.state.getFirendActive.concat(this.state.getFirendOff)
-            :null
-        }
         
         console.info("FriendListSc => render");
         
@@ -401,9 +370,7 @@ export default class FriendListSc extends Component {
                     <View style={{alignItems:"flex-end",marginRight:"2%"}}>
                         <View style={styles.selectView}>
                             <Picker 
-                                // style={{width:50,height:50,borderWidth:200}}
                                 selectedValue = {this.state.option}
-                                // onValueChange= {(value)=> this.setState({option:value})}
                                 onValueChange= {this.filter}
                                 >
                                 <Picker.Item label = "모두보기" value = "all" />
