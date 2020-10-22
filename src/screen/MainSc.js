@@ -84,17 +84,26 @@ export default class MainSc extends Component {
     logout = () =>
     {
         console.log("LoginSc => logout");
-
-        fetch("https://api.vrchat.cloud/api/1/logout", {
-            method: "PUT",
-            headers: {
-            "User-Agent":"VT",
-            }
-        })
-        .then((response) => response.json())
-        .then((responseJson) => {
-            Actions.replace("loginSc");
-        });
+        Alert.alert(
+            "안내",
+            "로그아웃 하시겠습니까?",
+            [
+                {text: "확인", onPress: () => {
+                    console.log("press logout")
+                    fetch("https://api.vrchat.cloud/api/1/logout", {
+                        method: "PUT",
+                        headers: {
+                            "User-Agent":"VT",
+                        }
+                    })
+                    .then((response) => response.json())
+                    .then((responseJson) => {
+                        Actions.replace("loginSc");
+                    });
+                }},
+                {text: "취소", onPress: () => {console.log("press logout")}}
+            ]
+        );
     }
 
     // 자기정보 가져옴
@@ -105,9 +114,9 @@ export default class MainSc extends Component {
         fetch("https://api.vrchat.cloud/api/1/auth/user", {
             method: "GET",
             headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json"
+                "Accept": "application/json",
+                "User-Agent":"VT",
+                "Content-Type": "application/json"
             }
         })
         .then((response) => response.json())
@@ -124,9 +133,9 @@ export default class MainSc extends Component {
         const responseOn = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset="+offSet, {
             method: "GET",
             headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent":"VT",
+                "Content-Type": "application/json",
             }
         });
         return new Promise((resolve, reject) =>
@@ -141,9 +150,9 @@ export default class MainSc extends Component {
         const responseOff = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset="+offSet, {
             method: "GET",
             headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent":"VT",
+                "Content-Type": "application/json",
             }
         });
         return new Promise((resolve, reject) =>

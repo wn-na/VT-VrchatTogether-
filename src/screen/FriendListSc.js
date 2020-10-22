@@ -34,7 +34,9 @@ import {
     Dimensions,
     Alert,
     AsyncStorage,
-    Picker
+    Picker,
+    RefreshControl,
+    ToastAndroid
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
@@ -50,6 +52,7 @@ export default class FriendListSc extends Component {
 
         this.state = {
             refreshing:false,
+            refreshTime:false,
             option:"all",
             getFirend:[],
             getFilterFirend:[],
@@ -76,9 +79,9 @@ export default class FriendListSc extends Component {
         const responseOn = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset="+offSet, {
             method: "GET",
             headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent":"VT",
+                "Content-Type": "application/json",
             }
         });
         return new Promise((resolve, reject) =>
@@ -89,13 +92,12 @@ export default class FriendListSc extends Component {
 
     async getFirendOff(offSet)
     {
-        console.log(offSet);
         const responseOff = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset="+offSet, {
             method: "GET",
             headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent":"VT",
+                "Content-Type": "application/json",
             }
         });
         return new Promise((resolve, reject) =>
@@ -108,6 +110,7 @@ export default class FriendListSc extends Component {
     {
         let offSet = 0;
         let promise;
+
         for(let i=0;i<10;i++)
         {
             promise = Promise.all([this.getFirendOn(offSet)])
@@ -149,6 +152,7 @@ export default class FriendListSc extends Component {
     search=()=>{
         console.log("FriendListSc => search");
         let serachCheck;
+
         if(this.state.search == null || this.state.search == "")
         {
             Alert.alert(
@@ -163,7 +167,7 @@ export default class FriendListSc extends Component {
             {
                 if(this.state.option == "on")
                 {
-                    serachCheck = this.state.getFirendActive.filter((v) => v.displayName.indexOf(this.state.search) !== -1)
+                    serachCheck = this.state.getFirendOn.filter((v) => v.displayName.indexOf(this.state.search) !== -1)
                 }
                 if(this.state.option == "off")
                 {
@@ -195,12 +199,28 @@ export default class FriendListSc extends Component {
         }
     }
     reset(){
-        this.setState({
-            refreshing:false,
-            searchMode:"1",
-            option:"all",
-            search:null
-        });
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+
+            this.getFirend();
+
+            this.setState({
+                refreshing:false,
+                searchMode:"1",
+                option:"all",
+                search:null
+            });
+        }
+        else
+        {
+            
+            ToastAndroid.showWithGravity("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
     }
 
     flist(){
@@ -214,28 +234,38 @@ export default class FriendListSc extends Component {
                 refreshing={this.state.refreshing}
                 renderItem={({item}) => 
                     <TouchableOpacity 
-                    onPress={()=>Actions.friendDetail({userId:item.id})}
-                    style={{flexDirection:"row",padding:"5%",borderWidth:1}}>
+                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.friendDetail({userId:item.id}) : {}}
+                        style={{flexDirection:"row",padding:"5%",borderWidth:1}}
+                    >
                         <View>
                             <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20}}
                                 source={{
-                                    uri: item.currentAvatarImageUrl,
+                                    uri: item.currentAvatarThumbnailImageUrl,
                                     method: "get",
                                     headers: {
                                         "User-Agent":"VT",
                                     }
                                 }}
-                                onError={({ nativeEvent: {error} }) => console.log('Error:', error) }
                             />
                         </View>
-                        <Text style={{marginLeft:"3%"}}>
-                            {item.displayName}{"  "}
-                            {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
-                            {item.statusDescription != "" ? item.statusDescription+"\n" : ""}
-                            {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
-                        </Text>
+                        <View style={{width:"100%",marginLeft:"3%"}}>
+                            <Text>
+                                {item.displayName}{"  "}
+                                {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}
+                            </Text>
+                            {item.statusDescription != "" ?
+                                <Text style={{width:"70%",marginTop:"3%"}}>
+                                    {item.statusDescription != "" ? item.statusDescription : ""}
+                                </Text>
+                                :
+                                null
+                            }
+                            <Text style={{marginTop:"3%"}}>
+                                {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
+                            </Text>
+                        </View>
                     </TouchableOpacity>
                 }
             />
@@ -246,32 +276,40 @@ export default class FriendListSc extends Component {
             return <FlatList
                 style={styles.list}
                 data={this.state.getFirend}
-                onRefresh={this.reset.bind(this)}
-                refreshing={this.state.refreshing}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                    onPress={()=>Actions.friendDetail({userId:item.id})}
-                    style={{flexDirection:"row",padding:"5%",borderWidth:1}}>
+                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.friendDetail({userId:item.id}) : {}}
+                        style={{flexDirection:"row",padding:"5%",borderWidth:1}}
+                    >
                         <View>
                             <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20}}
                                 source={{
-                                    uri: item.currentAvatarImageUrl,
+                                    uri: item.currentAvatarThumbnailImageUrl,
                                     method: "get",
                                     headers: {
                                         "User-Agent":"VT"
                                     }
                                 }}
-                                onError={({ nativeEvent: {error} }) => console.log('Error:', error) }
                             />
                         </View>
-                        <Text style={{marginLeft:"3%"}}>
-                            {item.displayName}{"  "}
-                            {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
-                            {item.statusDescription != "" ? item.statusDescription+"\n" : ""}
-                            {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
-                        </Text>
+                        <View style={{width:"100%",marginLeft:"3%"}}>
+                            <Text>
+                                {item.displayName}{"  "}
+                                {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}
+                            </Text>
+                            {item.statusDescription != "" ?
+                                <Text style={{width:"70%",marginTop:"3%"}}>
+                                    {item.statusDescription != "" ? item.statusDescription : ""}
+                                </Text>
+                                :
+                                null
+                            }
+                            <Text style={{marginTop:"3%"}}>
+                                {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
+                            </Text>
+                        </View>
                     </TouchableOpacity>
                 }
             />
@@ -281,32 +319,40 @@ export default class FriendListSc extends Component {
             return <FlatList
                 style={styles.list}
                 data={this.state.getFirendOn}
-                onRefresh={this.reset.bind(this)}
-                refreshing={this.state.refreshing}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                    onPress={()=>Actions.friendDetail({userId:item.id})}
-                    style={{flexDirection:"row",padding:"5%",borderWidth:1}}>
+                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.friendDetail({userId:item.id}) : {}}
+                        style={{flexDirection:"row",padding:"5%",borderWidth:1}}
+                    >
                         <View>
                             <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20}}
                                 source={{
-                                    uri: item.currentAvatarImageUrl,
+                                    uri: item.currentAvatarThumbnailImageUrl,
                                     method: "get",
                                     headers: {
                                         "User-Agent":"VT",
                                     }
                                 }}
-                                onError={({ nativeEvent: {error} }) => console.log('Error:', error) }
                             />
                         </View>
-                        <Text style={{marginLeft:"3%"}}>
-                            {item.displayName}{"  "}
-                            {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
-                            {item.statusDescription != "" ? item.statusDescription+"\n" : ""}
-                            {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
-                        </Text>
+                        <View style={{width:"100%",marginLeft:"3%"}}>
+                            <Text>
+                                {item.displayName}{"  "}
+                                {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}
+                            </Text>
+                            {item.statusDescription != "" ?
+                                <Text style={{width:"70%",marginTop:"3%"}}>
+                                    {item.statusDescription != "" ? item.statusDescription : ""}
+                                </Text>
+                                :
+                                null
+                            }
+                            <Text style={{marginTop:"3%"}}>
+                                {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
+                            </Text>
+                        </View>
                     </TouchableOpacity>
                 }
             />
@@ -316,12 +362,11 @@ export default class FriendListSc extends Component {
             return <FlatList
                 style={styles.list}
                 data={this.state.getFirendOff}
-                onRefresh={this.reset.bind(this)}
-                refreshing={this.state.refreshing}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                    onPress={()=>Actions.friendDetail({userId:item.id})}
-                    style={{flexDirection:"row",padding:"5%",borderWidth:1}}>
+                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.friendDetail({userId:item.id}) : {}}
+                        style={{flexDirection:"row",padding:"5%",borderWidth:1}}
+                    >
                         <View>
                             <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
@@ -333,15 +378,24 @@ export default class FriendListSc extends Component {
                                         "User-Agent":"VT",
                                     }
                                 }}
-                                onError={({ nativeEvent: {error} }) => console.log('Error:', error) }
                             />
                         </View>
-                        <Text style={{marginLeft:"3%"}}>
-                            {item.displayName}{"  "}
-                            {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
-                            {item.statusDescription != "" ? item.statusDescription+"\n" : ""}
-                            {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
-                        </Text>
+                        <View style={{width:"100%",marginLeft:"3%"}}>
+                            <Text>
+                                {item.displayName}{"  "}
+                                {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}
+                            </Text>
+                            {item.statusDescription != "" ?
+                                <Text style={{width:"70%",marginTop:"3%"}}>
+                                    {item.statusDescription != "" ? item.statusDescription : ""}
+                                </Text>
+                                :
+                                null
+                            }
+                            <Text style={{marginTop:"3%"}}>
+                                {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}{"\n"}
+                            </Text>
+                        </View>
                     </TouchableOpacity>
                 }
             />
@@ -356,13 +410,22 @@ export default class FriendListSc extends Component {
                 <Header style={styles.logo}>
                     <Text>친구목록</Text>
                 </Header>
-                <ScrollView style={{borderWidth:1}}>
+                <ScrollView 
+                    style={{borderWidth:1}}
+                    refreshControl={
+                        <RefreshControl
+                            onRefresh={this.reset.bind(this)}
+                            refreshing={this.state.refreshing}
+                        />
+                    }
+                >
                     <View style={styles.textView}>
                         <TextInput 
-                        value={this.state.search}
-                        onChangeText={(text)=>this.setState({search:text})}
-                        onSubmitEditing={this.search}
-                        style={{width:"85%"}}/>
+                            value={this.state.search}
+                            onChangeText={(text)=>this.setState({search:text})}
+                            onSubmitEditing={this.search}
+                            style={{width:"85%"}}
+                        />
                         <Icon 
                         onPress={this.search}
                         name="magnifying-glass" size={30} style={{marginTop:5}}/>
@@ -372,7 +435,7 @@ export default class FriendListSc extends Component {
                             <Picker 
                                 selectedValue = {this.state.option}
                                 onValueChange= {this.filter}
-                                >
+                            >
                                 <Picker.Item label = "모두보기" value = "all" />
                                 <Picker.Item label = "온라인" value = "on" />
                                 <Picker.Item label = "오프라인" value = "off" />
