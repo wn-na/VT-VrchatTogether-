@@ -89,26 +89,28 @@ export default class AvatarListSc extends Component {
 						data={this.state.mapList}
 						refreshing={this.state.refreshing}
 						renderItem={({item}) =>
-							<View style={{borderWidth:1}}>
-								<View>
-									<Image
-										style={{width:370, height:200, borderRadius:5}}
-										source={this.state.refreshing && {url:item.thumbnailImageUrl}}
-									/>
-								</View>
-							</View>
-							<View style={{marginLeft:"3%"}}>
-								<Text>아바타 이름 : {item.name}</Text>
-								<Text>제작자 이름 : {item.authorName}</Text>
-								<Text>마지막 업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}</Text>
-							</View>
 							<View>
-								<Button>
-									<Text>즐겨찾기 등록</Text>
-								</Button>
-								<Button>
-									<Text>상세보기</Text>
-								</Button>
+								<View style={{borderWidth:1}}>
+									<View>
+										<Image
+											style={{width:370, height:200, borderRadius:5}}
+											source={this.state.refreshing && {url:item.thumbnailImageUrl}}
+										/>
+									</View>
+								</View>
+								<View style={{marginLeft:"3%"}}>
+									<Text>아바타 이름 : {item.name}</Text>
+									<Text>제작자 이름 : {item.authorName}</Text>
+									<Text>마지막 업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}</Text>
+								</View>
+								<View>
+									<Button>
+										<Text>즐겨찾기 등록</Text>
+									</Button>
+									<Button>
+										<Text>상세보기</Text>
+									</Button>
+								</View>
 							</View>
 						}
 					/>
