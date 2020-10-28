@@ -130,7 +130,7 @@ android {
     }
     signingConfigs {
         debug {
-            if (project.hasProperty('debug')) {
+            if (project.hasProperty('DEBUG_KEYSTORE_FILE')) {
                 storeFile file(DEBUG_KEYSTORE_FILE)
                 storePassword DEBUG_KEYSTORE_PASSWORD
                 keyAlias DEBUG_KEY_ALIAS
@@ -138,7 +138,7 @@ android {
             }
         }
         release {
-            if (project.hasProperty('debug')) {
+            if (project.hasProperty('RELEASE_KEYSTORE_FILE')) {
                 storeFile file(RELEASE_KEYSTORE_FILE)
                 storePassword RELEASE_KEYSTORE_PASSWORD
                 keyAlias RELEASE_KEY_ALIAS
