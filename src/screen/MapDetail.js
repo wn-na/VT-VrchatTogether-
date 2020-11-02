@@ -43,6 +43,7 @@ import Icon from "react-native-vector-icons/Feather";
 import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
+import {UserGrade} from './../utils/UserUtils';
 
 export default class MapDetail extends Component {  
     constructor(props) {
@@ -52,43 +53,10 @@ export default class MapDetail extends Component {
 
         this.state = {
             mapInfo: {},
-            refreshing: false,
-            count: 0,
             userInfo: {}
         };
     }
 
-    thumbnailImageUrl = async(url) => await (fetch(url, {
-        method: "GET",
-        headers: {
-        Accept: "application/json",
-        "User-Agent":"VT",
-        "Content-Type": "application/json",
-        }
-    }).then((respose) => {
-        this.state.count += 1;
-        if(!respose.error){
-            if(respose.url !=null) this.state.mapInfo.imageUrl = respose.url
-            return respose.url
-        }
-        return respose;
-    }))
-
-    userThumbnailImageUrl = async(url) => await (fetch(url, {
-        method: "GET",
-        headers: {
-        Accept: "application/json",
-        "User-Agent":"VT",
-        "Content-Type": "application/json",
-        }
-    }).then((respose) => {
-        this.state.count += 1;
-        if(!respose.error){
-            if(respose.url !=null) this.state.userInfo.currentAvatarThumbnailImageUrl = respose.url
-            return respose.url
-        }
-        return respose;
-    }))
 
     getUserDetail = async() => await fetch(`https://api.vrchat.cloud/api/1/users/${this.state.mapInfo.authorId}`, {
         method: "GET",
@@ -104,8 +72,7 @@ export default class MapDetail extends Component {
         this.setState((prevState, prevProps) => {
             return { userInfo: responseJson}
         }, () => console.log("T", this.state))
-        this.userThumbnailImageUrl(this.state.userInfo.currentAvatarThumbnailImageUrl);
-    })
+   })
     
     getMapDetail = async() => await
         fetch(`https://api.vrchat.cloud/api/1/worlds/${this.props.mapId}`, {
@@ -125,7 +92,6 @@ export default class MapDetail extends Component {
                 }, () => { 
                     console.info("B", this.state)
                     this.getUserDetail();
-                    this.thumbnailImageUrl(this.state.mapInfo.imageUrl);
                 })
                 console.log("S", this.state)
             }
@@ -134,7 +100,6 @@ export default class MapDetail extends Component {
     UNSAFE_componentWillMount() {
         console.info("MapDetail => componentWillMount");
         this.getMapDetail();
-        this.timeout();
     }
 
     componentWillUnmount() {
@@ -142,14 +107,6 @@ export default class MapDetail extends Component {
     }
     componentDidMount() {
         console.info("MapDetail => componentDidMount");
-    }
-
-    timeout(){
-        setTimeout(() =>{
-            console.info("RES", this.state.count)
-            this.setState({refreshing: this.state.count == 2})
-            if(this.state.count != 2) this.timeout()
-        } , 100)
     }
 
     render() {
@@ -167,16 +124,19 @@ export default class MapDetail extends Component {
                 <ScrollView style={{borderWidth:1}}>
                     <Text>제작자 정보</Text>
                     <View style={{borderWidth:1, flex:1, padding:"5%"}}>
-                        <Text style={{textAlign:"center"}}>(등급)</Text>
                         <View style={{flexDirection:"row"}}>
                             <Image
-                                style={{width: 100, height: 100, borderWidth:1, borderColor:"black", borderRadius:20}}
-                                source={this.state.refreshing && {uri:this.state.userInfo.currentAvatarThumbnailImageUrl}}
-                            />
+                                style={{width: 100, height: 100, borderWidth:3, borderColor: UserGrade(this.state.userInfo.tags), borderRadius:20}}
+                                source={{uri:this.state.userInfo.currentAvatarThumbnailImageUrl,
+                                    method: "GET",
+                                    headers: {
+                                        "User-Agent" : "VT"
+                                    }
+                                }}/>
                         <Text style={{marginLeft:"3%"}}>
                             이름: {this.state.userInfo.displayName}{"\n"}
                             상태메시지 : {this.state.userInfo.statusDescription}{"\n"}
-                            접속 월드: {this.state.userInfo.location != "" ? <Icon style={{color:"green"}} name="controller-record"/> : "unknown"}{"\n"}
+                            접속 월드: {this.state.userInfo.location != "" ? <Icon style={{color:"green"}} name="search"/> : "unknown"}{"\n"}
                             상태:  {this.state.userInfo.worldId == "private" ? "private" : this.state.userInfo.worldId != "private" && this.state.userInfo.worldId != "offline" ? "public" : this.state.userInfo.worldId == "offline" ? "offline" : null}{"\n"}
                         </Text>
                         </View>
@@ -198,8 +158,12 @@ export default class MapDetail extends Component {
                         <View>
                             <Image
                                 style={{width: "100%", height: 200, borderWidth:2, borderColor:"black"}}
-                                source={this.state.refreshing && {uri: this.state.mapInfo.imageUrl}}
-                            />
+                                source={{uri: this.state.mapInfo.imageUrl,
+                                    method: "GET",
+                                    headers: {
+                                        "User-Agent" : "VT"
+                                    }
+                                }}/>
                         </View> 
                         <View style={{marginLeft:"3%", marginTop: "3%"}}>
                             <Text>맵 이름 : {this.state.mapInfo.name}</Text>
