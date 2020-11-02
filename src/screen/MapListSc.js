@@ -54,28 +54,9 @@ export default class MapListSc extends Component {
             mapList: [],
             index: 0,
             mapCount: 10,
-            refreshing: false,
-            count:0,
-            search:null
+            search:''
         };
     }
-
-    imageurl = async(i, url) => await (fetch(url, {
-        method: "GET",
-        headers: {
-        Accept: "application/json",
-        "User-Agent":"VT",
-        "Content-Type": "application/json",
-        }
-    }).then((respose) => {
-        this.state.count += 1
-        if(!respose.error){
-            if(respose.url !=null) this.state.mapList[i].thumbnailImageUrl = respose.url
-            return respose.url
-        }
-        return respose;
-    }))
-
 
     getMapList(){
         console.info("url : ", `https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}`);
@@ -95,22 +76,15 @@ export default class MapListSc extends Component {
                     return {
                         mapList: responseJson,
                         mapCount: responseJson.length,
-                        search:null,
-                        refreshing: false
+                        search:''
                     }
-                  }, () => {
-                    for(var i = 0; i < responseJson.length; i++){
-                        console.info(responseJson[i].imageUrl)
-                        this.imageurl(i, responseJson[i].thumbnailImageUrl);
-                    }
-                })
+                  })
                 console.info(responseJson)
             }
         })
     }
     
-    searchMapList(){
-        fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.search}`, {
+    searchMapList = (callback) => fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.search}`, {
             method: "GET",
             headers: {
             Accept: "application/json",
@@ -120,7 +94,7 @@ export default class MapListSc extends Component {
         })
         .then((response) =>  response.json())
         .then((responseJson) => {
-            console.info(responseJson)
+            console.info("S", responseJson)
             if(!responseJson.error){
                 console.info(responseJson)
                 this.setState({
@@ -128,13 +102,12 @@ export default class MapListSc extends Component {
                     mapCount: responseJson.length
                 })
             }
+            callback();
         })
-    }
 
     UNSAFE_componentWillMount() {
         console.info("MapListSc => componentWillMount");
         this.getMapList();
-        this.timeout();
     }
 
     componentWillUnmount() {
@@ -144,14 +117,7 @@ export default class MapListSc extends Component {
         console.info("MapListSc => componentDidMount");
     }
     
-    timeout(){
-        setTimeout(() =>{
-            console.info("RES", this.state.count, this.state.mapCount)
-            this.setState({refreshing:this.state.count == this.state.mapCount})
-            if(this.state.count != this.state.mapCount) this.timeout()
-        } , 100)
-    }
-    search() {
+    searchMap = () => {
         console.log("MapListSc => search");
         if(this.state.search == null || this.state.search == "")
         {
@@ -163,19 +129,23 @@ export default class MapListSc extends Component {
         }
         else
         {
-            let searchCheck = searchMapList();
-            if(searchCheck.length == 0)
-            {
-                Alert.alert(
-                    '오류',
-                    '검색결과가 존재하지 않습니다.',
-                    [{text: "확인", onPress: () => console.log('press login')}]
-                );
-            }
-            else
-            {
-                this.forceUpdate();
-            }
+            this.searchMapList(
+                () => {
+                    console.log("TEST", this.state.mapCount)
+                    if(this.state.mapCount == 0)
+                    {
+                        Alert.alert(
+                            '오류',
+                            '검색결과가 존재하지 않습니다.',
+                            [{text: "확인", onPress: () => console.log('please new search')}]
+                        );
+                    }
+                    else
+                    {
+                        this.forceUpdate();
+                    }
+                }
+            )
         }
     }
 
@@ -192,17 +162,16 @@ export default class MapListSc extends Component {
                     <TextInput 
                         value={this.state.search}
                         onChangeText={(text)=>this.setState({search:text})}
-                        onSubmitEditing={this.search}
+                        onSubmitEditing={this.searchMap}
                         style={{width:"85%"}}/>
                     <Icon 
-                        onPress={this.search}
-                        name="magnifying-glass" size={30} style={{marginTop:5}}/>
+                        onPress={this.searchMap}
+                        name="search" size={30} style={{marginTop:5}}/>
                 </View>
                 <ScrollView style={{borderWidth:1}}>
                     <FlatList
                         style={styles.list}
                         data={this.state.mapList}
-                        // onRefresh={this.reset.bind(this)}
                         refreshing={this.state.refreshing}
                         renderItem={({item}) => 
                             <View style={{borderWidth:1}}>
@@ -210,7 +179,13 @@ export default class MapListSc extends Component {
                                     <View>
                                         <Image
                                             style={{width: 370, height: 200, borderRadius:5}}
-                                            source={this.state.refreshing && {uri:item.thumbnailImageUrl}}
+                                            source={{
+                                                uri:item.thumbnailImageUrl,
+                                                method: "GET",
+                                                headers: {
+                                                    "User-Agent" : "VT"
+                                                }
+                                            }}
                                         />
                                     </View>
                                     </View>   
