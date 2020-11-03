@@ -40,9 +40,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
-import utf8 from "utf8";
-import base64 from 'base-64';
-import { List, ListItem } from "react-native-elements";
+import {UserGrade} from './../utils/UserUtils';
 
 export default class FriendDetail extends Component {
     constructor(props) {
@@ -54,7 +52,7 @@ export default class FriendDetail extends Component {
             indiInfo:[],
             getUserInfo:null,
             getUserWInfo:null,
-            getIsblocked:null
+            isBlocked:false
         };
     }
 
@@ -73,7 +71,6 @@ export default class FriendDetail extends Component {
         .then((response) => response.json())
         
         .then((responseJson) => {
-            console.log(responseJson);
             this.setState({
                 getUserInfo:responseJson
             });
@@ -97,20 +94,8 @@ export default class FriendDetail extends Component {
                 }
             });
         });
-        fetch("https://api.vrchat.cloud/api/1/auth/user/playermoderations", {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json",
-            }
-        })
-        .then((response) => response.json())
-        
-        .then((responseJson) => {
-            serachCheck = responseJson.filter((v) => v.targetUserId.indexOf(this.props.userId) !== -1);
-        });
-        
+
+        this.isBlocked();
     }
 
     componentWillUnmount() {
@@ -187,7 +172,7 @@ export default class FriendDetail extends Component {
                 "친구신청을 보내시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        const response = fetch("https://api.vrchat.cloud/api/1/user/"+id+"/friendRequest", {
+                        fetch("https://api.vrchat.cloud/api/1/user/"+id+"/friendRequest", {
                             method: "POST",
                             headers: {
                                 "Accept": "application/json",
@@ -206,8 +191,90 @@ export default class FriendDetail extends Component {
         }
     }
     
+    isBlocked() {
+        fetch("https://api.vrchat.cloud/api/1/auth/user/playermoderated",{
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "User-Agent":"VT",
+                "Content-Type": "application/json",
+            }
+        })
+        .then(response => response.json())
+        .then(json => {
+            json = json.filter((v) => v.type.indexOf("block") !== -1);
+            if(json.filter((v) => v.sourceUserId.indexOf(this.props.userId) !== -1).length > 0)
+            {
+                this.setState({
+                    isBlocked : true
+                });
+            }
+        });
+    }
+
     block() {
-        
+        if(this.state.isBlocked == false)
+        {
+            Alert.alert(
+                "안내",
+                "블락하시겠습니까?",
+                [
+                    {text: "확인", onPress: () => {
+                        fetch("https://api.vrchat.cloud/api/1/auth/user/blocks",{
+                            method: "POST",
+                            headers: {
+                                "Accept": "application/json",
+                                "User-Agent":"VT",
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                "blocked":this.props.userId
+                            })
+                        })
+                        .then((response) => response.json())
+                        .then((json) => {
+                            console.log(json);
+                            ToastAndroid.show("처리가 완료되었습니다.", ToastAndroid.SHORT);
+                            this.setState({
+                                isBlocked:true
+                            })
+                        });
+                    }},
+                    {text: "취소"}
+                ]
+            );
+        }
+        else if(this.state.isBlocked == true)
+        {
+            Alert.alert(
+                "안내",
+                "블락을 해제하시겠습니까?",
+                [
+                    {text: "확인", onPress: () => {
+                        fetch("https://api.vrchat.cloud/api/1/auth/user/unblocks",{
+                            method: "PUT",
+                            headers: {
+                                "Accept": "application/json",
+                                "User-Agent":"VT",
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                "blocked":this.props.userId
+                            })
+                        })
+                        .then((response) => response.json())
+                        .then((json) => {
+                            console.log(json);
+                            ToastAndroid.show("처리가 완료되었습니다.", ToastAndroid.SHORT);
+                            this.setState({
+                                isBlocked:false
+                            })
+                        });
+                    }},
+                    {text: "취소"}
+                ]
+            );
+        }
     }
 
     render() {
@@ -227,9 +294,8 @@ export default class FriendDetail extends Component {
                     <ScrollView>
                         <View style={{flex:1,flexDirection:"row",padding:"5%"}}>
                             <View>
-                                <Text style={{textAlign:"center"}}>(등급)</Text>
                                 <Image
-                                    style={{width: 100, height: 100, borderWidth:2, borderColor:"blue", borderRadius:20}}
+                                    style={{width: 100, height: 100, borderRadius:20,borderColor:UserGrade(this.state.getUserInfo.tags), borderWidth:3}}
                                     source={{
                                         uri:this.state.getUserInfo.currentAvatarThumbnailImageUrl,
                                         method: "get",
@@ -263,13 +329,15 @@ export default class FriendDetail extends Component {
                             >
                                 <Text>{this.state.getUserInfo.isFriend == true ? "친구삭제" : "친구신청"}</Text>
                             </Button>
-                            <Button onPress={()=>Actions.MapDetail({mapId:item.id})}
+                            <Button onPress={this.block.bind(this)}
                                 style={{width:"48%",justifyContent:"center"}}>
-                                <Text>블락</Text>
+                                <Text>{this.state.isBlocked == true ? "블락해제" : "블락"}</Text>
                             </Button>
                         </View>
                         <View style={{width:"100%",paddingLeft:"5%",paddingRight:"5%",marginBottom:"3.5%"}}>
-                            <Button style={{justifyContent:"center"}}>
+                            <Button 
+                            onPress={()=> Actions.currentScene == "friendDetail" ? Actions.makeDetail({userId:this.props.userId}) : {}}
+                            style={{justifyContent:"center"}}>
                                 <Text>제작정보</Text>
                             </Button>
                         </View>

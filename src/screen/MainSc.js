@@ -57,7 +57,7 @@ export default class MainSc extends Component {
             refreshing:false,
             onCount:0,
             offCount:0,
-            gallCount:0,
+            allCount:0,
             refreshTime:false,
             exitApp:false
         };
@@ -231,7 +231,7 @@ export default class MainSc extends Component {
     }
 
     render() {
-        this.state.gallCount = this.state.onCount + this.state.offCount;
+        this.state.allCount = this.state.onCount + this.state.offCount;
 
         console.info("MainSc => render");
         
@@ -277,7 +277,7 @@ export default class MainSc extends Component {
                         <Col>
                             <Text style={styles.friendsInfo}>
                                 전체{"\n"}
-                                {this.state.gallCount+"명"}
+                                {this.state.allCount+"명"}
                             </Text>
                         </Col>
                         <Col>

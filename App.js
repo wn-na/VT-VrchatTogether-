@@ -12,6 +12,8 @@ import AvatarListSc from './src/screen/AvatarListSc';
 import FavoriteSc from './src/screen/FavoriteSc';
 import BlockSc from './src/screen/BlockSc';
 
+import MakeDetail from './src/screen/MakeDetail';
+
 console.disableYellowBox = true;
 export default  class App extends Component {
     render() {
@@ -27,6 +29,7 @@ export default  class App extends Component {
                 <Scene key="favoriteSc" hideNavBar={true} component={FavoriteSc} />
                 <Scene key="blockSc" hideNavBar={true} component={BlockSc} />
                 <Scene key="MapDetail" hideNavBar={true} component={MapDetail} />
+                <Scene key="makeDetail" hideNavBar={true} component={MakeDetail} />
             </Scene>
         </Router>
     }

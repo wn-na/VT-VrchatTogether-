@@ -150,7 +150,6 @@ export default class LoginSc extends Component {
     backHandler = () =>
     {
         // 메인화면일경우만 감지하여 종료실행
-        console.log("asd");
         if(Actions.currentScene == "loginSc")
         {
             let timeout;

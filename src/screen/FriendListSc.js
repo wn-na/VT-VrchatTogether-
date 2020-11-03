@@ -40,9 +40,8 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
-import utf8 from "utf8";
-import base64 from 'base-64';
 import { List, ListItem } from "react-native-elements";
+import {UserGrade} from './../utils/UserUtils';
 
 export default class FriendListSc extends Component {
     constructor(props) {
@@ -158,7 +157,7 @@ export default class FriendListSc extends Component {
             Alert.alert(
                 '오류',
                 '검색어를 입력해주세요.',
-                [{text: "확인", onPress: () => console.log('press login')}]
+                [{text: "확인"}]
             );
         }
         else
@@ -183,7 +182,7 @@ export default class FriendListSc extends Component {
                 Alert.alert(
                     '오류',
                     '검색결과가 존재하지 않습니다.',
-                    [{text: "확인", onPress: () => console.log('press login')}]
+                    [{text: "확인"}]
                 );
             }
             else
@@ -194,7 +193,6 @@ export default class FriendListSc extends Component {
                 });
         
                 this.flist();
-                this.forceUpdate();
             }
         }
     }
@@ -218,8 +216,7 @@ export default class FriendListSc extends Component {
         }
         else
         {
-            
-            ToastAndroid.showWithGravity("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
         }
     }
 
@@ -238,9 +235,8 @@ export default class FriendListSc extends Component {
                         style={{flexDirection:"row",padding:"5%",borderWidth:1}}
                     >
                         <View>
-                            <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
-                                style={{width: 100, height: 100, borderRadius:20}}
+                                style={{width: 100, height: 100, borderRadius:20, borderColor:UserGrade(item.tags), borderWidth:3}}
                                 source={{
                                     uri: item.currentAvatarThumbnailImageUrl,
                                     method: "get",
@@ -282,9 +278,8 @@ export default class FriendListSc extends Component {
                         style={{flexDirection:"row",padding:"5%",borderWidth:1}}
                     >
                         <View>
-                            <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
-                                style={{width: 100, height: 100, borderRadius:20}}
+                                style={{width: 100, height: 100, borderRadius:20, borderColor:UserGrade(item.tags), borderWidth:3}}
                                 source={{
                                     uri: item.currentAvatarThumbnailImageUrl,
                                     method: "get",
@@ -325,9 +320,8 @@ export default class FriendListSc extends Component {
                         style={{flexDirection:"row",padding:"5%",borderWidth:1}}
                     >
                         <View>
-                            <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
-                                style={{width: 100, height: 100, borderRadius:20}}
+                                style={{width: 100, height: 100, borderRadius:20, borderColor:UserGrade(item.tags), borderWidth:3}}
                                 source={{
                                     uri: item.currentAvatarThumbnailImageUrl,
                                     method: "get",
@@ -368,9 +362,8 @@ export default class FriendListSc extends Component {
                         style={{flexDirection:"row",padding:"5%",borderWidth:1}}
                     >
                         <View>
-                            <Text style={{textAlign:"center"}}>(등급)</Text>
                             <Image
-                                style={{width: 100, height: 100, borderRadius:20}}
+                                style={{width: 100, height: 100, borderRadius:20, borderColor:UserGrade(item.tags), borderWidth:3}}
                                 source={{
                                     uri:item.currentAvatarThumbnailImageUrl,
                                     method: "get",
@@ -411,7 +404,6 @@ export default class FriendListSc extends Component {
                     <Text>친구목록</Text>
                 </Header>
                 <ScrollView 
-                    style={{borderWidth:1}}
                     refreshControl={
                         <RefreshControl
                             onRefresh={this.reset.bind(this)}
