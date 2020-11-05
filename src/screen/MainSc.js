@@ -42,6 +42,7 @@ import {
     ToastAndroid,
     BackHandler
 } from "react-native";
+import {UserGrade} from './../utils/UserUtils';
 import base64 from 'base-64';
 import { Actions, Router } from "react-native-router-flux";
 import { Col, Row } from "react-native-easy-grid";
@@ -253,13 +254,10 @@ export default class MainSc extends Component {
                     </Button>
                 </View>
                 <View style={styles.topMain}>
-                    <Text>
-                        {"<"}등급{">"}
-                    </Text>
                     {
                         this.state.getUserInfo != null ? 
                         <Image
-                            style={{width: 100, height: 90, borderRadius:20}}
+                            style={{width: 100, height: 100, borderRadius:20, borderWidth:3, borderColor: UserGrade(this.state.getUserInfo.tags)}}
                             source={{
                                 uri:this.state.getUserInfo.currentAvatarImageUrl,
                                 method: "get",

@@ -39,10 +39,12 @@ import {
     Alert,
     AsyncStorage
 } from "react-native";
-import Icon from "react-native-vector-icons/Feather";
+import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
+import Carousel from 'react-native-snap-carousel';
+import {MapTags, MapInfo} from '../utils/MapUtils';
 
 export default class MapListSc extends Component {
     constructor(props) {
@@ -54,34 +56,9 @@ export default class MapListSc extends Component {
             mapList: [],
             index: 0,
             mapCount: 10,
-            search:''
+            search:'',
+            tag: 'new'
         };
-    }
-
-    getMapList(){
-        console.info("url : ", `https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}`);
-        fetch(`https://api.vrchat.cloud/api/1/worlds?sort=_updated_at&offset=${this.state.index * this.state.mapCount}`, {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "User-Agent":"VT"
-            }
-        })
-        .then((response) =>  response.json())
-        .then((responseJson) => {
-            if(!responseJson.error){
-
-                this.setState((prevState, prevProps) => {
-                    return {
-                        mapList: responseJson,
-                        mapCount: responseJson.length,
-                        search:''
-                    }
-                  })
-                console.info(responseJson)
-            }
-        })
     }
     
     searchMapList = (callback) => fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.search}`, {
@@ -107,7 +84,7 @@ export default class MapListSc extends Component {
 
     UNSAFE_componentWillMount() {
         console.info("MapListSc => componentWillMount");
-        this.getMapList();
+        this.searchTagMap();
     }
 
     componentWillUnmount() {
@@ -117,6 +94,12 @@ export default class MapListSc extends Component {
         console.info("MapListSc => componentDidMount");
     }
     
+    isFavorite = (item) => {
+        console.log("TEST", item)
+        if(!item) return "star-outlined"
+        else return "star"
+    }
+
     searchMap = () => {
         console.log("MapListSc => search");
         if(this.state.search == null || this.state.search == "")
@@ -148,6 +131,45 @@ export default class MapListSc extends Component {
             )
         }
     }
+    
+    searchTagMap = (tagname) => {
+        if(!tagname){
+            tagname = this.state.tag;
+        }
+        if(!(tagname in MapTags)){
+            return;
+        }
+        console.log("MapListSc => searchTagMap");
+        fetch(`https://api.vrchat.cloud/api/1/worlds?tag=${MapTags[tagname]}&sort=_updated_at&offset=${this.state.index * this.state.mapCount}`, {
+            method: "GET",
+            headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "User-Agent":"VT"
+            }
+        })
+        .then((response) =>  response.json())
+        .then((responseJson) => {
+            if(!responseJson.error){
+
+                this.setState((prevState, prevProps) => {
+                    return {
+                        mapList: responseJson,
+                        mapCount: responseJson.length,
+                        search:'',
+                        tag: tagname
+                    }
+                  })
+                console.info(responseJson)
+                
+                Alert.alert(
+                    tagname,
+                    String(responseJson),
+                    [{text: "확인", onPress: () => console.log('please new search')}]
+                );
+            }
+        })
+    }
 
     render() {
         console.info("MapListSc => render"); 
@@ -166,48 +188,28 @@ export default class MapListSc extends Component {
                         style={{width:"85%"}}/>
                     <Icon 
                         onPress={this.searchMap}
-                        name="search" size={30} style={{marginTop:5}}/>
+                        name="magnifying-glass" size={30} style={{marginTop:5}}/>
                 </View>
-                <ScrollView style={{borderWidth:1}}>
-                    <FlatList
-                        style={styles.list}
+
+                <View style={styles.textView}>
+                    <ScrollView horizontal style={{width:"94%", height:30, marginBottom:"3%", marginTop:"3%", marginLeft:"3%", borderWidth:1, borderColor:"#efefef", flexDirection:"row"}}>
+                            <Text style={this.state.tag == 'new' ? styles.mapSelectTag : styles.mapTag} onPress={() => this.searchTagMap('new')}>new</Text>
+                            <Text style={this.state.tag == 'hot' ? styles.mapSelectTag : styles.mapTag} onPress={() => this.searchTagMap('hot')}>hot</Text>
+                            <Text style={this.state.tag == 'avatar' ? styles.mapSelectTag : styles.mapTag} onPress={() => this.searchTagMap('avatar')}>avatar</Text>
+                            <Text style={this.state.tag == 'game' ? styles.mapSelectTag : styles.mapTag} onPress={() => this.searchTagMap('game')}>game</Text>
+                    </ScrollView>
+                </View>
+
+                <View style={{width:"94%", marginLeft:"3%", flexDirection:"row", borderWidth:1, borderColor:"#dfdfdf"}}>
+                    <Carousel
+                        layout={'default'}
+                        ref={(c) => { this._carousel = c; }}
                         data={this.state.mapList}
-                        refreshing={this.state.refreshing}
-                        renderItem={({item}) => 
-                            <View style={{borderWidth:1}}>
-                                <View style={{flexDirection:"row",padding:"5%"}}>
-                                    <View>
-                                        <Image
-                                            style={{width: 370, height: 200, borderRadius:5}}
-                                            source={{
-                                                uri:item.thumbnailImageUrl,
-                                                method: "GET",
-                                                headers: {
-                                                    "User-Agent" : "VT"
-                                                }
-                                            }}
-                                        />
-                                    </View>
-                                    </View>   
-                                <View style={{marginLeft:"3%"}}>
-                                    <Text>맵 이름 : {item.name}</Text>
-                                    <Text>맵 정보 : {item.releaseStatus}</Text>
-                                    <Text>맵 전체 인원수 : {item.occupants}</Text>
-                                    <Text>마지막 업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}</Text> 
-                                </View>
-                                <View style={{flexDirection:"row",width:"100%",paddingTop:"5%",paddingLeft:"5%",paddingRight:"5%",marginBottom:"3.5%"}}>
-                                    <Button style={{marginRight:15,width:"48%",justifyContent:"center"}}>
-                                        <Text>즐겨찾기 등록</Text>
-                                    </Button>
-                                    <Button onPress={()=>Actions.MapDetail({mapId:item.id})}
-                                        style={{width:"48%",justifyContent:"center"}}>
-                                        <Text>상세보기</Text>
-                                    </Button>
-                                </View>
-                            </View>
-                        }
+                        sliderWidth={300}
+                        itemWidth={300}
+                        renderItem={({item}) => MapInfo(item, this.searchMap, this.isFavorite(item))}
                     />
-                </ScrollView>
+                </View>
             </View>
         );
     }
@@ -241,5 +243,29 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         alignItems: 'flex-start',
         justifyContent: 'flex-start'
+    },
+    mapTag: {
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontWeight: 'bold',
+        width:"20%",
+        minWidth: 90,
+        height:30,
+        fontSize: 20,
+        borderWidth: 1,
+        borderColor:'#e4f4f4'
+    },
+    mapSelectTag: {
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontWeight: 'bold',
+        width:"20%",
+        minWidth: 90,
+        height:30,
+        fontSize: 20,
+        borderWidth: 2,
+        borderColor:'#e4f4f4',
+        borderBottomWidth:2,
+        borderBottomColor:"red",
     }
 });

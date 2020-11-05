@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "preandroid": "npx jetify",
     "android": "react-native run-android",
     "android-clean": "cd android && gradlew clean",
     "android-bundle": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
@@ -14,6 +15,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.12.1",
     "base-64": "^0.1.0",
     "moment": "^2.27.0",
     "native-base": "^2.13.12",
@@ -25,6 +27,7 @@
     "react-native-reanimated": "^1.7.0",
     "react-native-router-flux": "^4.2.0",
     "react-native-screens": "^2.4.0",
+    "react-native-snap-carousel": "^3.9.1",
     "react-native-vector-icons": "^6.6.0",
     "react-navigation": "^4.3.2",
     "utf8": "^3.0.0"
@@ -36,6 +39,7 @@
     "babel-jest": "24.9.0",
     "eslint": "6.8.0",
     "jest": "24.9.0",
+    "jetifier": "^1.6.6",
     "metro-react-native-babel-preset": "0.54.1",
     "react-test-renderer": "16.8.6"
   },
