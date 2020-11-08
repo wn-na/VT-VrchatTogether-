@@ -45,6 +45,7 @@ import utf8 from "utf8";
 import base64 from 'base-64';
 import {UserGrade} from './../utils/UserUtils';
 import {MapTags, MapInfo} from '../utils/MapUtils';
+import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class MapDetail extends Component {  
     constructor(props) {
@@ -59,14 +60,7 @@ export default class MapDetail extends Component {
     }
 
 
-    getUserDetail = async() => await fetch(`https://api.vrchat.cloud/api/1/users/${this.state.mapInfo.authorId}`, {
-        method: "GET",
-        headers: {
-        Accept: "application/json",
-        "User-Agent":"VT",
-        "Content-Type": "application/json",
-        }
-    })
+    getUserDetail = async() => await fetch(`https://api.vrchat.cloud/api/1/users/${this.state.mapInfo.authorId}`, VRChatAPIGet)
     .then((response) => response.json())
     .then((responseJson) => {
         console.info("A", responseJson)
@@ -76,14 +70,7 @@ export default class MapDetail extends Component {
    })
     
     getMapDetail = async() => await
-        fetch(`https://api.vrchat.cloud/api/1/worlds/${this.props.mapId}`, {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "User-Agent":"VT"
-            }
-        })
+        fetch(`https://api.vrchat.cloud/api/1/worlds/${this.props.mapId}`, VRChatAPIGet)
         .then((response) =>  response.json())
         .then((responseJson) => {
             if(!responseJson.error){
@@ -128,12 +115,7 @@ export default class MapDetail extends Component {
                         <View style={{flexDirection:"row"}}>
                             <Image
                                 style={{width: 100, height: 100, borderWidth:3, borderColor: UserGrade(this.state.userInfo.tags), borderRadius:20}}
-                                source={{uri:this.state.userInfo.currentAvatarThumbnailImageUrl,
-                                    method: "GET",
-                                    headers: {
-                                        "User-Agent" : "VT"
-                                    }
-                                }}/>
+                                source={VRChatImage(this.state.userInfo.currentAvatarThumbnailImageUrl)}/>
                         <Text style={{marginLeft:"3%"}}>
                             이름: {this.state.userInfo.displayName}{"\n"}
                             상태메시지 : {this.state.userInfo.statusDescription}{"\n"}

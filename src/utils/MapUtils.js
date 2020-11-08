@@ -41,6 +41,8 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
+import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
+
 export const MapTags = {
     'hot': 'system_approved',
     'avatar': 'author_tag_avatar',
@@ -75,13 +77,7 @@ DrawMap = (item, isFavorite) => {
                 <View>
                     <Image
                         style={{width: 370, height: 200, borderRadius:5}}
-                        source={{
-                            uri:item.thumbnailImageUrl,
-                            method: "GET",
-                            headers: {
-                                "User-Agent" : "VT"
-                            }
-                        }}
+                        source={VRChatImage(item.thumbnailImageUrl)}
                     />
                 </View>
             </View>   

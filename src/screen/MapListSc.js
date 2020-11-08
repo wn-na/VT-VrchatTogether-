@@ -45,6 +45,7 @@ import utf8 from "utf8";
 import base64 from 'base-64';
 import Carousel from 'react-native-snap-carousel';
 import {MapTags, MapInfo} from '../utils/MapUtils';
+import {VRChatAPIGet} from '../utils/ApiUtils'
 
 export default class MapListSc extends Component {
     constructor(props) {
@@ -59,14 +60,8 @@ export default class MapListSc extends Component {
         };
     }
     
-    searchMapList = (callback) => fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.search}`, {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "User-Agent":"VT"
-            }
-        })
+    searchMapList = (callback) => 
+        fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.search}`, VRChatAPIGet)
         .then((response) =>  response.json())
         .then((responseJson) => {
             if(!responseJson.error){
@@ -126,14 +121,7 @@ export default class MapListSc extends Component {
         let isSameTag = this.state.tag == tagName
         
         console.log("MapListSc => searchTagMap");
-        fetch(`https://api.vrchat.cloud/api/1/worlds?tag=${MapTags[tagName]}&sort=_updated_at&offset=${idx * this.state.mapCount}`, {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "User-Agent":"VT"
-            }
-        })
+        fetch(`https://api.vrchat.cloud/api/1/worlds?tag=${MapTags[tagName]}&sort=_updated_at&offset=${idx * this.state.mapCount}`, VRChatAPIGet)
         .then((response) =>  response.json())
         .then((responseJson) => {
             if(!responseJson.error){
