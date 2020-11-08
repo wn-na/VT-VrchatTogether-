@@ -49,9 +49,7 @@ import {MapTags, MapInfo} from '../utils/MapUtils';
 export default class MapListSc extends Component {
     constructor(props) {
         console.info("MapListSc => constructor");
-
         super(props);
-
         this.state = {
             mapList: [],
             index: 0,
@@ -71,49 +69,39 @@ export default class MapListSc extends Component {
         })
         .then((response) =>  response.json())
         .then((responseJson) => {
-            console.info("S", responseJson)
             if(!responseJson.error){
-                console.info(responseJson)
                 this.setState({
-                    mapList: responseJson,
-                    mapCount: responseJson.length
-                })
+                    mapList: responseJson
+                }, () => callback())
             }
-            callback();
         })
 
+
     UNSAFE_componentWillMount() {
-        console.info("MapListSc => componentWillMount");
-        this.searchTagMap();
+        console.info("MapListSc => componentWillMount")
+        this.searchTagMap()
     }
 
     componentWillUnmount() {
-        console.info("MapListSc => componentWillUnmount");
+        console.info("MapListSc => componentWillUnmount")
     }
     componentDidMount() {
-        console.info("MapListSc => componentDidMount");
+        console.info("MapListSc => componentDidMount")
     }
     
-    isFavorite = (item) => {
-        console.log("TEST", item)
-        if(!item) return "star-outlined"
-        else return "star"
-    }
-
     searchMap = () => {
-        console.log("MapListSc => search");
+        console.log("MapListSc => searchMap")
         if(this.state.search == null || this.state.search == "")
         {
             Alert.alert(
                 '오류',
                 '검색어를 입력해주세요.',
                 [{text: "확인", onPress: () => console.log('press search')}]
-            );
+            )
         }
         else
         {
-            this.searchMapList(
-                () => {
+            this.searchMapList(() => {
                     console.log("TEST", this.state.mapCount)
                     if(this.state.mapCount == 0)
                     {
@@ -132,15 +120,13 @@ export default class MapListSc extends Component {
         }
     }
     
-    searchTagMap = (tagname) => {
-        if(!tagname){
-            tagname = this.state.tag;
-        }
-        if(!(tagname in MapTags)){
-            return;
-        }
+    searchTagMap = (tagName = this.state.tag, idx = this.state.index) => {
+        // 리로드 모달 보여주기
+        if(!(tagName in MapTags)) return
+        let isSameTag = this.state.tag == tagName
+        
         console.log("MapListSc => searchTagMap");
-        fetch(`https://api.vrchat.cloud/api/1/worlds?tag=${MapTags[tagname]}&sort=_updated_at&offset=${this.state.index * this.state.mapCount}`, {
+        fetch(`https://api.vrchat.cloud/api/1/worlds?tag=${MapTags[tagName]}&sort=_updated_at&offset=${idx * this.state.mapCount}`, {
             method: "GET",
             headers: {
             Accept: "application/json",
@@ -151,25 +137,22 @@ export default class MapListSc extends Component {
         .then((response) =>  response.json())
         .then((responseJson) => {
             if(!responseJson.error){
-
                 this.setState((prevState, prevProps) => {
                     return {
-                        mapList: responseJson,
-                        mapCount: responseJson.length,
+                        mapList: isSameTag ? prevState.mapList.concat(responseJson) : responseJson,
                         search:'',
-                        tag: tagname
+                        tag: tagName,
+                        index : idx
                     }
-                  })
-                console.info(responseJson)
-                
-                Alert.alert(
-                    tagname,
-                    String(responseJson),
-                    [{text: "확인", onPress: () => console.log('please new search')}]
-                );
+                }, () => Alert.alert(
+                    tagName,
+                    `맵 갯수 ${this.state.mapList.length}, 태그 : ${this.state.tag}`,
+                    [{text: "확인", onPress: () => console.log('MapListSc => searchTagMap End')}]
+                ))
             }
         })
     }
+
 
     render() {
         console.info("MapListSc => render"); 
@@ -183,11 +166,11 @@ export default class MapListSc extends Component {
                 <View style={styles.textView}>
                     <TextInput 
                         value={this.state.search}
-                        onChangeText={(text)=>this.setState({search:text})}
+                        onChangeText={(text) => this.setState({search:text})}
                         onSubmitEditing={this.searchMap}
                         style={{width:"85%"}}/>
                     <Icon 
-                        onPress={this.searchMap}
+                        onPress={() => this.searchMap}
                         name="magnifying-glass" size={30} style={{marginTop:5}}/>
                 </View>
 
@@ -203,11 +186,16 @@ export default class MapListSc extends Component {
                 <View style={{width:"94%", marginLeft:"3%", flexDirection:"row", borderWidth:1, borderColor:"#dfdfdf"}}>
                     <Carousel
                         layout={'default'}
-                        ref={(c) => { this._carousel = c; }}
+                        ref={(c) => { this._carousel = c; }} 
+                        onBeforeSnapToItem={(idx) => {
+                            if(idx == this.state.mapList.length - 1){
+                                this.searchTagMap(this.state.tag, this.state.index + 1);
+                            }
+                        }}
                         data={this.state.mapList}
                         sliderWidth={300}
                         itemWidth={300}
-                        renderItem={({item}) => MapInfo(item, this.searchMap, this.isFavorite(item))}
+                        renderItem={({item}) => MapInfo(item, true, true, Actions.MapDetail, {mapId: item.id})}
                     />
                 </View>
             </View>

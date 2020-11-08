@@ -48,13 +48,25 @@ export const MapTags = {
     'new': 'system_updated_recently'
 }
 
-export function MapInfo(item, searchFunction, searchName){
-    console.info("MakeDetail => render");
+updateFavoriteMap = (objectId, isFavorite) => {
+    Alert.alert(
+        `즐겨찾기 (${isFavorite ? '해제' : '추가'})`,
+        `맵 id : ${objectId}`,
+        [{text: "확인", onPress: () => console.log('MapUtils => updateFavoriteMap')}]
+    );
+}
+isFavorite = (item) => {
+    if(!item) return "star-outlined"
+    else return "star"
+}
+
+
+DrawMap = (item, isFavorite) => {
     return (
-        <TouchableOpacity style={{borderWidth:1}} onPress={()=>Actions.MapDetail({mapId:item.id})}>
+        <View style={{borderWidth:1}}>
             <Icon 
-                onPress={searchFunction}
-                name={searchName}
+                onPress={() => this.updateFavoriteMap(item, isFavorite)}
+                name={this.isFavorite(isFavorite)}
                 size={40} 
                 style={{marginLeft:15, justifyContent:"center"}}
             />
@@ -76,9 +88,19 @@ export function MapInfo(item, searchFunction, searchName){
             <View style={{marginLeft:"3%"}}>
                 <Text>맵 이름 : {item.name}</Text>
                 <Text>맵 정보 : {item.releaseStatus}</Text>
+                {item.publicOccupants !== undefined ? <Text>접속중인 월드 인원수 : {item.publicOccupants}</Text> : null}
                 <Text>맵 전체 인원수 : {item.occupants}</Text>
                 <Text>마지막 업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}</Text> 
             </View>
+        </View>
+    )
+}
+
+export function MapInfo(item, isFavorite, isTouchable = false, viewFunction = null, viewProp = null){
+    return isTouchable ? 
+    (
+        <TouchableOpacity style={{borderWidth:1}} onPress={() => viewFunction(viewProp)}>
+           {DrawMap(item, isFavorite)} 
         </TouchableOpacity>
-    );
+    ) : DrawMap(item, isFavorite)
 }

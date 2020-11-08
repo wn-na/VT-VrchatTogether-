@@ -44,6 +44,7 @@ import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
 import {UserGrade} from './../utils/UserUtils';
+import {MapTags, MapInfo} from '../utils/MapUtils';
 
 export default class MapDetail extends Component {  
     constructor(props) {
@@ -154,25 +155,7 @@ export default class MapDetail extends Component {
                     </View>
 
                     <Text>현재 월드</Text>
-                    <View style={{borderWidth:1}}>
-                        <View>
-                            <Image
-                                style={{width: "100%", height: 200, borderWidth:2, borderColor:"black"}}
-                                source={{uri: this.state.mapInfo.imageUrl,
-                                    method: "GET",
-                                    headers: {
-                                        "User-Agent" : "VT"
-                                    }
-                                }}/>
-                        </View> 
-                        <View style={{marginLeft:"3%", marginTop: "3%"}}>
-                            <Text>맵 이름 : {this.state.mapInfo.name}</Text>
-                            <Text>맵 정보 : {this.state.mapInfo.releaseStatus}</Text>
-                            <Text>접속중인 월드 인원수 : {this.state.mapInfo.publicOccupants}</Text>
-                            <Text>맵 전체 인원수 : {this.state.mapInfo.occupants}</Text>
-                            <Text>마지막 업데이트 날짜 : {Moment(this.state.mapInfo.updated_at).format('LLLL')}</Text> 
-                        </View>
-                    </View>
+                    {MapInfo(this.state.mapInfo, false)}
                 </ScrollView>
             </View>
         );
