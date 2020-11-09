@@ -43,6 +43,7 @@ import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {UserGrade} from './../utils/UserUtils';
+import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class FriendListSc extends Component {
     constructor(props) {
@@ -77,14 +78,7 @@ export default class FriendListSc extends Component {
 
     async getFirendOn(offSet)
     {
-        const responseOn = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset="+offSet, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json",
-            }
-        });
+        const responseOn = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset="+offSet, VRChatAPIGet);
         return new Promise((resolve, reject) =>
         setTimeout(() =>{
             resolve(responseOn.json());
@@ -93,14 +87,7 @@ export default class FriendListSc extends Component {
 
     async getFirendOff(offSet)
     {
-        const responseOff = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset="+offSet, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json",
-            }
-        });
+        const responseOff = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset="+offSet, VRChatAPIGet);
         return new Promise((resolve, reject) =>
         setTimeout(() =>{
             resolve(responseOff.json());
@@ -245,13 +232,7 @@ export default class FriendListSc extends Component {
                         <View>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20, borderColor:UserGrade(item.tags), borderWidth:3}}
-                                source={{
-                                    uri: item.currentAvatarThumbnailImageUrl,
-                                    method: "get",
-                                    headers: {
-                                        "User-Agent":"VT",
-                                    }
-                                }}
+                                source={VRChatImage(item.currentAvatarThumbnailImageUrl)}
                             />
                         </View>
                         <View style={{width:"100%",marginLeft:"3%"}}>
@@ -288,13 +269,7 @@ export default class FriendListSc extends Component {
                         <View>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20, borderColor:UserGrade(item.tags), borderWidth:3}}
-                                source={{
-                                    uri: item.currentAvatarThumbnailImageUrl,
-                                    method: "get",
-                                    headers: {
-                                        "User-Agent":"VT"
-                                    }
-                                }}
+                                source={VRChatImage(item.currentAvatarThumbnailImageUrl)}
                             />
                         </View>
                         <View style={{width:"100%",marginLeft:"3%"}}>
@@ -330,13 +305,7 @@ export default class FriendListSc extends Component {
                         <View>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20, borderColor:UserGrade(item.tags), borderWidth:3}}
-                                source={{
-                                    uri: item.currentAvatarThumbnailImageUrl,
-                                    method: "get",
-                                    headers: {
-                                        "User-Agent":"VT",
-                                    }
-                                }}
+                                source={VRChatImage(item.currentAvatarThumbnailImageUrl)}
                             />
                         </View>
                         <View style={{width:"100%",marginLeft:"3%"}}>
@@ -372,13 +341,7 @@ export default class FriendListSc extends Component {
                         <View>
                             <Image
                                 style={{width: 100, height: 100, borderRadius:20, borderColor:UserGrade(item.tags), borderWidth:3}}
-                                source={{
-                                    uri:item.currentAvatarThumbnailImageUrl,
-                                    method: "get",
-                                    headers: {
-                                        "User-Agent":"VT",
-                                    }
-                                }}
+                                source={VRChatImage(item.currentAvatarThumbnailImageUrl)}
                             />
                         </View>
                         <View style={{width:"100%",marginLeft:"3%"}}>

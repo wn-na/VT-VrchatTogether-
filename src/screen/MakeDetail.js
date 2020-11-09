@@ -41,6 +41,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
+import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class MakeDetail extends Component {
     constructor(props) {
@@ -74,14 +75,7 @@ export default class MakeDetail extends Component {
     async getAvatars() {
         console.info("MakeDetail => getAvatars");
 
-        await fetch("https://api.vrchat.cloud/api/1/avatars?userId="+this.props.userId,{
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json",
-            }
-        })
+        await fetch("https://api.vrchat.cloud/api/1/avatars?userId="+this.props.userId, VRChatAPIGet)
         .then(response => response.json())
         .then(json => {
             console.log("아바타 :",json)
@@ -94,14 +88,7 @@ export default class MakeDetail extends Component {
     async getWorlds() {
         console.info("MakeDetail => getWorlds");
 
-        await fetch("https://api.vrchat.cloud/api/1/worlds?userId="+this.props.userId,{
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json",
-            }
-        })
+        await fetch("https://api.vrchat.cloud/api/1/worlds?userId="+this.props.userId, VRChatAPIGet)
         .then(response => response.json())
         .then(json => {
             console.log("월드 :",json)
@@ -129,14 +116,8 @@ export default class MakeDetail extends Component {
             <View style={{flexDirection:"row", padding:"5%", borderWidth:1}}>
                 <View>
                     <Image
-                        style={{width: 100, height: 100, borderRadius:20}}
-                        source={{
-                            uri: item.thumbnailImageUrl,
-                            method: "get",
-                            headers: {
-                                "User-Agent":"VT"
-                            }
-                        }}
+                        style={{width: 100, height: 100, borderRadius:20}} 
+                        source={VRChatImage(item.thumbnailImageUrl)}
                     />
                 </View>
                 <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
@@ -179,13 +160,7 @@ export default class MakeDetail extends Component {
                 <View>
                     <Image
                         style={{width: 100, height: 100, borderRadius:20}}
-                        source={{
-                            uri: item.thumbnailImageUrl,
-                            method: "get",
-                            headers: {
-                                "User-Agent":"VT"
-                            }
-                        }}
+                        source={VRChatImage(item.thumbnailImageUrl)}
                     />
                 </View>
                 <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>

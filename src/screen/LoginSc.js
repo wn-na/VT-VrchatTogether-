@@ -44,6 +44,7 @@ import Icon from "react-native-vector-icons/Feather";
 import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
+import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils'
 
 export default class LoginSc extends Component {
     constructor(props) {
@@ -83,14 +84,7 @@ export default class LoginSc extends Component {
     loginCheck = () =>
     {
         console.log("LoginSc => loginCheck");
-        fetch("https://api.vrchat.cloud/api/1/auth/user", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json"
-            }
-        })
+        fetch("https://api.vrchat.cloud/api/1/auth/user", VRChatAPIGet)
         .then((response) => response.json())
         .then((responseJson) => {
             if(!responseJson.error)
@@ -116,15 +110,7 @@ export default class LoginSc extends Component {
         // utf8 문자 감지 후 base64 변환
         const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
 
-        fetch("https://api.vrchat.cloud/api/1/auth/user", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "User-Agent":"VT",
-            "Authorization":"Basic "+user
-            }
-        })
+        fetch("https://api.vrchat.cloud/api/1/auth/user", VRChatAPIGetAuth(user))
         .then(response => response.json())
         .then(responseJson => {
             if(!responseJson.error)

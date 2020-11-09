@@ -39,10 +39,11 @@ import {
     Alert,
     AsyncStorage
 } from "react-native";
-import Icon from "react-native-vector-icons/Feather";
+import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
+import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class AvatarDetail extends Component {  
     constructor(props) {
@@ -58,14 +59,7 @@ export default class AvatarDetail extends Component {
         };
     }
 
-    thumbnailImageUrl = async(url) => await (fetch(url, {
-        method: "GET",
-        headers: {
-        Accept: "application/json",
-        "User-Agent":"VT",
-        "Content-Type": "application/json",
-        }
-    }).then((respose) => {
+    thumbnailImageUrl = async(url) => await (fetch(url, VRChatAPIGet).then((respose) => {
         this.state.count += 1;
         if(!respose.error){
             if(respose.url !=null) this.state.mapInfo.imageUrl = respose.url
@@ -74,14 +68,7 @@ export default class AvatarDetail extends Component {
         return respose;
     }))
 
-    userThumbnailImageUrl = async(url) => await (fetch(url, {
-        method: "GET",
-        headers: {
-        Accept: "application/json",
-        "User-Agent":"VT",
-        "Content-Type": "application/json",
-        }
-    }).then((respose) => {
+    userThumbnailImageUrl = async(url) => await (fetch(url, VRChatAPIGet).then((respose) => {
         this.state.count += 1;
         if(!respose.error){
             if(respose.url !=null) this.state.userInfo.currentAvatarThumbnailImageUrl = respose.url
@@ -90,14 +77,7 @@ export default class AvatarDetail extends Component {
         return respose;
     }))
 
-    getUserDetail = async() => await fetch(`https://api.vrchat.cloud/api/1/users/${this.state.mapInfo.authorId}`, {
-        method: "GET",
-        headers: {
-        Accept: "application/json",
-        "User-Agent":"VT",
-        "Content-Type": "application/json",
-        }
-    })
+    getUserDetail = async() => await fetch(`https://api.vrchat.cloud/api/1/users/${this.state.mapInfo.authorId}`, VRChatAPIGet)
     .then((response) => response.json())
     .then((responseJson) => {
         console.info("A", responseJson)
@@ -108,14 +88,7 @@ export default class AvatarDetail extends Component {
     })
     
     getMapDetail = async() => await
-        fetch(`https://api.vrchat.cloud/api/1/worlds/${this.props.mapId}`, {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "User-Agent":"VT"
-            }
-        })
+        fetch(`https://api.vrchat.cloud/api/1/worlds/${this.props.mapId}`, VRChatAPIGet)
         .then((response) =>  response.json())
         .then((responseJson) => {
             if(!responseJson.error){

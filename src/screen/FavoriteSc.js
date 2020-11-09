@@ -43,6 +43,7 @@ import Icon from "react-native-vector-icons/Feather";
 import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
+import {VRChatAPIGet} from '../utils/ApiUtils'
 
 export default class FavoriteSc extends Component {
     constructor(props) {
@@ -72,14 +73,7 @@ export default class FavoriteSc extends Component {
     }
     getAavatar()
     {
-        fetch("https://api.vrchat.cloud/api/1/avatars/favorites", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
+        fetch("https://api.vrchat.cloud/api/1/avatars/favorites", VRChatAPIGet)
         .then((response) => response.json())
         
         .then((responseJson) => {
@@ -91,14 +85,7 @@ export default class FavoriteSc extends Component {
     }
     getWorld()
     {
-        fetch("https://api.vrchat.cloud/api/1/worlds/favorites", {
-            method: "GET",
-            headers: {
-            Accept: "application/json",
-            "User-Agent":"VT",
-            "Content-Type": "application/json",
-            }
-        })
+        fetch("https://api.vrchat.cloud/api/1/worlds/favorites", VRChatAPIGet)
         .then((response) => response.json())
         
         .then((responseJson) => {

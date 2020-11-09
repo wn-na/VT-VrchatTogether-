@@ -43,6 +43,7 @@ import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {UserGrade} from './../utils/UserUtils';
+import {VRChatAPIGet, VRChatImage, VRChatAPIPutBody, VRChatAPIPost, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 
 export default class FriendDetail extends Component {
     constructor(props) {
@@ -68,14 +69,7 @@ export default class FriendDetail extends Component {
         let isFavorite;
 
         // 검색유저 정보
-        await fetch("https://api.vrchat.cloud/api/1/users/"+this.props.userId, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json",
-            }
-        })
+        await fetch(`https://api.vrchat.cloud/api/1/users/${this.props.userId}`, VRChatAPIGet)
         .then((response) => response.json())
         
         .then((json) => {
@@ -83,16 +77,8 @@ export default class FriendDetail extends Component {
                 getUserInfo:json
             });
 
-            fetch("https://api.vrchat.cloud/api/1/worlds/"+json.worldId, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "User-Agent":"VT",
-                    "Content-Type": "application/json",
-                }
-            })
+            fetch(`https://api.vrchat.cloud/api/1/worlds/${json.worldId}`, VRChatAPIGet)
             .then((response) => response.json())
-            
             .then((json) => {
                 if(!json.error)
                 {
@@ -128,14 +114,7 @@ export default class FriendDetail extends Component {
         let isFavorite;
 
         for(let i=0;i<2;i++){
-            isFavorite = await fetch("https://api.vrchat.cloud/api/1/favorites?type=world&n=100&offset="+offset,{
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "User-Agent":"VT",
-                    "Content-Type": "application/json",
-                }
-            })
+            isFavorite = await fetch(`https://api.vrchat.cloud/api/1/favorites?type=world&n=100&offset=${offset}`, VRChatAPIGet)
             .then(res => res.json())
             .then(json => {
                 if(json.filter((v) => v.favoriteId.indexOf(id) !== -1).length > 0)
@@ -169,19 +148,11 @@ export default class FriendDetail extends Component {
                 "Group "+number+"에 즐겨찾기 하시겠습니까?",
                 [
                     {text:"확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/favorites", {
-                            method: "POST",
-                            headers: {
-                                "Accept": "application/json",
-                                "User-Agent":"VT",
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                "type":"world",
-                                "tags":["worlds"+number],
-                                "favoriteId":id
-                            })
-                        })
+                        fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
+                            "type":"world",
+                            "tags":["worlds"+number],
+                            "favoriteId":id
+                        }))
                         .then((response) => response.json())
                         .then((json) => {
                             if(json.error)
@@ -214,27 +185,13 @@ export default class FriendDetail extends Component {
         }
         else
         {
-            fetch("https://api.vrchat.cloud/api/1/favorites/"+id, {
-                method: "DELETE",
-                headers: {
-                    "Accept": "application/json",
-                    "User-Agent":"VT",
-                    "Content-Type": "application/json",
-                }
-            })
+            fetch(`https://api.vrchat.cloud/api/1/favorites/${id}`, VRChatAPIDelete)
             Alert.alert(
                 "안내",
                 "즐겨찾기에서 삭제하시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/favorites/"+id, {
-                            method: "DELETE",
-                            headers: {
-                                "Accept": "application/json",
-                                "User-Agent":"VT",
-                                "Content-Type": "application/json",
-                            }
-                        })
+                        fetch(`https://api.vrchat.cloud/api/1/favorites/${id}`, VRChatAPIDelete)
                         .then((response) => response.json())
                         .then((json) => {
                             this.setState({
@@ -257,14 +214,7 @@ export default class FriendDetail extends Component {
                 "친구삭제 하시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/auth/user/friends/"+id, {
-                            method: "DELETE",
-                            headers: {
-                                "Accept": "application/json",
-                                "User-Agent":"VT",
-                                "Content-Type": "application/json",
-                            }
-                        })
+                        fetch(`https://api.vrchat.cloud/api/1/auth/user/friends/${id}`, VRChatAPIDelete)
                         .then((response) => response.json())
                         .then((json) => {
                             if(json.success.status_code == "200")
@@ -293,14 +243,7 @@ export default class FriendDetail extends Component {
                 "친구신청을 보내시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/user/"+id+"/friendRequest", {
-                            method: "POST",
-                            headers: {
-                                "Accept": "application/json",
-                                "User-Agent":"VT",
-                                "Content-Type": "application/json",
-                            }
-                        })
+                        fetch(`https://api.vrchat.cloud/api/1/user/${id}/friendRequest`, VRChatAPIPost)
                         .then((response) => response.json())
                         .then((json) => {
                             ToastAndroid.show("신청이 완료되었습니다.", ToastAndroid.SHORT);
@@ -313,14 +256,7 @@ export default class FriendDetail extends Component {
     }
     
     isBlocked() {
-        fetch("https://api.vrchat.cloud/api/1/auth/user/playermoderated",{
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json",
-            }
-        })
+        fetch("https://api.vrchat.cloud/api/1/auth/user/playermoderated", VRChatAPIGet)
         .then(response => response.json())
         .then(json => {
             json = json.filter((v) => v.type.indexOf("block") !== -1);
@@ -341,17 +277,9 @@ export default class FriendDetail extends Component {
                 "블락하시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/auth/user/blocks",{
-                            method: "POST",
-                            headers: {
-                                "Accept": "application/json",
-                                "User-Agent":"VT",
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                "blocked":this.props.userId
-                            })
-                        })
+                        fetch("https://api.vrchat.cloud/api/1/auth/user/blocks", VRChatAPIPostBody({
+                            "blocked":this.props.userId
+                        }))
                         .then((response) => response.json())
                         .then((json) => {
                             ToastAndroid.show("처리가 완료되었습니다.", ToastAndroid.SHORT);
@@ -371,17 +299,9 @@ export default class FriendDetail extends Component {
                 "블락을 해제하시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/auth/user/unblocks",{
-                            method: "PUT",
-                            headers: {
-                                "Accept": "application/json",
-                                "User-Agent":"VT",
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                "blocked":this.props.userId
-                            })
-                        })
+                        fetch("https://api.vrchat.cloud/api/1/auth/user/unblocks", VRChatAPIPutBody({
+                            "blocked":this.props.userId
+                        }))
                         .then((response) => response.json())
                         .then((json) => {
                             ToastAndroid.show("처리가 완료되었습니다.", ToastAndroid.SHORT);
@@ -415,13 +335,7 @@ export default class FriendDetail extends Component {
                             <View>
                                 <Image
                                     style={{width: 100, height: 100, borderRadius:20,borderColor:UserGrade(this.state.getUserInfo.tags), borderWidth:3}}
-                                    source={{
-                                        uri:this.state.getUserInfo.currentAvatarThumbnailImageUrl,
-                                        method: "get",
-                                        headers: {
-                                            "User-Agent":"VT",
-                                        }
-                                    }}
+                                    source={VRChatImage(this.state.getUserInfo.currentAvatarThumbnailImageUrl)}
                                 />
                             </View>
                             <View style={{width:"100%",marginLeft:"3%"}}>
@@ -477,13 +391,7 @@ export default class FriendDetail extends Component {
                                     <View>
                                         <Image
                                             style={{width: "100%", height: 250, borderRadius:20}}
-                                            source={{
-                                                uri:this.state.getUserWInfo.imageUrl,
-                                                method: "get",
-                                                headers: {
-                                                    "User-Agent":"VT",
-                                                }
-                                            }}
+                                            source={VRChatImage(this.state.getUserWInfo.imageUrl)}
                                         />
                                     </View>
                                     <Text>

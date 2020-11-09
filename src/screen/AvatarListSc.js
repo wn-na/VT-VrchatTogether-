@@ -38,10 +38,11 @@ import {
 	Alert,
 	AsyncStorage
 } from "react-native";
-import Icon from "react-native-vector-icons/Feather";
+import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
+import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class AvatarListSc extends Component {
 	constructor(props) {
@@ -59,14 +60,7 @@ export default class AvatarListSc extends Component {
 
 	getAvatarList(){
 		console.info("url : ", `https://api.vrchat.cloud/api/1/avatars?sort=_updated_at&offset=${this.state.index * this.state.avatarCount}`);
-		fetch(`https://api.vrchat.cloud/api/1/avatars?sort=_updated_at&offset=${this.state.index * this.state.avatarCount}`, {
-			method: "GET",
-			headers: {
-				Accept: "application/json",
-				"Content-Type": "application/json",
-				"User-Agent": "VT"
-			}
-		})
+		fetch(`https://api.vrchat.cloud/api/1/avatars?sort=_updated_at&offset=${this.state.index * this.state.avatarCount}`, VRChatAPIGet)
 		.then((response) => response.json())
 		.then((responseJson) => {
 			if(!responseJson.error){
@@ -82,14 +76,7 @@ export default class AvatarListSc extends Component {
 		})
 	}
 
-	searchAvatarList = (callback) => fetch(`https://api.vrchat.cloud/api/1/avatars?search=${this.state.search}`, {
-		method:"GET",
-		headers: {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-			"User-Agent": "VT"
-		}
-	})
+	searchAvatarList = (callback) => fetch(`https://api.vrchat.cloud/api/1/avatars?search=${this.state.search}`, VRChatAPIGet)
 	.then((response) => response.json())
 	.then((responseJson) => {
 		console.info("S", responseJson)
@@ -143,7 +130,7 @@ export default class AvatarListSc extends Component {
 									<View>
 										<Image
 											style={{width:370, height:200, borderRadius:5}}
-											source={this.state.refreshing && {url:item.thumbnailImageUrl}}
+											source={VRChatImage(item.thumbnailImageUrl)}
 										/>
 									</View>
 								</View>

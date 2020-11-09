@@ -47,6 +47,7 @@ import {UserGrade} from './../utils/UserUtils';
 import Modal from 'react-native-modal';
 import { Actions, Router } from "react-native-router-flux";
 import { Col, Row } from "react-native-easy-grid";
+import {VRChatAPIGet, VRChatImage, VRChatAPIPut} from '../utils/ApiUtils'
 
 export default class MainSc extends Component {
     constructor(props) {
@@ -93,12 +94,7 @@ export default class MainSc extends Component {
             [
                 {text: "확인", onPress: () => {
                     console.log("press logout")
-                    fetch("https://api.vrchat.cloud/api/1/logout", {
-                        method: "PUT",
-                        headers: {
-                            "User-Agent":"VT",
-                        }
-                    })
+                    fetch("https://api.vrchat.cloud/api/1/logout", VRChatAPIPut)
                     .then((response) => response.json())
                     .then((responseJson) => {
                         Actions.replace("loginSc");
@@ -114,14 +110,7 @@ export default class MainSc extends Component {
     {
         console.log("LoginSc => getUserInfo");
 
-        fetch("https://api.vrchat.cloud/api/1/auth/user", {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json"
-            }
-        })
+        fetch("https://api.vrchat.cloud/api/1/auth/user", VRChatAPIGet)
         .then((response) => response.json())
         .then((responseJson) => {
             this.setState({
@@ -133,14 +122,7 @@ export default class MainSc extends Component {
     // 온라인친구 가져오기
     getFirendOn = async(offSet) =>
     {
-        const responseOn = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset="+offSet, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json",
-            }
-        });
+        const responseOn = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset="+offSet, VRChatAPIGet);
         return new Promise((resolve, reject) =>
         setTimeout(() =>{
             resolve(responseOn.json());
@@ -150,14 +132,7 @@ export default class MainSc extends Component {
     // 오프라인친구 가져오기
     getFirendOff = async(offSet) =>
     {
-        const responseOff = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset="+offSet, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json",
-            }
-        });
+        const responseOff = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset="+offSet, VRChatAPIGet);
         return new Promise((resolve, reject) =>
         setTimeout(() =>{
             resolve(responseOff.json());
@@ -266,13 +241,7 @@ export default class MainSc extends Component {
                         this.state.getUserInfo != null ? 
                         <Image
                             style={{width: 100, height: 100, borderRadius:20, borderWidth:3, borderColor: UserGrade(this.state.getUserInfo.tags)}}
-                            source={{
-                                uri:this.state.getUserInfo.currentAvatarImageUrl,
-                                method: "get",
-                                headers: {
-                                    "User-Agent":"VT",
-                                }
-                            }}
+                            source={VRChatImage(this.state.getUserInfo.currentAvatarImageUrl)}
                         />
                         : null
                     }
