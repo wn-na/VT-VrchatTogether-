@@ -36,11 +36,12 @@ import {
     AsyncStorage,
     Picker,
     RefreshControl,
-    ToastAndroid
+    ToastAndroid,
+    ActivityIndicator
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
-import { List, ListItem } from "react-native-elements";
+import Modal from 'react-native-modal';
 import {UserGrade} from './../utils/UserUtils';
 
 export default class FriendListSc extends Component {
@@ -57,6 +58,7 @@ export default class FriendListSc extends Component {
             getFilterFirend:[],
             getFirendOn:[],
             getFirendOff:[],
+            modalVisible:true
         };
     }
 
@@ -108,11 +110,11 @@ export default class FriendListSc extends Component {
     getFirend()
     {
         let offSet = 0;
-        let promise;
-
+        let promiseOn;
+        let promiseOff;
         for(let i=0;i<10;i++)
         {
-            promise = Promise.all([this.getFirendOn(offSet)])
+            promiseOn = Promise.all([this.getFirendOn(offSet)])
             .then((result) => {
                 this.setState({
                     getFirendOn     : this.state.getFirendOn.concat(result[0]),
@@ -123,20 +125,26 @@ export default class FriendListSc extends Component {
             offSet+=100;
         }
 
-        promise.done(() => {
+        promiseOn.done(() => {
             offSet = 0;
             for(let i=0;i<10;i++)
             {
-                Promise.all([this.getFirendOff(offSet)])
+                promiseOff = Promise.all([this.getFirendOff(offSet)])
                 .then((result) => {
                     this.setState({
                         getFirendOff    : this.state.getFirendOff.concat(result[0]),
                         getFirend       : this.state.getFirend.concat(result[0])
                     });
                 });
-
+                
                 offSet+=100;
             }
+
+            promiseOff.done(() => {
+                this.setState({
+                    modalVisible:false
+                })
+            })
         });
     }
 
@@ -436,6 +444,10 @@ export default class FriendListSc extends Component {
                     </View>
                     {this.flist()}
                 </ScrollView>
+                <Modal
+                isVisible={this.state.modalVisible}>
+                    <ActivityIndicator size={100}/>
+                </Modal>
             </View>
         );
     }

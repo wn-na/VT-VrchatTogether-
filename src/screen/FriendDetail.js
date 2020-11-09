@@ -36,10 +36,12 @@ import {
     AsyncStorage,
     Picker,
     TouchableOpacityBase,
-    ToastAndroid
+    ToastAndroid,
+    ActivityIndicator
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
+import Modal from 'react-native-modal';
 import {UserGrade} from './../utils/UserUtils';
 
 export default class FriendDetail extends Component {
@@ -52,15 +54,21 @@ export default class FriendDetail extends Component {
             indiInfo:[],
             getUserInfo:null,
             getUserWInfo:null,
-            isBlocked:false
+            isBlocked:false,
+            isFavorite:false,
+            favoriteId:null,
+            modalVisivle:false,
+            modalLoading:true
         };
     }
 
-    UNSAFE_componentWillMount() {
+    async UNSAFE_componentWillMount() {
         console.info("FriendDetail => componentWillMount");
         
+        let isFavorite;
+
         // 검색유저 정보
-        fetch("https://api.vrchat.cloud/api/1/users/"+this.props.userId, {
+        await fetch("https://api.vrchat.cloud/api/1/users/"+this.props.userId, {
             method: "GET",
             headers: {
                 "Accept": "application/json",
@@ -70,12 +78,12 @@ export default class FriendDetail extends Component {
         })
         .then((response) => response.json())
         
-        .then((responseJson) => {
+        .then((json) => {
             this.setState({
-                getUserInfo:responseJson
+                getUserInfo:json
             });
 
-            fetch("https://api.vrchat.cloud/api/1/worlds/"+responseJson.worldId, {
+            fetch("https://api.vrchat.cloud/api/1/worlds/"+json.worldId, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
@@ -85,17 +93,26 @@ export default class FriendDetail extends Component {
             })
             .then((response) => response.json())
             
-            .then((responseJson) => {
-                if(!responseJson.error)
+            .then((json) => {
+                if(!json.error)
                 {
                     this.setState({
-                        getUserWInfo:responseJson
+                        getUserWInfo:json
                     });
                 }
+
+                this.isBlocked();
+                
+
+                isFavorite = Promise.all([this.isFavorite(json.id)]);
+
+                isFavorite.done(() => {
+                    this.setState({
+                        modalLoading:false
+                    })
+                })
             });
         });
-
-        this.isBlocked();
     }
 
     componentWillUnmount() {
@@ -106,25 +123,130 @@ export default class FriendDetail extends Component {
         console.info("FriendDetail => componentDidMount");
     }
 
-    favorite(id) {
-        console.info("FriendDetail => favoriteWorld")
-        const response = fetch("https://api.vrchat.cloud/api/1/favorites", {
-            method: "POST",
-            headers: {
-                "Accept": "application/json",
-                "User-Agent":"VT",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                "type":"world",
-                "tags":["worlds2"],
-                "favoriteId":id
+    async isFavorite(id) {
+        let offset=0;
+        let isFavorite;
+
+        for(let i=0;i<2;i++){
+            isFavorite = await fetch("https://api.vrchat.cloud/api/1/favorites?type=world&n=100&offset="+offset,{
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "User-Agent":"VT",
+                    "Content-Type": "application/json",
+                }
             })
-        })
-        .then((response) => response.json())
-        .then((responseJson) => {
-            console.log(responseJson)
-        });
+            .then(res => res.json())
+            .then(json => {
+                if(json.filter((v) => v.favoriteId.indexOf(id) !== -1).length > 0)
+                {
+                    this.setState({
+                        isFavorite : true,
+                        favoriteId : json.filter((v) => v.favoriteId.indexOf(id) !== -1)[0].id
+                    });
+                }
+                offset+=100;
+            })
+        }
+
+        return new Promise((resolve, reject) =>
+        setTimeout(() =>{
+            resolve(true);
+        }, 5000) );
+    }
+
+    favorite(number,id) {
+        console.info("FriendDetail => favoriteWorld")
+        
+        if(this.state.isFavorite == false)
+        {
+            this.setState({
+                modalVisivle:true
+            });
+
+            Alert.alert(
+                "안내",
+                "Group "+number+"에 즐겨찾기 하시겠습니까?",
+                [
+                    {text:"확인", onPress: () => {
+                        fetch("https://api.vrchat.cloud/api/1/favorites", {
+                            method: "POST",
+                            headers: {
+                                "Accept": "application/json",
+                                "User-Agent":"VT",
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                "type":"world",
+                                "tags":["worlds"+number],
+                                "favoriteId":id
+                            })
+                        })
+                        .then((response) => response.json())
+                        .then((json) => {
+                            if(json.error)
+                            {
+                                Alert.alert(
+                                    "오류",
+                                    "이미 즐겨찾기 되었습니다.",
+                                    [
+                                        {text:"확인", onPress:()=>{
+                                            this.setState({
+                                                modalVisivle:false
+                                            })
+                                        }}
+                                    ]
+                                )
+                            }
+                            else
+                            {
+                                this.setState({
+                                    modalVisivle:false,
+                                    isFavorite:true,
+                                })
+                                ToastAndroid.show("등록이 완료되었습니다.", ToastAndroid.SHORT);
+                            }
+                        });
+                    }},
+                    {text:"취소"}
+                ]
+            );
+        }
+        else
+        {
+            fetch("https://api.vrchat.cloud/api/1/favorites/"+id, {
+                method: "DELETE",
+                headers: {
+                    "Accept": "application/json",
+                    "User-Agent":"VT",
+                    "Content-Type": "application/json",
+                }
+            })
+            Alert.alert(
+                "안내",
+                "즐겨찾기에서 삭제하시겠습니까?",
+                [
+                    {text: "확인", onPress: () => {
+                        fetch("https://api.vrchat.cloud/api/1/favorites/"+id, {
+                            method: "DELETE",
+                            headers: {
+                                "Accept": "application/json",
+                                "User-Agent":"VT",
+                                "Content-Type": "application/json",
+                            }
+                        })
+                        .then((response) => response.json())
+                        .then((json) => {
+                            this.setState({
+                                isFavorite:false
+                            })
+                            ToastAndroid.show("삭제가 완료되었습니다.", ToastAndroid.SHORT);
+                        });
+                    }},
+                    {text: "취소"}
+                ]
+            );
+        }
     }
 
     unfriend(id,type) {
@@ -135,7 +257,7 @@ export default class FriendDetail extends Component {
                 "친구삭제 하시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        const response = fetch("https://api.vrchat.cloud/api/1/auth/user/friends/"+id, {
+                        fetch("https://api.vrchat.cloud/api/1/auth/user/friends/"+id, {
                             method: "DELETE",
                             headers: {
                                 "Accept": "application/json",
@@ -144,8 +266,8 @@ export default class FriendDetail extends Component {
                             }
                         })
                         .then((response) => response.json())
-                        .then((responseJson) => {
-                            if(responseJson.success.status_code == "200")
+                        .then((json) => {
+                            if(json.success.status_code == "200")
                             {
                                 this.setState({
                                     getUserInfo:{
@@ -158,7 +280,6 @@ export default class FriendDetail extends Component {
                             {
                                 ToastAndroid.show("삭제에 실패하였습니다.", ToastAndroid.SHORT);
                             }
-                            
                         });
                     }},
                     {text: "취소"}
@@ -181,7 +302,7 @@ export default class FriendDetail extends Component {
                             }
                         })
                         .then((response) => response.json())
-                        .then((responseJson) => {
+                        .then((json) => {
                             ToastAndroid.show("신청이 완료되었습니다.", ToastAndroid.SHORT);
                         });
                     }},
@@ -233,7 +354,6 @@ export default class FriendDetail extends Component {
                         })
                         .then((response) => response.json())
                         .then((json) => {
-                            console.log(json);
                             ToastAndroid.show("처리가 완료되었습니다.", ToastAndroid.SHORT);
                             this.setState({
                                 isBlocked:true
@@ -264,7 +384,6 @@ export default class FriendDetail extends Component {
                         })
                         .then((response) => response.json())
                         .then((json) => {
-                            console.log(json);
                             ToastAndroid.show("처리가 완료되었습니다.", ToastAndroid.SHORT);
                             this.setState({
                                 isBlocked:false
@@ -345,6 +464,16 @@ export default class FriendDetail extends Component {
                             <View style={{marginTop:"2%"}}>
                                 <Text style={{marginLeft:"5%",fontSize:25}}>현재 월드</Text>
                                 <View style={styles.worldInfo}>
+                                    <View style={{alignItems:"flex-end"}}>
+                                    {this.state.isFavorite == true ? 
+                                    <Icon 
+                                    onPress={this.favorite.bind(this,0,this.state.favoriteId)}
+                                    name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+                                    :
+                                    <Icon 
+                                    onPress={() => this.setState({modalVisivle:true})}
+                                    name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>}
+                                    </View>
                                     <View>
                                         <Image
                                             style={{width: "100%", height: 250, borderRadius:20}}
@@ -367,13 +496,26 @@ export default class FriendDetail extends Component {
                                         {this.state.indiInfo.length != 0 ? <Text>{this.state.indiInfo[0][1]}{"/"}{this.state.getUserWInfo.capacity} 명</Text> : 
                                         <Text>{this.state.getUserWInfo.capacity}{"/"}{this.state.getUserWInfo.capacity} 명</Text>}
                                     <Text>전체 {this.state.getUserWInfo.occupants+" 명"}</Text>
-                                    <Button
-                                        onPress={this.favorite.bind(this,this.state.getUserWInfo.id)}
-                                        style={{marginTop:10,width:"100%",justifyContent:"center"}}
-                                        >
-                                        <Text>즐겨찾기 등록</Text>
-                                    </Button>
                                 </View>
+                                <Modal
+                                style={styles.modal}
+                                isVisible={this.state.modalVisivle}
+                                onBackButtonPress={()=>this.setState({modalVisivle:false})}
+                                onBackdropPress={()=>this.setState({modalVisivle:false})}>
+                                    <View style={{backgroundColor:"#fff"}}>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,1,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 1</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,2,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 2</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,3,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 3</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,4,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 4</Text></Button>
+                                        <View style={{alignItems:"center"}}>
+                                        <Button 
+                                        onPress={()=>this.setState({modalVisivle:false})}
+                                        style={{width:"20%",height:40,margin:10,justifyContent:"center"}}>
+                                            <Text>취소</Text>
+                                        </Button>
+                                        </View>
+                                    </View>
+                                </Modal>
                             </View>
                             :
                             null
@@ -382,6 +524,10 @@ export default class FriendDetail extends Component {
                     :
                     null
                 }
+                <Modal
+                isVisible={this.state.modalLoading}>
+                    <ActivityIndicator size={100}/>
+                </Modal>
             </View>
         );
     }
@@ -407,9 +553,16 @@ const styles = StyleSheet.create({
         borderWidth:1,
         marginLeft:"5%"
     },
-    list:{
-        width:"97%",
-        marginLeft:"1.5%"
+    groupButton:{
+        marginTop:10,
+        margin:15,
+        justifyContent:"center",
+        backgroundColor:"#fff",
+        color:"#000"
+    },
+    modal:{
+        flex:1,
+        height:250
     },
     textView:{
         borderBottomWidth:1,

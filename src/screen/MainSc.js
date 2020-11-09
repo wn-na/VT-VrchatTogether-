@@ -40,10 +40,11 @@ import {
     Alert,
     AsyncStorage,
     ToastAndroid,
-    BackHandler
+    BackHandler,
+    ActivityIndicator
 } from "react-native";
 import {UserGrade} from './../utils/UserUtils';
-import base64 from 'base-64';
+import Modal from 'react-native-modal';
 import { Actions, Router } from "react-native-router-flux";
 import { Col, Row } from "react-native-easy-grid";
 
@@ -60,7 +61,8 @@ export default class MainSc extends Component {
             offCount:0,
             allCount:0,
             refreshTime:false,
-            exitApp:false
+            exitApp:false,
+            modalVisible:true
         };
     }
 
@@ -171,11 +173,11 @@ export default class MainSc extends Component {
         let onCount  = 0;
         let offCount = 0;
         let offSet = 0;
-
+        let promise;
         // Promise.all 이용하여 병렬처리 진행
         for(let i=0;i<10;i++)
         {
-            Promise.all([this.getFirendOn(offSet),this.getFirendOff(offSet)])
+            promise = Promise.all([this.getFirendOn(offSet),this.getFirendOff(offSet)])
             .then((result) => {
                 this.setState({
                     // result[0]은 온라인 친구 result[1]은 오프라인 친구
@@ -186,6 +188,12 @@ export default class MainSc extends Component {
             });
             offSet+=100;
         }
+
+        promise.done(() => {
+            this.setState({
+                modalVisible:false
+            })
+        })
     }
 
     // 새로고침 시 5초 카운팅기능
@@ -324,6 +332,10 @@ export default class MainSc extends Component {
                         <Text>블락 관리</Text>
                     </Button>
                 </View>
+                <Modal
+                isVisible={this.state.modalVisible}>
+                    <ActivityIndicator size={100}/>
+                </Modal>
             </ScrollView>
         );
     }
