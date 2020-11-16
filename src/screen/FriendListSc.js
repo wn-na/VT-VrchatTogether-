@@ -82,7 +82,7 @@ export default class FriendListSc extends Component {
         return new Promise((resolve, reject) =>
         setTimeout(() =>{
             resolve(responseOn.json());
-        }, 5000) );
+        }, 100) );
     }
 
     async getFirendOff(offSet)
@@ -91,7 +91,7 @@ export default class FriendListSc extends Component {
         return new Promise((resolve, reject) =>
         setTimeout(() =>{
             resolve(responseOff.json());
-        }, 5000) );
+        }, 100) );
     }
 
     getFirend()
@@ -99,6 +99,13 @@ export default class FriendListSc extends Component {
         let offSet = 0;
         let promiseOn;
         let promiseOff;
+
+        this.setState({
+            getFirend:[],
+            getFirendOn:[],
+            getFirendOff:[],
+        })
+
         for(let i=0;i<10;i++)
         {
             promiseOn = Promise.all([this.getFirendOn(offSet)])

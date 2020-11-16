@@ -126,7 +126,7 @@ export default class MainSc extends Component {
         return new Promise((resolve, reject) =>
         setTimeout(() =>{
             resolve(responseOn.json());
-        }, 2000) );
+        }, 100) );
     }
 
     // 오프라인친구 가져오기
@@ -136,7 +136,7 @@ export default class MainSc extends Component {
         return new Promise((resolve, reject) =>
         setTimeout(() =>{
             resolve(responseOff.json());
-        }, 2000) );
+        }, 100) );
     }
 
     // 온라인 & 오프라인친구 호출

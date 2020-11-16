@@ -131,7 +131,7 @@ export default class FriendDetail extends Component {
         return new Promise((resolve, reject) =>
         setTimeout(() =>{
             resolve(true);
-        }, 5000) );
+        }, 1000) );
     }
 
     favorite(number,id) {
@@ -410,7 +410,8 @@ export default class FriendDetail extends Component {
                                 isVisible={this.state.modalVisivle}
                                 onBackButtonPress={()=>this.setState({modalVisivle:false})}
                                 onBackdropPress={()=>this.setState({modalVisivle:false})}>
-                                    <View style={{backgroundColor:"#fff"}}>
+                                    {this.state.modalVisivle == true ?
+                                        <View style={{backgroundColor:"#fff"}}>
                                         <Button style={styles.groupButton} onPress={this.favorite.bind(this,1,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 1</Text></Button>
                                         <Button style={styles.groupButton} onPress={this.favorite.bind(this,2,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 2</Text></Button>
                                         <Button style={styles.groupButton} onPress={this.favorite.bind(this,3,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 3</Text></Button>
@@ -423,6 +424,8 @@ export default class FriendDetail extends Component {
                                         </Button>
                                         </View>
                                     </View>
+                                    :
+                                    null}
                                 </Modal>
                             </View>
                             :

@@ -37,11 +37,12 @@ import {
     Picker,
     TouchableOpacityBase,
     RefreshControl,
-    ToastAndroid
+    ToastAndroid,
+    ActivityIndicator
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
-import { Actions } from 'react-native-router-flux';
-import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
+import Modal from 'react-native-modal';
+import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils'
 
 export default class MakeDetail extends Component {
     constructor(props) {
@@ -55,13 +56,21 @@ export default class MakeDetail extends Component {
             refreshing:false,
             refreshTime:false,
             option:"avatar",
+            modalVisivle:false,
+            modalLoading:true,
         };
     }
 
-    UNSAFE_componentWillMount() {
+    async UNSAFE_componentWillMount() {
         console.info("MakeDetail => componentWillMount");
-        this.getAvatars();
-        this.getWorlds();
+        let promise;
+
+        promise = Promise.all([this.getAvatars(),this.getWorlds()]);
+        promise.done(() => {
+            this.setState({
+                modalLoading:false
+            })
+        })
     }
 
     componentWillUnmount() {
@@ -74,28 +83,80 @@ export default class MakeDetail extends Component {
 
     async getAvatars() {
         console.info("MakeDetail => getAvatars");
+        let offset=0;
+        let data = [];
 
-        await fetch("https://api.vrchat.cloud/api/1/avatars?userId="+this.props.userId, VRChatAPIGet)
-        .then(response => response.json())
-        .then(json => {
-            console.log("아바타 :",json)
-            this.setState({
-                getAvatars:json
-            })
-        })
+        let fetc = await fetch(`https://api.vrchat.cloud/api/1/avatars?userId=`+this.props.userId, VRChatAPIGet)
+        .then(response => response.json());
+
+        // 즐겨찾기검사
+        for(let i=0;i<2;i++){
+            await fetch(`https://api.vrchat.cloud/api/1/favorites?type=avatar&n=100&offset=${offset}`, VRChatAPIGet)
+            .then(res => res.json())
+            .then(json => {
+                data = data.concat(json);
+                
+                offset+=100;
+            });
+        }
+
+        for(let i=0;i<fetc.length;i++)
+        {
+            fetc[i].isFavorite = false;
+            fetc[i].favoriteId = null;
+
+            for(let j=0;j<data.length;j++)
+            {
+                if(fetc[i].id == data[j].favoriteId)
+                {
+                    fetc[i].isFavorite = true;
+                    fetc[i].favoriteId = data[j].id;
+                }
+            }
+        }
+
+        this.setState({
+            getAvatars:fetc
+        });
     }
 
     async getWorlds() {
         console.info("MakeDetail => getWorlds");
+        let offset=0;
+        let data = [];
 
-        await fetch("https://api.vrchat.cloud/api/1/worlds?userId="+this.props.userId, VRChatAPIGet)
-        .then(response => response.json())
-        .then(json => {
-            console.log("월드 :",json)
-            this.setState({
-                getWorlds:json
-            })
-        })
+        let fetc = await fetch(`https://api.vrchat.cloud/api/1/worlds?userId=`+this.props.userId, VRChatAPIGet)
+        .then(response => response.json());
+
+        // 즐겨찾기검사
+        for(let i=0;i<2;i++){
+            await fetch(`https://api.vrchat.cloud/api/1/favorites?type=world&n=100&offset=${offset}`, VRChatAPIGet)
+            .then(res => res.json())
+            .then(json => {
+                data = data.concat(json);
+                
+                offset+=100;
+            });
+        }
+
+        for(let i=0;i<fetc.length;i++)
+        {
+            fetc[i].isFavorite = false;
+            fetc[i].favoriteId = null;
+
+            for(let j=0;j<data.length;j++)
+            {
+                if(fetc[i].id == data[j].favoriteId)
+                {
+                    fetc[i].isFavorite = true;
+                    fetc[i].favoriteId = data[j].id;
+                }
+            }
+        }
+
+        this.setState({
+            getWorlds:fetc
+        });
     }
 
     avatarList() {
@@ -112,6 +173,7 @@ export default class MakeDetail extends Component {
 
         return <FlatList
         data={this.state.getAvatars}
+        extraData={this.state}
         renderItem={({item}) => 
             <View style={{flexDirection:"row", padding:"5%", borderWidth:1}}>
                 <View>
@@ -133,7 +195,16 @@ export default class MakeDetail extends Component {
                         </Text>
                     </View>
                     <View style={{position:"absolute",top:"-10%",left:"63%"}}>
-                        <Icon name="magnifying-glass" size={30} style={{alignItems:"flex-start",marginTop:5}}/>
+                        {
+                        item.isFavorite == true ?
+                        <Icon 
+                        onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
+                        name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+                        :
+                        <Icon 
+                        onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
+                        name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+                        }
                     </View>
                 </View>
             </View>
@@ -155,6 +226,7 @@ export default class MakeDetail extends Component {
 
         return <FlatList
         data={this.state.getWorlds}
+        extraData={this.state}
         renderItem={({item}) => 
             <View style={{flexDirection:"row", padding:"5%", borderWidth:1}}>
                 <View>
@@ -176,7 +248,16 @@ export default class MakeDetail extends Component {
                         </Text>
                     </View>
                     <View style={{position:"absolute",top:"-10%",left:"63%"}}>
-                        <Icon name="star-outlined" size={30} style={{alignItems:"flex-start",marginTop:5}}/>
+                        {
+                        item.isFavorite == true ?
+                        <Icon 
+                        onPress={this.viewWorldFavorite.bind(this, item.favoriteId, item.id, item.isFavorite)}
+                        name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+                        :
+                        <Icon 
+                        onPress={this.viewWorldFavorite.bind(this, item.favoriteId, item.id, item.isFavorite)}
+                        name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+                        }
                     </View>
                 </View>
             </View>
@@ -184,22 +265,184 @@ export default class MakeDetail extends Component {
         />
     }
 
+    async favoriteAvatar(favoriteId, avatarId, isFavorite) {
+
+        if(isFavorite == false)
+        {
+            await fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
+                "type":"avatar",
+                "tags":["avatars1"],
+                "favoriteId":avatarId
+            }))
+            .then((response) => response.json())
+            .then((json) => {
+                
+                if(!json.error)
+                {
+                    for(let i=0;i<this.state.getAvatars.length;i++)
+                    {
+                        if(this.state.getAvatars[i].id == avatarId)
+                        {
+                            this.state.getAvatars[i].isFavorite = true;
+                            this.state.getAvatars[i].favoriteId = json.id;
+                        }
+                    }
+
+                    ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
+                }
+                else if(json.error.status_code == 400)
+                {
+                    ToastAndroid.show("아바타 즐겨찾기는 최대 16개까지 가능합니다.", ToastAndroid.SHORT);
+                }
+                else
+                {
+                    ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+                }
+            });
+        }
+        else if(isFavorite == true)
+        {
+            await fetch("https://api.vrchat.cloud/api/1/favorites/"+favoriteId, VRChatAPIDelete)
+            .then((response) => response.json())
+            .then((json) => {
+                if(!json.error)
+                {
+                    for(let i=0;i<this.state.getAvatars.length;i++)
+                    {
+                        if(this.state.getAvatars[i].id == avatarId)
+                        {
+                            this.state.getAvatars[i].isFavorite = false;
+                            this.state.getAvatars[i].favoriteId = null;
+                        }
+                    }
+
+                    ToastAndroid.show("삭제 완료되었습니다.", ToastAndroid.SHORT);
+                }
+                else
+                {
+                    ToastAndroid.show("오류가 발생하였습니다.", ToastAndroid.SHORT);
+                }
+            });
+        }
+
+        this.setState({
+            getAvatars: this.state.getAvatars
+        })
+    }
+
+    async favoriteWorld(number, favoriteId, worldId, isFavorite) {
+
+        console.log(number);
+        console.log(favoriteId);
+        console.log(worldId);
+        console.log(isFavorite);
+
+        if(isFavorite == false)
+        {
+            await fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
+                "type":"world",
+                "tags":["worlds"+number],
+                "favoriteId":worldId
+            }))
+            .then((response) => response.json())
+            .then((json) => {
+                console.log(json)
+                if(!json.error)
+                {
+                    for(let i=0;i<this.state.getWorlds.length;i++)
+                    {
+                        if(this.state.getWorlds[i].id == worldId)
+                        {
+                            this.state.getWorlds[i].isFavorite = true;
+                            this.state.getWorlds[i].favoriteId = json.id;
+                        }
+                    }
+                    
+                    this.setState({
+                        modalVisivle: false
+                    });
+
+                    ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
+                }
+                else
+                {
+                    ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+                }
+            });
+        }
+        else if(isFavorite == true)
+        {
+            await fetch("https://api.vrchat.cloud/api/1/favorites/"+favoriteId, VRChatAPIDelete)
+            .then((response) => response.json())
+            .then((json) => {
+                console.log(json)
+                if(!json.error)
+                {
+                    for(let i=0;i<this.state.getWorlds.length;i++)
+                    {
+                        if(this.state.getWorlds[i].id == worldId)
+                        {
+                            this.state.getWorlds[i].isFavorite = false;
+                            this.state.getWorlds[i].favoriteId = null;
+                        }
+                    }
+
+                    ToastAndroid.show("삭제 완료되었습니다.", ToastAndroid.SHORT);
+                }
+                else
+                {
+                    ToastAndroid.show("오류가 발생하였습니다.", ToastAndroid.SHORT);
+                }
+            });
+        }
+
+        this.setState({
+            getWorlds: this.state.getWorlds,
+        })
+    }
+
+    viewWorldFavorite(favoriteId, avatarId, isFavorite) {
+        if(isFavorite == false)
+        {
+            this.state.modalVisivle = true;
+        }
+        else
+        {
+            this.favoriteWorld(0, favoriteId, avatarId, isFavorite)
+            this.state.modalVisivle = false;
+        }
+
+        this.setState({
+            favoriteId:favoriteId,
+            avatarId:avatarId,
+            isFavorite:isFavorite,
+        })
+    }
     reset() {
         console.info("MakeDetail => reset");
 
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
+            this.state.modalLoading = true;
 
             setTimeout(() => {
                 this.state.refreshTime = false;
+                this.state.modalLoading = false;
             }, 5000);
 
-            this.getAvatars();
-            this.getWorlds();
+            let promise;
+
+            promise = Promise.all([this.getAvatars(),this.getWorlds()]);
+            promise.done(() => {
+                this.setState({
+                    modalLoading:false
+                })
+            })
 
             this.setState({
                 refreshing:false,
+                search:null
             });
         }
         else
@@ -309,8 +552,45 @@ export default class MakeDetail extends Component {
                         </View>
                     </View>
                     {this.state.option == "avatar" ? this.avatarList() : this.worldList()}
-                    
+                    <Modal
+                    style={styles.modal}
+                    isVisible={this.state.modalVisivle}
+                    onBackButtonPress={()=>this.setState({modalVisivle:false})}
+                    onBackdropPress={()=>this.setState({modalVisivle:false})}>
+                        {this.state.modalVisivle == true ? 
+                        <View style={{backgroundColor:"#fff"}}>
+                            <Button style={styles.groupButton} 
+                            onPress={this.favoriteWorld.bind(this, 1, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
+                                <Text style={{color:"#000"}}>Group 1</Text>
+                            </Button>
+                            <Button style={styles.groupButton} 
+                            onPress={this.favoriteWorld.bind(this, 2, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
+                                <Text style={{color:"#000"}}>Group 2</Text>
+                            </Button>
+                            <Button style={styles.groupButton} 
+                            onPress={this.favoriteWorld.bind(this, 3, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
+                                <Text style={{color:"#000"}}>Group 3</Text>
+                            </Button>
+                            <Button style={styles.groupButton} 
+                            onPress={this.favoriteWorld.bind(this, 4, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
+                                <Text style={{color:"#000"}}>Group 4</Text>
+                            </Button>
+                            <View style={{alignItems:"center"}}>
+                            <Button 
+                            onPress={()=>this.setState({modalVisivle:false})}
+                            style={{width:"20%",height:40,margin:10,justifyContent:"center"}}>
+                                <Text>취소</Text>
+                            </Button>
+                            </View>
+                        </View>
+                        :
+                        null}
+                    </Modal>
                 </ScrollView>
+                <Modal
+                isVisible={this.state.modalLoading}>
+                    <ActivityIndicator size={100}/>
+                </Modal>
             </View>
         );
     }
@@ -335,6 +615,17 @@ const styles = StyleSheet.create({
         padding:10,
         borderWidth:1,
         marginLeft:"5%"
+    },
+    groupButton:{
+        marginTop:10,
+        margin:15,
+        justifyContent:"center",
+        backgroundColor:"#fff",
+        color:"#000"
+    },
+    modal:{
+        flex:1,
+        height:250
     },
     list:{
         width:"97%",
