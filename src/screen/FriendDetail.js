@@ -88,7 +88,6 @@ export default class FriendDetail extends Component {
                 }
 
                 this.isBlocked();
-                
 
                 isFavorite = Promise.all([this.isFavorite(json.id)]);
 
@@ -341,7 +340,7 @@ export default class FriendDetail extends Component {
                             <View style={{width:"100%",marginLeft:"3%"}}>
                                 <Text>
                                     {this.state.getUserInfo.displayName}{"  "}
-                                    {this.state.getUserInfo.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}
+                                    {this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}
                                 </Text>
                                 {this.state.getUserInfo.statusDescription != "" && this.state.getUserInfo.statusDescription != null ?
                                     <Text style={{width:"70%",marginTop:"3%"}}>
@@ -351,7 +350,7 @@ export default class FriendDetail extends Component {
                                     null
                                 }
                                 <Text style={{marginTop:"3%"}}>
-                                    {this.state.getUserInfo.location == "private" ? "private" : this.state.getUserInfo.location != "private" && this.state.getUserInfo.location != "offline" ? "public" : this.state.getUserInfo.location == "offline" ? "offline" : null}{"\n"}
+                                    {this.state.getUserInfo.location == "private" ? "private" : this.state.getUserInfo.location != "private" && this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? "public" : this.state.getUserInfo.location == "offline" || this.state.getUserInfo.location == "" ? "offline" : null}{"\n"}
                                 </Text>
                             </View>
                         </View>
