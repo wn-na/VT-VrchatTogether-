@@ -47,7 +47,6 @@ import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 export default class AvatarListSc extends Component {
 	constructor(props) {
 		console.info("AvatarListSc => constructor");
-
 		super(props);
 
 		this.state = {
@@ -89,6 +88,8 @@ export default class AvatarListSc extends Component {
 		}
 		callback();
 	})
+
+	
 
 	UNSAFE_componentWillMount() {
 		console.info("AvatarListSc => componentWillMount");
