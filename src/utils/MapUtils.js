@@ -76,7 +76,9 @@ DrawMap = (item, isFavorite) => {
             <View style={{flexDirection:"row",padding:"5%"}}>
                 <View>
                     <Image
-                        style={{width: 370, height: 200, borderRadius:5}}
+                        style={{width: parseInt(Dimensions.get('window').width / 100 * 62), 
+                            height: parseInt(Dimensions.get('window').width / 100 * 40),
+                            borderRadius:5}}
                         source={VRChatImage(item.thumbnailImageUrl)}
                     />
                 </View>

@@ -171,7 +171,7 @@ export default class MapListSc extends Component {
                     </ScrollView>
                 </View>
 
-                <View style={{width:"94%", marginLeft:"3%", flexDirection:"row", borderWidth:1, borderColor:"#dfdfdf"}}>
+                <View style={{width:"94%", marginLeft:"3%", borderWidth:1, borderColor:"#dfdfdf"}}>
                     <Carousel
                         layout={'default'}
                         ref={(c) => { this._carousel = c; }} 
@@ -181,8 +181,8 @@ export default class MapListSc extends Component {
                             }
                         }}
                         data={this.state.mapList}
-                        sliderWidth={300}
-                        itemWidth={300}
+                        sliderWidth={parseInt(Dimensions.get('window').width / 100 * 94)}
+                        itemWidth={parseInt(Dimensions.get('window').width / 100 * 70)}
                         renderItem={({item}) => MapInfo(item, true, true, Actions.MapDetail, {mapId: item.id})}
                     />
                 </View>

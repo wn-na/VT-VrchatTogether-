@@ -107,7 +107,7 @@ export default class MapDetail extends Component {
         return (
             <View style={{flex:1}}>
                 <Header style={styles.logo}>
-                    <Text>맵 상세보기</Text>
+                    <Text>맵 제작자 정보보기</Text>
                 </Header>
                 <ScrollView style={{borderWidth:1}}>
                     <Text>제작자 정보</Text>
