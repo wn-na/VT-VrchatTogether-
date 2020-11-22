@@ -25,7 +25,7 @@ import {
     ListItem,
     Switch,
     Drawer
-} from "native-base";
+} from "native-base"
 import {
     Image,
     StyleSheet,
@@ -38,13 +38,13 @@ import {
     Dimensions,
     Alert,
     AsyncStorage
-} from "react-native";
-import Icon from "react-native-vector-icons/Entypo";
-import { Actions } from 'react-native-router-flux';
-import utf8 from "utf8";
-import base64 from 'base-64';
-import Carousel from 'react-native-snap-carousel';
-import {MapTags, MapInfo} from '../utils/MapUtils';
+} from "react-native"
+import Icon from "react-native-vector-icons/Entypo"
+import { Actions } from 'react-native-router-flux'
+import utf8 from "utf8"
+import base64 from 'base-64'
+import Carousel from 'react-native-snap-carousel'
+import {MapTags, MapInfo, drawMapTag, drawModal} from '../utils/MapUtils'
 import {VRChatAPIGet} from '../utils/ApiUtils'
 
 export default class MapListSc extends Component {
@@ -56,7 +56,9 @@ export default class MapListSc extends Component {
             index: 0,
             mapCount: 10,
             search:'',
-            tag: 'new'
+            tag: 'new',
+            display : false,
+            toggleModal : (t = null) => this.setState({display : t ? t : !this.state.display})
         };
     }
     
@@ -117,18 +119,17 @@ export default class MapListSc extends Component {
     
     searchTagMap = (tagName = this.state.tag, idx = this.state.index) => {
         // 리로드 모달 보여주기
-        if(!(tagName in MapTags)) return
+        if(!MapTags.has(tagName)) return
         let isSameTag = this.state.tag == tagName
-        
         console.log("MapListSc => searchTagMap");
-        fetch(`https://api.vrchat.cloud/api/1/worlds?tag=${MapTags[tagName]}&sort=_updated_at&offset=${idx * this.state.mapCount}`, VRChatAPIGet)
+        fetch(`https://api.vrchat.cloud/api/1/worlds?tag=${MapTags.get(tagName)}&sort=_updated_at&offset=${idx * this.state.mapCount}`, VRChatAPIGet)
         .then((response) =>  response.json())
         .then((responseJson) => {
             if(!responseJson.error){
                 this.setState((prevState, prevProps) => {
                     return {
-                        mapList: isSameTag ? prevState.mapList.concat(responseJson) : responseJson,
-                        search:'',
+                        mapList: isSameTag ? [...prevState.mapList, ...responseJson] : responseJson,
+                        search: '',
                         tag: tagName,
                         index : idx
                     }
@@ -164,10 +165,7 @@ export default class MapListSc extends Component {
 
                 <View style={styles.textView}>
                     <ScrollView horizontal style={{width:"94%", height:30, marginBottom:"3%", marginTop:"3%", marginLeft:"3%", borderWidth:1, borderColor:"#efefef", flexDirection:"row"}}>
-                            <Text style={this.state.tag == 'new' ? styles.mapSelectTag : styles.mapTag} onPress={() => this.searchTagMap('new')}>new</Text>
-                            <Text style={this.state.tag == 'hot' ? styles.mapSelectTag : styles.mapTag} onPress={() => this.searchTagMap('hot')}>hot</Text>
-                            <Text style={this.state.tag == 'avatar' ? styles.mapSelectTag : styles.mapTag} onPress={() => this.searchTagMap('avatar')}>avatar</Text>
-                            <Text style={this.state.tag == 'game' ? styles.mapSelectTag : styles.mapTag} onPress={() => this.searchTagMap('game')}>game</Text>
+                    {drawMapTag(this.state.tag, styles.mapSelectTag, styles.mapTag, this.searchTagMap)}
                     </ScrollView>
                 </View>
 
@@ -183,9 +181,10 @@ export default class MapListSc extends Component {
                         data={this.state.mapList}
                         sliderWidth={parseInt(Dimensions.get('window').width / 100 * 94)}
                         itemWidth={parseInt(Dimensions.get('window').width / 100 * 70)}
-                        renderItem={({item}) => MapInfo(item, true, true, Actions.MapDetail, {mapId: item.id})}
+                        renderItem={({item}) => MapInfo(item, this.state, true, Actions.MapDetail, {mapId: item.id})}
                     />
                 </View>
+                {drawModal(this.state)}
             </View>
         );
     }

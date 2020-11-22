@@ -44,7 +44,7 @@ import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
 import {UserGrade} from './../utils/UserUtils';
-import {MapTags, MapInfo} from '../utils/MapUtils';
+import {MapTags, MapInfo, drawModal} from '../utils/MapUtils';
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class MapDetail extends Component {  
@@ -55,7 +55,9 @@ export default class MapDetail extends Component {
 
         this.state = {
             mapInfo: {},
-            userInfo: {}
+            userInfo: {}, 
+            display : false,
+            toggleModal : (t = null) => this.setState({display : t ? t : !this.state.display})
         };
     }
 
@@ -137,8 +139,9 @@ export default class MapDetail extends Component {
                     </View>
 
                     <Text>현재 월드</Text>
-                    {MapInfo(this.state.mapInfo, false)}
+                    {MapInfo(this.state.mapInfo, this.state)}
                 </ScrollView>
+                {drawModal(this.state)}
             </View>
         );
     }

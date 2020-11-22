@@ -43,7 +43,8 @@ import Icon from "react-native-vector-icons/Feather";
 import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
-import {VRChatAPIGet} from '../utils/ApiUtils'
+import {VRChatAPIGet, VRChatAPIPut} from '../utils/ApiUtils'
+import {MapInfo} from '../utils/MapUtils'
 
 export default class FavoriteSc extends Component {
     constructor(props) {
@@ -158,8 +159,10 @@ export default class FavoriteSc extends Component {
                         data={this.state.getWorld}
                         // onRefresh={this.reset.bind(this)}
                         // refreshing={this.state.refreshing}
-                        renderItem={({item}) => 
-                            <View style={{borderWidth:1}}>
+                        renderItem={({item}) =>
+                            MapInfo(item, this.state, true, Actions.friendDetail, {userId:item.authorId, friendCheck:"false"})
+                        
+                         /*   <View style={{borderWidth:1}}>
                                 <View style={styles.worldInfo}>
                                     <View>
                                         <Image
@@ -188,7 +191,7 @@ export default class FavoriteSc extends Component {
                                         <Text>상세보기</Text>
                                     </Button>
                                 </View>
-                            </View>
+                            </View>*/
                         }
                     />
         }

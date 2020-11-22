@@ -48,6 +48,7 @@ import Modal from 'react-native-modal';
 import { Actions, Router } from "react-native-router-flux";
 import { Col, Row } from "react-native-easy-grid";
 import {VRChatAPIGet, VRChatImage, VRChatAPIPut} from '../utils/ApiUtils'
+import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
 
 export default class MainSc extends Component {
     constructor(props) {
@@ -71,6 +72,8 @@ export default class MainSc extends Component {
         console.info("MainSc => componentWillMount");
 
         this.getUserInfo();
+        getFavoriteMap();
+        getFavoriteWorldTag();
         await this.getFirend();
         BackHandler.addEventListener('hardwareBackPress', this.backHandler);
     }
@@ -182,6 +185,8 @@ export default class MainSc extends Component {
             setTimeout(() => {
                 this.state.refreshTime = false;
             }, 5000);
+            getFavoriteMap();
+            getFavoriteWorldTag();
             this.getFirend();
             this.getUserInfo();
             this.setState({
