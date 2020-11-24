@@ -55,8 +55,9 @@ export default class BlockSc extends Component {
         this.state = {
             refreshing:false,
             refreshTime:false,
-            option:"a",
-            modalVisible:false,
+            refreshButton:false,
+            option:"block",
+            modalVisible:true,
             getBlock:[],
             getAgainst:[]
         };
@@ -65,8 +66,12 @@ export default class BlockSc extends Component {
     UNSAFE_componentWillMount() {
         console.info("BlockSc => componentWillMount");
 
-        this.getBlock();
-        this.getAgainst();
+        Promise.all([this.getBlock(),this.getAgainst()])
+        .then(() => {
+            this.setState({
+                modalVisible:false
+            })
+        })
     }
 
     componentWillUnmount() {
@@ -94,9 +99,12 @@ export default class BlockSc extends Component {
         await fetch("https://api.vrchat.cloud/api/1/auth/user/playermoderated", VRChatAPIGet)
         .then((response) => response.json())
         .then(json => {
+            json.sort((a,b) =>{
+                return a.created > b.created ? -1 : a.created > b.created ? 1 : 0;
+            });
             this.setState({
                 getAgainst:json.filter((v) => v.type.indexOf("block") !== -1)
-            })
+            });
         })
     }
 
@@ -114,14 +122,14 @@ export default class BlockSc extends Component {
         }
         else
         {
-            if(this.state.option == "a" && this.state.getBlock != null)
+            if(this.state.option == "block" && this.state.getBlock != null)
             {
                 serachCheck = this.state.getBlock.filter((v) => v.targetDisplayName.indexOf(this.state.search) !== -1) 
                 this.setState({
                     getBlock:serachCheck
                 })
             }
-            if(this.state.option == "b" && this.state.getAgainst != null)
+            if(this.state.option == "against" && this.state.getAgainst != null)
             {
                 serachCheck = this.state.getAgainst.filter((v) => v.sourceDisplayName.indexOf(this.state.search) !== -1);
                 this.setState({
@@ -148,42 +156,16 @@ export default class BlockSc extends Component {
         });
     }
 
-    reset(){
-        console.info("BlockSc => reset");
-
-        if(this.state.refreshTime == false)
-        {
-            this.state.refreshTime = true;
-
-            setTimeout(() => {
-                this.state.refreshTime = false;
-            }, 5000);
-            
-            this.getBlock();
-            this.getAgainst();
-
-            this.setState({
-                refreshing:false,
-                option:"a",
-                search:null
-            });
-        }
-        else
-        {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
-        }
-    }
-
     flist(){
 
-        if(this.state.option == "a")
+        if(this.state.option == "block")
         {
             return <FlatList
                 style={styles.list}
                 data={this.state.getBlock}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "blockSc" ? Actions.friendDetail({userId:item.targetUserId}) : {}}
+                        onPress={()=> Actions.currentScene == "blockSc" ? Actions.blockDetail({userId:item.targetUserId, option:"block"}) : {}}
                         style={{padding:"5%",borderWidth:1,marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
                     >
                         <View style={{flexDirection:"row",width:"100%"}}>
@@ -198,14 +180,14 @@ export default class BlockSc extends Component {
                 }
             />
         }
-        else if(this.state.option == "b")
+        else if(this.state.option == "against")
         {
             return <FlatList
                 style={styles.list}
                 data={this.state.getAgainst}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "blockSc" ? Actions.friendDetail({userId:item.sourceUserId}) : {}}
+                        onPress={()=> Actions.currentScene == "blockSc" ? Actions.blockDetail({userId:item.sourceUserId, option:"against"}) : {}}
                         style={{padding:"5%",borderWidth:1,marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
                     >
                         <View style={{flexDirection:"row",width:"100%"}}>
@@ -222,6 +204,75 @@ export default class BlockSc extends Component {
         }
     }
 
+    reset(){
+        console.info("BlockSc => reset");
+
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+            this.state.modalVisible = true;
+
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+            
+            Promise.all([this.getBlock(),this.getAgainst()])
+            .then(() => {
+                this.setState({
+                    modalVisible : false
+                });
+            });
+
+            this.setState({
+                refreshing:false,
+                option:"block",
+                search:null
+            });
+        }
+        else
+        {
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
+    }
+
+    resetButton(){
+        console.info("MakeDetail => resetButton");
+
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+            this.state.refreshButton = true;
+            this.state.modalVisible = true;
+
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+
+            let promise;
+
+            promise = Promise.all([this.getBlock(),this.getAgainst()]);
+            promise.done(() => {
+                setTimeout(() => {
+                    this.setState({
+                        refreshButton : false
+                    });
+                }, 1000);
+                this.setState({
+                    modalVisible : false
+                });
+            });
+
+            this.setState({
+                refreshing:false,
+                search:null
+            });
+        }
+        else
+        {
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
+    }
+
     render() {
         console.info("BlockSc => render");
         
@@ -229,6 +280,16 @@ export default class BlockSc extends Component {
             <View style={{flex:1}}>
                 <Header style={styles.logo}>
                     <Text>블락관리</Text>
+                    <View  style={{position:"absolute",right:"5%"}}>
+                    {this.state.refreshButton == false ?
+                    <Icon
+                    onPress={this.resetButton.bind(this)}
+                    name="cycle" size={20}
+                    />
+                    :
+                    <ActivityIndicator size={20} color="black"/>
+                    }
+                    </View>
                 </Header>
                 <ScrollView 
                     refreshControl={
@@ -255,8 +316,8 @@ export default class BlockSc extends Component {
                                 selectedValue = {this.state.option}
                                 onValueChange= {this.filter}
                             >
-                                <Picker.Item label = "a" value = "a" />
-                                <Picker.Item label = "b" value = "b" />
+                                <Picker.Item label = "내가 블락한" value = "block" />
+                                <Picker.Item label = "나를 블락한" value = "against" />
                             </Picker>
                         </View>
                     </View>
@@ -303,7 +364,7 @@ const styles = StyleSheet.create({
     selectView:{
         borderBottomWidth:1,
         borderBottomColor:"#000",
-        width:"35%",
+        width:"45%",
         marginLeft:"2%",
         marginTop:"5%",
         marginBottom:"5%"

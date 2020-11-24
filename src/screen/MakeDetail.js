@@ -55,6 +55,7 @@ export default class MakeDetail extends Component {
             getWorlds:[],
             refreshing:false,
             refreshTime:false,
+            refreshButton:false,
             option:"avatar",
             modalVisivle:false,
             modalLoading:true,
@@ -332,11 +333,6 @@ export default class MakeDetail extends Component {
 
     async favoriteWorld(number, favoriteId, worldId, isFavorite) {
 
-        console.log(number);
-        console.log(favoriteId);
-        console.log(worldId);
-        console.log(isFavorite);
-
         if(isFavorite == false)
         {
             await fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
@@ -418,38 +414,6 @@ export default class MakeDetail extends Component {
             isFavorite:isFavorite,
         })
     }
-    reset() {
-        console.info("MakeDetail => reset");
-
-        if(this.state.refreshTime == false)
-        {
-            this.state.refreshTime = true;
-            this.state.modalLoading = true;
-
-            setTimeout(() => {
-                this.state.refreshTime = false;
-                this.state.modalLoading = false;
-            }, 5000);
-
-            let promise;
-
-            promise = Promise.all([this.getAvatars(),this.getWorlds()]);
-            promise.done(() => {
-                this.setState({
-                    modalLoading:false
-                })
-            })
-
-            this.setState({
-                refreshing:false,
-                search:null
-            });
-        }
-        else
-        {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
-        }
-    }
 
     filter = value => {
         console.info("MakeDetail => filter");
@@ -511,6 +475,74 @@ export default class MakeDetail extends Component {
         }
     }
 
+    reset() {
+        console.info("MakeDetail => reset");
+
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+            this.state.modalLoading = true;
+
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+
+            Promise.all([this.getAvatars(),this.getWorlds()])
+            .then(() => {
+                this.setState({
+                    modalLoading : false
+                });
+            });
+
+            this.setState({
+                refreshing:false,
+                search:null
+            });
+        }
+        else
+        {
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
+    }
+
+    resetButton(){
+        console.info("MakeDetail => resetButton");
+
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+            this.state.refreshButton = true;
+            this.state.modalLoading = true;
+
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+
+            let promise;
+
+            promise = Promise.all([this.getAvatars(),this.getWorlds()]);
+            promise.done(() => {
+                setTimeout(() => {
+                    this.setState({
+                        refreshButton : false
+                    });
+                }, 1000);
+                this.setState({
+                    modalLoading : false
+                });
+            });
+
+            this.setState({
+                refreshing:false,
+                search:null
+            });
+        }
+        else
+        {
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
+    }
+
     render() {
         console.info("MakeDetail => render");
         
@@ -520,6 +552,16 @@ export default class MakeDetail extends Component {
                     <Text>
                         제작정보
                     </Text>
+                    <View  style={{position:"absolute",right:"5%"}}>
+                    {this.state.refreshButton == false ?
+                    <Icon
+                    onPress={this.resetButton.bind(this)}
+                    name="cycle" size={20}
+                    />
+                    :
+                    <ActivityIndicator size={20} color="black"/>
+                    }
+                    </View>
                 </Header>
                 <ScrollView 
                     refreshControl={

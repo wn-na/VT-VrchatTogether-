@@ -44,10 +44,11 @@ import {
     ActivityIndicator
 } from "react-native";
 import {UserGrade} from './../utils/UserUtils';
+import Icon from "react-native-vector-icons/Entypo";
 import Modal from 'react-native-modal';
 import { Actions, Router } from "react-native-router-flux";
 import { Col, Row } from "react-native-easy-grid";
-import {VRChatAPIGet, VRChatImage, VRChatAPIPut} from '../utils/ApiUtils'
+import {VRChatAPIGet, VRChatImage, VRChatAPIPut} from '../utils/ApiUtils';
 import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
 
 export default class MainSc extends Component {
@@ -62,6 +63,7 @@ export default class MainSc extends Component {
             onCount:0,
             offCount:0,
             allCount:0,
+            alertCount:0,
             refreshTime:false,
             exitApp:false,
             modalVisible:true
@@ -70,16 +72,23 @@ export default class MainSc extends Component {
 
     async UNSAFE_componentWillMount() {
         console.info("MainSc => componentWillMount");
-
-        this.getUserInfo();
+        
         getFavoriteMap();
         getFavoriteWorldTag();
-        await this.getFirend();
+
+        Promise.all([this.getUserInfo(),this.getAlerts(),getFavoriteMap(),getFavoriteWorldTag()])
+        .then(() => {
+            this.setState({
+                modalVisible:false
+            });
+        });
+
         BackHandler.addEventListener('hardwareBackPress', this.backHandler);
     }
 
     componentWillUnmount() {
         console.info("MainSc => componentWillUnmount");
+
         BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
     }
 
@@ -90,7 +99,8 @@ export default class MainSc extends Component {
     // 로그아웃 처리
     logout = () =>
     {
-        console.log("LoginSc => logout");
+        console.log("MainSc => logout");
+
         Alert.alert(
             "안내",
             "로그아웃 하시겠습니까?",
@@ -117,86 +127,24 @@ export default class MainSc extends Component {
         .then((response) => response.json())
         .then((responseJson) => {
             this.setState({
-                getUserInfo:responseJson
+                getUserInfo : responseJson,
+                onCount : responseJson.onlineFriends.length,
+                offCount : responseJson.offlineFriends.length
             });
         })
     }
 
-    // 온라인친구 가져오기
-    getFirendOn = async(offSet) =>
-    {
-        const responseOn = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset="+offSet, VRChatAPIGet);
-        return new Promise((resolve, reject) =>
-        setTimeout(() =>{
-            resolve(responseOn.json());
-        }, 100) );
-    }
+    getAlerts() {
+        console.info("MainSc => getAlerts");
 
-    // 오프라인친구 가져오기
-    getFirendOff = async(offSet) =>
-    {
-        const responseOff = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset="+offSet, VRChatAPIGet);
-        return new Promise((resolve, reject) =>
-        setTimeout(() =>{
-            resolve(responseOff.json());
-        }, 100) );
-    }
-
-    // 온라인 & 오프라인친구 호출
-    // 온라인 오프라인을 동시에 불러오기에는 병렬처리 효과가 크게 나지않기에 분리
-    getFirend = async() =>
-    {
-        console.log("LoginSc => getFirend");
-
-        let onCount  = 0;
-        let offCount = 0;
-        let offSet = 0;
-        let promise;
-        // Promise.all 이용하여 병렬처리 진행
-        for(let i=0;i<10;i++)
-        {
-            promise = Promise.all([this.getFirendOn(offSet),this.getFirendOff(offSet)])
-            .then((result) => {
-                this.setState({
-                    // result[0]은 온라인 친구 result[1]은 오프라인 친구
-                    // 배열에 넣은순서대로 결과값도 순서대로 넘어옴
-                    onCount : onCount += result[0].length,
-                    offCount : offCount += result[1].length
-                });
-            });
-            offSet+=100;
-        }
-
-        promise.done(() => {
+        fetch("https://api.vrchat.cloud/api/1/auth/user/notifications", VRChatAPIGet)
+        .then(responses => responses.json())
+        .then(json => {
+            console.log(json.filter((v) => v.type.indexOf("friendRequest") !== -1));
             this.setState({
-                modalVisible:false
+                alertCount:json.filter((v) => v.type.indexOf("friendRequest") !== -1).length
             })
         })
-    }
-
-    // 새로고침 시 5초 카운팅기능
-    refreshData = () =>
-    {
-        console.log("LoginSc => refreshData");
-
-        if(this.state.refreshTime == false)
-        {
-            this.state.refreshTime = true;
-            setTimeout(() => {
-                this.state.refreshTime = false;
-            }, 5000);
-            getFavoriteMap();
-            getFavoriteWorldTag();
-            this.getFirend();
-            this.getUserInfo();
-            this.setState({
-                refreshing:false
-            });
-        }
-        else
-        {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
-        }
     }
 
     // 백핸들러
@@ -219,27 +167,65 @@ export default class MainSc extends Component {
         }
     }
 
+    // 새로고침 시 5초 카운팅기능
+    reset = () =>
+    {
+        console.log("LoginSc => reset");
+
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+            this.state.modalVisible = true;
+
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+
+            Promise.all([this.getUserInfo(),this.getAlerts(),getFavoriteMap(),getFavoriteWorldTag()])
+            .then(() => {
+                this.setState({
+                    modalVisible:false
+                });
+            });
+
+            this.setState({
+                refreshing:false
+            });
+        }
+        else
+        {
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
+    }
+
     render() {
+        console.info("MainSc => render");
+
         this.state.allCount = this.state.onCount + this.state.offCount;
 
-        console.info("MainSc => render");
-        
         return (
             <ScrollView
                 refreshControl={
                     <RefreshControl
+                        onRefresh={this.reset.bind(this)}
                         refreshing={this.state.refreshing}
-                        onRefresh={this.refreshData}
                     />
                 }
                 >
-                <View style={{alignItems:"flex-end",marginRight:"5%"}}>
-                    <Button
-                        onPress={this.logout.bind(this)}
-                        style={{marginTop:10,width:100,justifyContent:"center"}}
-                        >
-                        <Text>로그아웃</Text>
-                    </Button>
+                <View>
+                    <View style={{alignItems:"flex-start",marginLeft:"5%"}}>
+                        <Button
+                            onPress={this.logout.bind(this)}
+                            style={{marginTop:10,width:100,justifyContent:"center"}}
+                            >
+                            <Text>로그아웃</Text>
+                        </Button>
+                    </View>
+                    {/* <View style={{position:"absolute",right:"0%",margin:"2%"}}>
+                        <Icon
+                        name="cog" size={30}
+                        />
+                    </View> */}
                 </View>
                 <View style={styles.topMain}>
                     {
@@ -278,7 +264,7 @@ export default class MainSc extends Component {
                     <Button
                     onPress={Actions.alertSc}
                     style={styles.infoButton}>
-                        <Text>알림</Text>
+                        <Text>알림{"  "}{this.state.alertCount}</Text>
                     </Button>
                     <Button
                     onPress={Actions.friendListSc}
@@ -320,6 +306,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        paddingTop:"5%",
         paddingRight:"5%",
         paddingLeft:"5%",
         paddingBottom:"5%",
@@ -333,7 +320,8 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         marginTop:"-5%",
         justifyContent:"center",
-        marginTop:"2%"
+        marginTop:"2%",
+        height:parseInt(Dimensions.get('window').width / 100 * 123),
     },
     textView:{
         borderBottomWidth:1,
@@ -349,7 +337,7 @@ const styles = StyleSheet.create({
         fontSize:25,
         width:"45%",
         marginTop:10,
-        height:150,
+        height:parseInt(Dimensions.get('window').width / 100 * 37),
         margin:5,
         borderRadius:20
     }
