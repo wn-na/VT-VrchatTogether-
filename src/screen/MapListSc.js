@@ -28,6 +28,7 @@ import {
 } from "native-base"
 import {
     Image,
+    ActivityIndicator,
     StyleSheet,
     SectionList,
     FlatList,
@@ -37,6 +38,7 @@ import {
     TextInput,
     Dimensions,
     Alert,
+    Modal,
     AsyncStorage
 } from "react-native"
 import Icon from "react-native-vector-icons/Entypo"
@@ -44,7 +46,7 @@ import { Actions } from 'react-native-router-flux'
 import utf8 from "utf8"
 import base64 from 'base-64'
 import Carousel from 'react-native-snap-carousel'
-import {MapTags, MapInfo, drawMapTag, drawModal} from '../utils/MapUtils'
+import {MapTags, MapInfo, drawModal} from '../utils/MapUtils'
 import {VRChatAPIGet} from '../utils/ApiUtils'
 
 export default class MapListSc extends Component {
@@ -61,7 +63,12 @@ export default class MapListSc extends Component {
             toggleModal : (t = null) => this.setState({display : t ? t : !this.state.display})
         };
     }
-    
+
+    drawMapTag = () => 
+        [...MapTags.keys()].map((key, idx) => 
+            <Text key={idx} style={this.state.tag == key ? styles.mapSelectTag : styles.mapTag} onPress={() => this.searchTagMap(key)}>{key}</Text>
+        )
+
     searchMapList = (callback) => 
         fetch(`https://api.vrchat.cloud/api/1/worlds?search=${this.state.search}`, VRChatAPIGet)
         .then((response) =>  response.json())
@@ -165,7 +172,7 @@ export default class MapListSc extends Component {
 
                 <View style={styles.textView}>
                     <ScrollView horizontal style={{width:"94%", height:30, marginBottom:"3%", marginTop:"3%", marginLeft:"3%", borderWidth:1, borderColor:"#efefef", flexDirection:"row"}}>
-                    {drawMapTag(this.state.tag, styles.mapSelectTag, styles.mapTag, this.searchTagMap)}
+                    {this.drawMapTag()}
                     </ScrollView>
                 </View>
 

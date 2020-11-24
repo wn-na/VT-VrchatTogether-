@@ -44,7 +44,6 @@ import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import {VRChatAPIDelete, VRChatAPIGet, VRChatAPIPostBody, VRChatAPIPut, VRChatImage} from '../utils/ApiUtils'
 
-
 export let FavoriteWorld = new Map();
 export let FavoriteWorldTag = new Map();
 
@@ -60,10 +59,12 @@ export function getFavoriteWorldTag() {
     then(response => response.json()).
     then(responseJson => {
         if(!responseJson.error){
-            console.log(responseJson)
             FavoriteWorldTag.clear();
-            responseJson.forEach(element => FavoriteWorldTag.set(element.id, element.displayName))
-            console.log('test', FavoriteWorldTag);
+            responseJson.forEach(element => FavoriteWorldTag.set(element.displayName, element.id))
+            if(FavoriteWorldTag.size < 4){
+                for(let i = FavoriteWorldTag.size; i < 4; i++)
+                    FavoriteWorldTag.set(`worlds${i+1}`, `worlds${i+1}`)
+            }
         }
     })
 }
@@ -75,19 +76,11 @@ export function getFavoriteMap() {
         if(!responseJson.error){
             FavoriteWorld.clear()
             responseJson.forEach(element => FavoriteWorld.set(element.id, element))
-            console.log('test', FavoriteWorld);
         }
     })
 }
 
-export function drawMapTag(tag, selectStyle, unSelectStyle, event) {
-    return [...MapTags.keys()].map((key, idx) => 
-        <Text key={idx} style={tag == key ? selectStyle : unSelectStyle} onPress={() => event(key)}>{key}</Text>
-    );
-}
-
-
-updateNewFavoriteWorld = (state, item, tags) => {
+addFavoriteWorld = (state, item, tags) => {
     fetch(`https://api.vrchat.cloud/api/1/favorites`, VRChatAPIPostBody({
         'type': 'world',
         'favoriteId': item.id,
@@ -96,83 +89,76 @@ updateNewFavoriteWorld = (state, item, tags) => {
     then(response => response.json()).
     then(responseJson => {
         state.toggleModal()   
-        console.log(responseJson)
         Alert.alert(
             `즐겨찾기(추가)`,
             `맵 id : ${item.id} / ${!responseJson.error ? '성공' : `실패 : ${responseJson.error.message}`}`,
-            [{text: "확인", onPress: () => console.log('MapUtils => updateFavoriteMap')}]
+            [{text: "확인", onPress: () => null}]
         )
-        if(!responseJson.error){
+        if(!responseJson.error) {
             FavoriteWorld.set(responseJson.favoriteId, {...item, favoriteId : responseJson.id})
-            console.log(FavoriteWorld)
         }
     })
 }
 
+deleteFavoiriteWorld = (item) => {
+    fetch(`https://api.vrchat.cloud/api/1/favorites/${FavoriteWorld.get(item.id).favoriteId}?type=world`, VRChatAPIDelete).
+    then(response => response.json()).
+    then(responseJson => {
+        Alert.alert(
+            `즐겨찾기(해제)`,
+            `맵 id : ${item.id} / ${!responseJson.error ? '성공' : `실패 : ${responseJson.error.message}`}`,
+            [{text: "확인", onPress: () => null}]
+        )
+        if(!responseJson.error) FavoriteWorld.delete(item.id)
+    })   
+}
+
 updateFavoriteMap = (state, item, isFavorite) => {
     if(isFavorite){
-         fetch(`https://api.vrchat.cloud/api/1/favorites/${FavoriteWorld.get(item.id).favoriteId}?type=world`, VRChatAPIDelete).
-        then(r => r.json()).
-        then(responseJson => {
-            console.log(FavoriteWorld.get(item.id).favoriteId, responseJson)
-            isFavorite = !(!responseJson.error)
-            Alert.alert(
-                `즐겨찾기(해제)`,
-                `맵 id : ${item.id} / ${!responseJson.error ? '성공' : `실패 : ${responseJson.error.message}`}`,
-                [{text: "확인", onPress: () => console.log('MapUtils => updateFavoriteMap')}]
-            )
-            if(!isFavorite){
-                FavoriteWorld.delete(item.id)
-                console.log(FavoriteWorld)
-            }
-        })    
-        } else {
-            state.toggleModal(item)            
+        this.deleteFavoiriteWorld(item)
+    } else {
+        state.toggleModal(item)            
     }
        
 }
 
 drawWorldTagList = (state, item) => {
-    console.log('te', item)
     return [...FavoriteWorldTag.keys()].map((element, idx) => 
         <Button
-            key={idx}
-            onPress={() => this.updateNewFavoriteWorld(state, item, FavoriteWorldTag.get(element))}
-            style={{width:"90%", height:"20%",justifyContent:"center"}}>
-            <Text>{FavoriteWorldTag.get(element)}</Text>
+            key={FavoriteWorldTag.get(element)}
+            onPress={() => this.addFavoriteWorld(state, item, element)}
+            style={{width:"80%", height:40, margin:15, justifyContent:"center", backgroundColor:"#fff", color:"#000"}}>
+            <Text style={{color:"#000"}}>Group {String(idx + 1)}</Text>
         </Button>
     )
 }
 
-isFavorite = (flag) => {
-    if(flag) return "star-outlined"
-    else return "star"
+export function drawModal(state) {
+    return <Modal animationType="fade"
+                transparent={true}
+                visible={!!state.display || false}
+                onBackButtonPress={()=>state.toggleModal()}
+                onBackdropPress={()=>state.toggleModal()}>
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor:'rgba(0,0,0,0.5)'}}>
+                    <View style={{alignItems:"center", height:"45%", width:"95%", borderColor:"#cdcdcd", borderWidth: 1, backgroundColor:"#fff"}}>
+                        {drawWorldTagList(state, state.display)}
+                        <Button style={{width:"80%",height:40,margin:10,justifyContent:"center"}}
+                            onPress={()=>state.toggleModal()}>
+                            <Text>취소</Text>
+                        </Button>
+                    </View>
+                </View>
+            </Modal>
 }
 
-export function drawModal(state){
-    console.log(!!(state.display), state)
-    return <Modal style={{flex:1}}
-        visible={!!state.display || false}
-        animationType="slide"
-        onRequestClose={()=>state.toggleModal()} //for android hardware back
-    >
-        {drawWorldTagList(state, state.display)}
-        <View>
-            <Button onPress={() => state.toggleModal()}>
-                <Text>Close</Text>
-            </Button>
-        </View>
-    </Modal>
-}
-
-DrawMap = (state, item) => {
-    return (
-        <View style={{borderWidth:1}}>
+DrawMap = (state, item) => 
+    (<View style={{borderWidth:1}}>
             <Icon 
+                key={(FavoriteWorld.get(item.id))}
                 onPress={() => this.updateFavoriteMap(state, item, FavoriteWorld.get(item.id))}
-                name={this.isFavorite(FavoriteWorld.get(item.id))}
+                name={(FavoriteWorld.get(item.id) ? "star-outlined" : "star")}
                 size={40} 
-                style={{marginLeft:15, justifyContent:"center"}}
+                style={{marginLeft:15, justifyContent:"center", width:40, height:40}}
             />
 
             <View style={{flexDirection:"row",padding:"5%"}}>
@@ -192,13 +178,9 @@ DrawMap = (state, item) => {
                 <Text>맵 전체 인원수 : {item.occupants}</Text>
                 <Text>마지막 업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}</Text> 
             </View>
-        </View>
-    )
-}
+        </View>)
 
 export function MapInfo(item, state = null, isTouchable = false, viewFunction = null, viewProp = null){
-   
-   console.log(state)
     return isTouchable ? 
     (
         <TouchableOpacity style={{borderWidth:1}} onPress={() => viewFunction == null ? {} : viewFunction(viewProp)}>
