@@ -341,7 +341,7 @@ export default class FriendDetail extends Component {
             <View style={{flex:1}}>
                 <Header style={styles.logo}>
                     <Text>
-                        {this.props.friendCheck != "false" ? "친구정보" : "아바타 상세보기"}
+                        {  this.props.isMap ? "맵 정보" : (this.props.friendCheck != "false" ? "친구정보" : "아바타 상세보기")}
                     </Text>
                 </Header>
                 {this.state.getUserInfo != null ? 

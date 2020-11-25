@@ -49,8 +49,6 @@ import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class MapDetail extends Component {  
     constructor(props) {
-        console.info("MapDetail => constructor");
-
         super(props);
 
         this.state = {
@@ -65,10 +63,9 @@ export default class MapDetail extends Component {
     getUserDetail = async() => await fetch(`https://api.vrchat.cloud/api/1/users/${this.state.mapInfo.authorId}`, VRChatAPIGet)
     .then((response) => response.json())
     .then((responseJson) => {
-        console.info("A", responseJson)
         this.setState((prevState, prevProps) => {
             return { userInfo: responseJson}
-        }, () => console.log("T", this.state))
+        })
    })
     
     getMapDetail = async() => await
@@ -76,36 +73,25 @@ export default class MapDetail extends Component {
         .then((response) =>  response.json())
         .then((responseJson) => {
             if(!responseJson.error){
-                console.info("A", responseJson)
                 this.setState((prevState, prevProps) => {
                     return { mapInfo: responseJson}
                 }, () => { 
-                    console.info("B", this.state)
                     this.getUserDetail();
                 })
-                console.log("S", this.state)
             }
         })
         
     UNSAFE_componentWillMount() {
-        console.info("MapDetail => componentWillMount");
         this.getMapDetail();
     }
 
     componentWillUnmount() {
-        console.info("MapDetail => componentWillUnmount");
     }
     componentDidMount() {
-        console.info("MapDetail => componentDidMount");
     }
 
     render() {
-        console.info("MapDetail => render"); 
         Moment.locale('ko');
-        if(this.state.mapInfo != null)
-        {
-            console.log(this.state.mapInfo);
-        }
         return (
             <View style={{flex:1}}>
                 <Header style={styles.logo}>

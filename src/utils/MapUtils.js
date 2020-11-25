@@ -54,6 +54,7 @@ export const MapTags = new Map([
     ['game', 'author_tag_game']
 ])
 
+
 export function getFavoriteWorldTag() {
     fetch(`https://api.vrchat.cloud/api/1/favorite/groups?type=world`, VRChatAPIGet).
     then(response => response.json()).
@@ -88,38 +89,40 @@ addFavoriteWorld = (state, item, tags) => {
     })).
     then(response => response.json()).
     then(responseJson => {
-        state.toggleModal()   
+        if(!responseJson.error) {
+            FavoriteWorld.set(responseJson.favoriteId, {...item, favoriteId : responseJson.id})
+        }   
+        state.toggleModal()
         Alert.alert(
             `즐겨찾기(추가)`,
             `맵 id : ${item.id} / ${!responseJson.error ? '성공' : `실패 : ${responseJson.error.message}`}`,
             [{text: "확인", onPress: () => null}]
         )
-        if(!responseJson.error) {
-            FavoriteWorld.set(responseJson.favoriteId, {...item, favoriteId : responseJson.id})
-        }
     })
 }
 
-deleteFavoiriteWorld = (item) => {
+deleteFavoiriteWorld = (state, item) => {
     fetch(`https://api.vrchat.cloud/api/1/favorites/${FavoriteWorld.get(item.id).favoriteId}?type=world`, VRChatAPIDelete).
     then(response => response.json()).
     then(responseJson => {
+        if(!responseJson.error) {
+            FavoriteWorld.delete(item.id)
+        }
+        state.updateFunction()
         Alert.alert(
             `즐겨찾기(해제)`,
             `맵 id : ${item.id} / ${!responseJson.error ? '성공' : `실패 : ${responseJson.error.message}`}`,
             [{text: "확인", onPress: () => null}]
         )
-        if(!responseJson.error) FavoriteWorld.delete(item.id)
     })   
 }
 
-updateFavoriteMap = (state, item, isFavorite) => {
+export function updateFavoriteMap (state, item, isFavorite)  {
     if(isFavorite){
-        this.deleteFavoiriteWorld(item)
+        this.deleteFavoiriteWorld(state, item)
     } else {
         state.toggleModal(item)            
     }
-       
 }
 
 drawWorldTagList = (state, item) => {
@@ -153,32 +156,31 @@ export function drawModal(state) {
 
 DrawMap = (state, item) => 
     (<View style={{borderWidth:1}}>
-            <Icon 
-                key={(FavoriteWorld.get(item.id))}
-                onPress={() => this.updateFavoriteMap(state, item, FavoriteWorld.get(item.id))}
-                name={(FavoriteWorld.get(item.id) ? "star-outlined" : "star")}
-                size={40} 
-                style={{marginLeft:15, justifyContent:"center", width:40, height:40}}
-            />
-
-            <View style={{flexDirection:"row",padding:"5%"}}>
-                <View>
-                    <Image
-                        style={{width: parseInt(Dimensions.get('window').width / 100 * 62), 
-                            height: parseInt(Dimensions.get('window').width / 100 * 40),
-                            borderRadius:5}}
-                        source={VRChatImage(item.thumbnailImageUrl)}
-                    />
-                </View>
-            </View>   
-            <View style={{marginLeft:"3%"}}>
-                <Text>맵 이름 : {item.name}</Text>
-                <Text>맵 정보 : {item.releaseStatus}</Text>
-                {item.publicOccupants !== undefined ? <Text>접속중인 월드 인원수 : {item.publicOccupants}</Text> : null}
-                <Text>맵 전체 인원수 : {item.occupants}</Text>
-                <Text>마지막 업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}</Text> 
+        <Icon 
+            visible={!!FavoriteWorld.get(item.id) || false}
+            onPress={() => updateFavoriteMap(state, item, FavoriteWorld.get(item.id))}
+            name={(FavoriteWorld.get(item.id) ? "star-outlined" : "star")}
+            size={40} 
+            style={{marginLeft:15, justifyContent:"center", width:40, height:40}}
+        />
+        <View style={{flexDirection:"row",padding:"5%"}}>
+            <View>
+                <Image
+                    style={{width: parseInt(Dimensions.get('window').width / 100 * 62), 
+                        height: parseInt(Dimensions.get('window').width / 100 * 40),
+                        borderRadius:5}}
+                    source={VRChatImage(item.thumbnailImageUrl)}
+                />
             </View>
-        </View>)
+        </View>   
+        <View style={{marginLeft:"3%"}}>
+            <Text>맵 이름 : {item.name}</Text>
+            <Text>맵 정보 : {item.releaseStatus}</Text>
+            {item.publicOccupants !== undefined ? <Text>접속중인 월드 인원수 : {item.publicOccupants}</Text> : null}
+            <Text>맵 전체 인원수 : {item.occupants}</Text>
+            <Text>마지막 업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}</Text> 
+        </View>
+    </View>)
 
 export function MapInfo(item, state = null, isTouchable = false, viewFunction = null, viewProp = null){
     return isTouchable ? 

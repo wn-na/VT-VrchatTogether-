@@ -46,12 +46,11 @@ import { Actions } from 'react-native-router-flux'
 import utf8 from "utf8"
 import base64 from 'base-64'
 import Carousel from 'react-native-snap-carousel'
-import {MapTags, MapInfo, drawModal} from '../utils/MapUtils'
-import {VRChatAPIGet} from '../utils/ApiUtils'
+import {MapTags, updateFavoriteMap, FavoriteWorld, drawModal} from '../utils/MapUtils'
+import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class MapListSc extends Component {
     constructor(props) {
-        console.info("MapListSc => constructor");
         super(props);
         this.state = {
             mapList: [],
@@ -60,7 +59,9 @@ export default class MapListSc extends Component {
             search:'',
             tag: 'new',
             display : false,
-            toggleModal : (t = null) => this.setState({display : t ? t : !this.state.display})
+            toggleModal : (t = null) => this.setState({display : t ? t : !this.state.display}),
+            update : false,
+            updateFunction : () => this.setState({update : !this.state.update})
         };
     }
 
@@ -82,37 +83,32 @@ export default class MapListSc extends Component {
 
 
     UNSAFE_componentWillMount() {
-        console.info("MapListSc => componentWillMount")
         this.searchTagMap()
     }
 
     componentWillUnmount() {
-        console.info("MapListSc => componentWillUnmount")
     }
     componentDidMount() {
-        console.info("MapListSc => componentDidMount")
     }
     
     searchMap = () => {
-        console.log("MapListSc => searchMap")
         if(this.state.search == null || this.state.search == "")
         {
             Alert.alert(
                 '오류',
                 '검색어를 입력해주세요.',
-                [{text: "확인", onPress: () => console.log('press search')}]
+                [{text: "확인", onPress: () => null}]
             )
         }
         else
         {
             this.searchMapList(() => {
-                    console.log("TEST", this.state.mapCount)
                     if(this.state.mapCount == 0)
                     {
                         Alert.alert(
                             '오류',
                             '검색결과가 존재하지 않습니다.',
-                            [{text: "확인", onPress: () => console.log('please new search')}]
+                            [{text: "확인", onPress: () => null}]
                         );
                     }
                     else
@@ -128,7 +124,6 @@ export default class MapListSc extends Component {
         // 리로드 모달 보여주기
         if(!MapTags.has(tagName)) return
         let isSameTag = this.state.tag == tagName
-        console.log("MapListSc => searchTagMap");
         fetch(`https://api.vrchat.cloud/api/1/worlds?tag=${MapTags.get(tagName)}&sort=_updated_at&offset=${idx * this.state.mapCount}`, VRChatAPIGet)
         .then((response) =>  response.json())
         .then((responseJson) => {
@@ -143,7 +138,7 @@ export default class MapListSc extends Component {
                 }, () => Alert.alert(
                     tagName,
                     `맵 갯수 ${this.state.mapList.length}, 태그 : ${this.state.tag}`,
-                    [{text: "확인", onPress: () => console.log('MapListSc => searchTagMap End')}]
+                    [{text: "확인", onPress: () => null}]
                 ))
             }
         })
@@ -151,7 +146,6 @@ export default class MapListSc extends Component {
 
 
     render() {
-        console.info("MapListSc => render"); 
         Moment.locale('ko');
         
         return (
@@ -185,10 +179,39 @@ export default class MapListSc extends Component {
                                 this.searchTagMap(this.state.tag, this.state.index + 1);
                             }
                         }}
+                        extraData={this.state}
                         data={this.state.mapList}
                         sliderWidth={parseInt(Dimensions.get('window').width / 100 * 94)}
                         itemWidth={parseInt(Dimensions.get('window').width / 100 * 70)}
-                        renderItem={({item}) => MapInfo(item, this.state, true, Actions.MapDetail, {mapId: item.id})}
+                        renderItem={({item}) => 
+                            <TouchableOpacity style={{borderWidth:1}} onPress={() => Actions.friendDetail({userId:item.authorId, isMap:true})}>
+                                <View style={{borderWidth:1}}>
+                                    <Icon 
+                                        onPress={() => updateFavoriteMap(this.state, item, FavoriteWorld.get(item.id))}
+                                        name={(FavoriteWorld.get(item.id) ? "star-outlined" : "star")}
+                                        size={40} 
+                                        style={{marginLeft:15, justifyContent:"center", width:40, height:40}}
+                                    />
+                                    <View style={{flexDirection:"row",padding:"5%"}}>
+                                        <View>
+                                            <Image
+                                                style={{width: parseInt(Dimensions.get('window').width / 100 * 62), 
+                                                    height: parseInt(Dimensions.get('window').width / 100 * 40),
+                                                    borderRadius:5}}
+                                                source={VRChatImage(item.thumbnailImageUrl)}
+                                            />
+                                        </View>
+                                    </View>   
+                                    <View style={{marginLeft:"3%"}}>
+                                        <Text>맵 이름 : {item.name}</Text>
+                                        <Text>맵 정보 : {item.releaseStatus}</Text>
+                                        {item.publicOccupants !== undefined ? <Text>접속중인 월드 인원수 : {item.publicOccupants}</Text> : null}
+                                        <Text>맵 전체 인원수 : {item.occupants}</Text>
+                                        <Text>마지막 업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}</Text> 
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        }
                     />
                 </View>
                 {drawModal(this.state)}
