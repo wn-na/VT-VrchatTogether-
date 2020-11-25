@@ -46,7 +46,6 @@ import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class AvatarListSc extends Component {
 	constructor(props) {
-		console.info("AvatarListSc => constructor");
 		super(props);
 
 		this.state = {
@@ -58,7 +57,6 @@ export default class AvatarListSc extends Component {
 	}
 
 	getAvatarList(){
-		console.info("url : ", `https://api.vrchat.cloud/api/1/avatars?sort=_updated_at&offset=${this.state.index * this.state.avatarCount}`);
 		fetch(`https://api.vrchat.cloud/api/1/avatars?sort=_updated_at&offset=${this.state.index * this.state.avatarCount}`, VRChatAPIGet)
 		.then((response) => response.json())
 		.then((responseJson) => {
@@ -78,9 +76,7 @@ export default class AvatarListSc extends Component {
 	searchAvatarList = (callback) => fetch(`https://api.vrchat.cloud/api/1/avatars?search=${this.state.search}`, VRChatAPIGet)
 	.then((response) => response.json())
 	.then((responseJson) => {
-		console.info("S", responseJson)
 		if(!responseJson.error){
-			console.info(responseJson)
 			this.setState({
 				avatarList: responseJson,
 				avatarCount: responseJson.length
@@ -92,18 +88,14 @@ export default class AvatarListSc extends Component {
 	
 
 	UNSAFE_componentWillMount() {
-		console.info("AvatarListSc => componentWillMount");
 	}
 
 	componentWillUnmount() {
-		console.info("AvatarListSc => componentWillUnmount");
 	}
 	componentDidMount() {
-		console.info("AvatarListSc => componentDidMount");
 	}
 
 	render() {
-		console.info("AvatarListSc => render");
 		
 		return (
 			<View style={{flex:1}}>
