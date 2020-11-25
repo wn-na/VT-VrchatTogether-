@@ -128,9 +128,7 @@ export default class FriendDetail extends Component {
         }
 
         return new Promise((resolve, reject) =>
-        setTimeout(() =>{
-            resolve(true);
-        }, 1000) );
+        resolve(true));
     }
 
     favorite(number,id) {
@@ -205,7 +203,7 @@ export default class FriendDetail extends Component {
         }
     }
 
-    unfriend(id,type) {
+    friendRequest(id,type) {
         if(type == true)
         {
             Alert.alert(
@@ -356,7 +354,7 @@ export default class FriendDetail extends Component {
                         </View>
                         <View style={{flexDirection:"row",width:"100%",paddingLeft:"5%",paddingRight:"5%",marginBottom:"3.5%"}}>
                             <Button 
-                                onPress={this.unfriend.bind(this,this.state.getUserInfo.id,this.state.getUserInfo.isFriend)}
+                                onPress={this.friendRequest.bind(this,this.state.getUserInfo.id,this.state.getUserInfo.isFriend)}
                                 style={{marginRight:15,width:"48%",justifyContent:"center"}}
                             >
                                 <Text>{this.state.getUserInfo.isFriend == true ? "친구삭제" : "친구신청"}</Text>

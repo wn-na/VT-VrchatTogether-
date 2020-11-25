@@ -59,7 +59,11 @@ export default class FriendListSc extends Component {
             getFilterFirend:[],
             getFirendOn:[],
             getFirendOff:[],
-            modalVisible:true
+            modalVisible:true,
+            refreshButton:false,
+            onCount:0,
+            offCount:0,
+            allCount:0
         };
     }
 
@@ -80,23 +84,22 @@ export default class FriendListSc extends Component {
     {
         const responseOn = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset="+offSet, VRChatAPIGet);
         return new Promise((resolve, reject) =>
-        setTimeout(() =>{
-            resolve(responseOn.json());
-        }, 100) );
+        resolve(responseOn.json()));
     }
 
     async getFirendOff(offSet)
     {
         const responseOff = await fetch("https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset="+offSet, VRChatAPIGet);
         return new Promise((resolve, reject) =>
-        setTimeout(() =>{
-            resolve(responseOff.json());
-        }, 100) );
+        resolve(responseOff.json()));
     }
 
     getFirend()
     {
         let offSet = 0;
+        let onCount  = 0;
+        let offCount = 0;
+        
         let promiseOn;
         let promiseOff;
 
@@ -112,7 +115,8 @@ export default class FriendListSc extends Component {
             .then((result) => {
                 this.setState({
                     getFirendOn     : this.state.getFirendOn.concat(result[0]),
-                    getFirend       : this.state.getFirend.concat(result[0])
+                    getFirend       : this.state.getFirend.concat(result[0]),
+                    onCount         : onCount += result[0].length
                 });
             });
 
@@ -127,7 +131,8 @@ export default class FriendListSc extends Component {
                 .then((result) => {
                     this.setState({
                         getFirendOff    : this.state.getFirendOff.concat(result[0]),
-                        getFirend       : this.state.getFirend.concat(result[0])
+                        getFirend       : this.state.getFirend.concat(result[0]),
+                        offCount        : offCount += result[0].length
                     });
                 });
                 
@@ -137,13 +142,12 @@ export default class FriendListSc extends Component {
             promiseOff.done(() => {
                 this.setState({
                     modalVisible:false
-                })
+                });
             })
         });
     }
 
-    filter = value =>
-    {
+    filter = value => {
         console.log("FriendListSc => filter");
         this.setState({
             option:value
@@ -196,29 +200,6 @@ export default class FriendListSc extends Component {
         
                 this.flist();
             }
-        }
-    }
-    reset(){
-        if(this.state.refreshTime == false)
-        {
-            this.state.refreshTime = true;
-
-            setTimeout(() => {
-                this.state.refreshTime = false;
-            }, 5000);
-
-            this.getFirend();
-
-            this.setState({
-                refreshing:false,
-                searchMode:"1",
-                option:"all",
-                search:null
-            });
-        }
-        else
-        {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
         }
     }
 
@@ -372,14 +353,96 @@ export default class FriendListSc extends Component {
             />
         }
     }
+    
+    reset(){
+        console.log("FriendListSc => reset");
+
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+            this.state.modalVisible = true;
+
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+
+            Promise.all([this.getFirend()])
+            .then(() => {
+                this.setState({
+                    modalVisible : false
+                });
+            });
+
+            this.setState({
+                refreshing:false,
+                searchMode:"1",
+                option:"all",
+                search:null
+            });
+        }
+        else
+        {
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
+    }
+
+    resetButton(){
+        console.log("FriendListSc => resetButton");
+
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+            this.state.refreshButton = true;
+            this.state.modalVisible = true;
+
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+
+            Promise.all([this.getFirend()])
+            .then(() => {
+                setTimeout(() => {
+                    this.setState({
+                        refreshButton : false
+                    });
+                }, 1000);
+                this.setState({
+                    modalVisible: false
+                });
+            });
+
+            this.setState({
+                refreshing:false,
+                searchMode:"1",
+                option:"all",
+                search:null
+            });
+        }
+        else
+        {
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
+    }
+
     render() {
-        
         console.info("FriendListSc => render");
-        
+
+        this.state.allCount = this.state.onCount + this.state.offCount;
+
         return (
             <View style={{flex:1}}>
                 <Header style={styles.logo}>
                     <Text>친구목록</Text>
+                    <View  style={{position:"absolute",right:"5%"}}>
+                    {this.state.refreshButton == false ?
+                    <Icon
+                    onPress={this.resetButton.bind(this)}
+                    name="cycle" size={20}
+                    />
+                    :
+                    <ActivityIndicator size={20} color="black"/>
+                    }
+                    </View>
                 </Header>
                 <ScrollView 
                     refreshControl={
@@ -389,6 +452,13 @@ export default class FriendListSc extends Component {
                         />
                     }
                 >
+                    {/* <View style={{margin:"2%"}}>
+                        <Text>
+                            전체 {this.state.allCount}명
+                            온라인 {this.state.onCount}명
+                            오프라인 {this.state.offCount}명
+                        </Text>
+                    </View> */}
                     <View style={styles.textView}>
                         <TextInput 
                             value={this.state.search}
@@ -400,6 +470,25 @@ export default class FriendListSc extends Component {
                         onPress={this.search}
                         name="magnifying-glass" size={30} style={{marginTop:5}}/>
                     </View>
+                    {/* <View style={{flexDirection:"row",marginRight:"2%"}}>
+                        <View style={{justifyContent:"center",style:"65%"}}>
+                            <Text>
+                                전체 {this.state.allCount}명
+                                온라인 {this.state.onCount}명
+                                오프라인 {this.state.offCount}명
+                            </Text>
+                        </View>
+                        <View style={styles.selectView}>
+                            <Picker 
+                                selectedValue = {this.state.option}
+                                onValueChange= {this.filter}
+                            >
+                                <Picker.Item label = "모두보기" value = "all" />
+                                <Picker.Item label = "온라인" value = "on" />
+                                <Picker.Item label = "오프라인" value = "off" />
+                            </Picker>
+                        </View>
+                    </View> */}
                     <View style={{alignItems:"flex-end",marginRight:"2%"}}>
                         <View style={styles.selectView}>
                             <Picker 

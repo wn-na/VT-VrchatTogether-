@@ -140,7 +140,6 @@ export default class MainSc extends Component {
         fetch("https://api.vrchat.cloud/api/1/auth/user/notifications", VRChatAPIGet)
         .then(responses => responses.json())
         .then(json => {
-            console.log(json.filter((v) => v.type.indexOf("friendRequest") !== -1));
             this.setState({
                 alertCount:json.filter((v) => v.type.indexOf("friendRequest") !== -1).length
             })
@@ -180,8 +179,11 @@ export default class MainSc extends Component {
             setTimeout(() => {
                 this.state.refreshTime = false;
             }, 5000);
+            
+            getFavoriteMap();
+            getFavoriteWorldTag();
 
-            Promise.all([this.getUserInfo(),this.getAlerts(),getFavoriteMap(),getFavoriteWorldTag()])
+            Promise.all([this.getUserInfo(),this.getAlerts()])
             .then(() => {
                 this.setState({
                     modalVisible:false
