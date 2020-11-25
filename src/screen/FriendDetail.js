@@ -131,9 +131,26 @@ export default class FriendDetail extends Component {
         resolve(true));
     }
 
-    favorite(number,id) {
-        console.info("FriendDetail => favoriteWorld")
+    favorite(number, id) {
+        console.info("FriendDetail => favorite");
         
+        let groupName = null;
+
+        fetch("https://api.vrchat.cloud/api/1/favorite/groups/", VRChatAPIGet)
+        .then(res => res.json())
+        .then(json => {
+            groupName = json.filter((v) => v.type.indexOf("world") !== -1)[number];
+            
+            if(groupName == null)
+            {
+                groupName = "worlds"+(number+1);
+            }
+            else
+            {
+                groupName = json.filter((v) => v.type.indexOf("world") !== -1)[number].name;
+            }
+        });
+
         if(this.state.isFavorite == false)
         {
             this.setState({
@@ -142,12 +159,12 @@ export default class FriendDetail extends Component {
 
             Alert.alert(
                 "안내",
-                "Group "+number+"에 즐겨찾기 하시겠습니까?",
+                "Group "+(number+1)+"에 즐겨찾기 하시겠습니까?",
                 [
                     {text:"확인", onPress: () => {
                         fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
                             "type":"world",
-                            "tags":["worlds"+number],
+                            "tags":[groupName],
                             "favoriteId":id
                         }))
                         .then((response) => response.json())
@@ -161,7 +178,7 @@ export default class FriendDetail extends Component {
                                         {text:"확인", onPress:()=>{
                                             this.setState({
                                                 modalVisivle:false
-                                            })
+                                            });
                                         }}
                                     ]
                                 )
@@ -171,7 +188,8 @@ export default class FriendDetail extends Component {
                                 this.setState({
                                     modalVisivle:false,
                                     isFavorite:true,
-                                })
+                                    favoriteId:json.id
+                                });
                                 ToastAndroid.show("등록이 완료되었습니다.", ToastAndroid.SHORT);
                             }
                         });
@@ -378,7 +396,7 @@ export default class FriendDetail extends Component {
                                     <View style={{alignItems:"flex-end"}}>
                                     {this.state.isFavorite == true ? 
                                     <Icon 
-                                    onPress={this.favorite.bind(this,0,this.state.favoriteId)}
+                                    onPress={this.favorite.bind(this,-1,this.state.favoriteId)}
                                     name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
                                     :
                                     <Icon 
@@ -409,10 +427,10 @@ export default class FriendDetail extends Component {
                                 onBackdropPress={()=>this.setState({modalVisivle:false})}>
                                     {this.state.modalVisivle == true ?
                                         <View style={{backgroundColor:"#fff"}}>
-                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,1,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 1</Text></Button>
-                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,2,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 2</Text></Button>
-                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,3,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 3</Text></Button>
-                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,4,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 4</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,0,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 1</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,1,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 2</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,2,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 3</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,3,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 4</Text></Button>
                                         <View style={{alignItems:"center"}}>
                                         <Button 
                                         onPress={()=>this.setState({modalVisivle:false})}
