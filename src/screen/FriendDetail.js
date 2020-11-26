@@ -136,10 +136,10 @@ export default class FriendDetail extends Component {
         
         let groupName = null;
 
-        fetch("https://api.vrchat.cloud/api/1/favorite/groups/", VRChatAPIGet)
+        fetch("https://api.vrchat.cloud/api/1/favorite/groups?type=world", VRChatAPIGet)
         .then(res => res.json())
         .then(json => {
-            groupName = json.filter((v) => v.type.indexOf("world") !== -1)[number];
+            groupName = json[number];
             
             if(groupName == null)
             {
@@ -147,7 +147,7 @@ export default class FriendDetail extends Component {
             }
             else
             {
-                groupName = json.filter((v) => v.type.indexOf("world") !== -1)[number].name;
+                groupName = json[number].name;
             }
         });
 
@@ -341,7 +341,7 @@ export default class FriendDetail extends Component {
             <View style={{flex:1}}>
                 <Header style={styles.logo}>
                     <Text>
-                        {  this.props.isMap ? "맵 정보" : (this.props.friendCheck != "false" ? "친구정보" : "아바타 상세보기")}
+                        {  this.props.isMap ? "맵 제작자 정보" : (this.props.friendCheck != false ? "친구정보" : "아바타 제작자 정보")}
                     </Text>
                 </Header>
                 {this.state.getUserInfo != null ? 
@@ -427,10 +427,10 @@ export default class FriendDetail extends Component {
                                 onBackdropPress={()=>this.setState({modalVisivle:false})}>
                                     {this.state.modalVisivle == true ?
                                         <View style={{backgroundColor:"#fff"}}>
-                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,0,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 1</Text></Button>
-                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,1,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 2</Text></Button>
-                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,2,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 3</Text></Button>
-                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this,3,this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 4</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this, 0, this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 1</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this, 1, this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 2</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this, 2, this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 3</Text></Button>
+                                        <Button style={styles.groupButton} onPress={this.favorite.bind(this, 3, this.state.getUserWInfo.id)} ><Text style={{color:"#000"}}>Group 4</Text></Button>
                                         <View style={{alignItems:"center"}}>
                                         <Button 
                                         onPress={()=>this.setState({modalVisivle:false})}

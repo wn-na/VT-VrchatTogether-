@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import {Scene, Router} from 'react-native-router-flux';
+import { ToastAndroid } from 'react-native';
+import { Scene, Router, Actions } from 'react-native-router-flux';
 import LoginSc from './src/screen/LoginSc';
 import MainSc from './src/screen/MainSc';
 import AlertSc from './src/screen/AlertSc';
@@ -18,10 +19,42 @@ import MakeDetail from './src/screen/MakeDetail';
 
 console.disableYellowBox = true;
 export default  class App extends Component {
+    
+    constructor() {
+        super();
+
+        this.state = {
+            exitApp: false
+        }
+    }
+
+    backHandler(){
+        if(Actions.currentScene == "loginSc" || Actions.currentScene == "mainSc")
+        {
+            if (this.state.exitApp == false) {
+                ToastAndroid.show('한번 더 누르시면 종료됩니다.', ToastAndroid.SHORT);
+                this.state.exitApp = true;
+    
+                setTimeout(() => {
+                    this.state.exitApp = false;
+                }, 3000);
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else
+        {
+            Actions.pop();
+            return true;
+        }
+    }
+
     render() {
-        return <Router>
+        return <Router
+            backAndroidHandler={this.backHandler.bind(this)}>
             <Scene key="root">
-                <Scene key="loginSc" hideNavBar={true} component={LoginSc} initial />
+                <Scene key="loginSc" hideNavBar={true} component={LoginSc} />
                 <Scene key="mainSc" type={"replace"} hideNavBar={true} component={MainSc} />
                 <Scene key="alertSc" hideNavBar={true} component={AlertSc} />
                 <Scene key="alertDetail" hideNavBar={true} component={AlertDetail} />

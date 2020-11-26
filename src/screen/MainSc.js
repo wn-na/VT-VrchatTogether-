@@ -46,7 +46,7 @@ import {
 import {UserGrade} from './../utils/UserUtils';
 import Icon from "react-native-vector-icons/Entypo";
 import Modal from 'react-native-modal';
-import { Actions, Router } from "react-native-router-flux";
+import { Actions } from "react-native-router-flux";
 import { Col, Row } from "react-native-easy-grid";
 import {VRChatAPIGet, VRChatImage, VRChatAPIPut} from '../utils/ApiUtils';
 import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
@@ -82,14 +82,10 @@ export default class MainSc extends Component {
                 modalVisible:false
             });
         });
-
-        BackHandler.addEventListener('hardwareBackPress', this.backHandler);
     }
 
     componentWillUnmount() {
         console.info("MainSc => componentWillUnmount");
-
-        BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
     }
 
     componentDidMount() {
@@ -144,26 +140,6 @@ export default class MainSc extends Component {
                 alertCount:json.filter((v) => v.type.indexOf("friendRequest") !== -1).length
             })
         })
-    }
-
-    // 백핸들러
-    backHandler = () =>
-    {
-        // 메인화면일경우만 감지하여 종료실행
-        if(Actions.currentScene == "mainSc")
-        {
-            let timeout;
-            if (this.state.exitApp == false) {
-                ToastAndroid.show('한번 더 누르시면 종료됩니다.', ToastAndroid.SHORT);
-                this.state.exitApp = true;
-    
-                timeout = setTimeout(() => {
-                    this.state.exitApp = false;
-                }, 3000);
-            } else {
-                BackHandler.exitApp();  // 앱 종료
-            }
-        }
     }
 
     // 새로고침 시 5초 카운팅기능

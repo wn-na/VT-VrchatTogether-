@@ -84,7 +84,7 @@ export default class MakeDetail extends Component {
 
     async getAvatars() {
         console.info("MakeDetail => getAvatars");
-        let offset=0;
+        let offset = 0;
         let data = [];
 
         let fetc = await fetch(`https://api.vrchat.cloud/api/1/avatars?userId=`+this.props.userId, VRChatAPIGet)
@@ -188,9 +188,6 @@ export default class MakeDetail extends Component {
                         <Text>
                             {item.name}
                         </Text>
-                        <Text>
-                            {item.authorName}
-                        </Text>
                         <Text style={{marginTop:"3%"}}>
                             {item.updated_at.substring(0,10)}
                         </Text>
@@ -291,10 +288,6 @@ export default class MakeDetail extends Component {
 
                     ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
                 }
-                else if(json.error.status_code == 400)
-                {
-                    ToastAndroid.show("아바타 즐겨찾기는 최대 16개까지 가능합니다.", ToastAndroid.SHORT);
-                }
                 else
                 {
                     ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
@@ -332,39 +325,66 @@ export default class MakeDetail extends Component {
     }
 
     async favoriteWorld(number, favoriteId, worldId, isFavorite) {
+        console.log("MakeDetail => this.favoriteWorld");
+
+        let groupName = null;
+
+        fetch("https://api.vrchat.cloud/api/1/favorite/groups?type=world", VRChatAPIGet)
+        .then(res => res.json())
+        .then(json => {
+            groupName = json[number];
+            
+            if(groupName == null)
+            {
+                groupName = "worlds"+(number+1);
+            }
+            else
+            {
+                groupName = json[number].name;
+            }
+        });
 
         if(isFavorite == false)
         {
-            await fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
-                "type":"world",
-                "tags":["worlds"+number],
-                "favoriteId":worldId
-            }))
-            .then((response) => response.json())
-            .then((json) => {
-                console.log(json)
-                if(!json.error)
-                {
-                    for(let i=0;i<this.state.getWorlds.length;i++)
-                    {
-                        if(this.state.getWorlds[i].id == worldId)
-                        {
-                            this.state.getWorlds[i].isFavorite = true;
-                            this.state.getWorlds[i].favoriteId = json.id;
-                        }
-                    }
-                    
-                    this.setState({
-                        modalVisivle: false
-                    });
+            Alert.alert(
+                "안내",
+                "Group "+(number+1)+"에 즐겨찾기 하시겠습니까?",
+                [
+                    {text:"확인", onPress: () => {
+                        fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
+                            "type":"world",
+                            "tags":[groupName],
+                            "favoriteId":worldId
+                        }))
+                        .then((response) => response.json())
+                        .then((json) => {
+                            console.log(json)
+                            if(!json.error)
+                            {
+                                for(let i=0;i<this.state.getWorlds.length;i++)
+                                {
+                                    if(this.state.getWorlds[i].id == worldId)
+                                    {
+                                        this.state.getWorlds[i].isFavorite = true;
+                                        this.state.getWorlds[i].favoriteId = json.id;
+                                    }
+                                }
+                                
+                                this.setState({
+                                    modalVisivle: false
+                                });
 
-                    ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
-                }
-                else
-                {
-                    ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
-                }
-            });
+                                ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
+                            }
+                            else
+                            {
+                                ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+                            }
+                        });
+                    }},
+                    {text:"취소"}
+                ]
+            );
         }
         else if(isFavorite == true)
         {

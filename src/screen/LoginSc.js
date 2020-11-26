@@ -53,9 +53,9 @@ export default class LoginSc extends Component {
         super(props);
 
         this.state = {
-            id:"",
-            pw:"",
-            loginCheck:true,
+            id: "",
+            pw: "",
+            loginCheck: true
         };
     }
 
@@ -68,13 +68,10 @@ export default class LoginSc extends Component {
         });
         
         this.loginCheck();
-        BackHandler.addEventListener('hardwareBackPress', this.backHandler);
-        
     }
 
     componentWillUnmount() {
         console.info("LoginSc => componentWillUnmount");
-        BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
     }
 
     componentDidMount() {
@@ -84,6 +81,7 @@ export default class LoginSc extends Component {
     loginCheck = () =>
     {
         console.log("LoginSc => loginCheck");
+
         fetch("https://api.vrchat.cloud/api/1/auth/user", VRChatAPIGet)
         .then((response) => response.json())
         .then((responseJson) => {
@@ -91,7 +89,7 @@ export default class LoginSc extends Component {
             {
                 this.setState({
                     loginCheck:true
-                })
+                });
                 Actions.mainSc();
             }
             else if(responseJson.error)
@@ -131,27 +129,7 @@ export default class LoginSc extends Component {
             console.log(r);
         })
     }
-
-    // 백핸들러
-    backHandler = () =>
-    {
-        // 메인화면일경우만 감지하여 종료실행
-        if(Actions.currentScene == "loginSc")
-        {
-            let timeout;
-            if (this.state.exitApp == false) {
-                ToastAndroid.show('한번 더 누르시면 종료됩니다.', ToastAndroid.SHORT);
-                this.state.exitApp = true;
-
-                timeout = setTimeout(() => {
-                    this.state.exitApp = false;
-                },2500);
-            } else {
-                BackHandler.exitApp();  // 앱 종료
-            }
-        }
-    }
-
+    
     render() {
         console.info("LoginSc => render");
         

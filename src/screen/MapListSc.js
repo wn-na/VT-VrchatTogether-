@@ -135,11 +135,7 @@ export default class MapListSc extends Component {
                         tag: tagName,
                         index : idx
                     }
-                }, () => Alert.alert(
-                    tagName,
-                    `맵 갯수 ${this.state.mapList.length}, 태그 : ${this.state.tag}`,
-                    [{text: "확인", onPress: () => null}]
-                ))
+                });
             }
         })
     }
@@ -163,14 +159,13 @@ export default class MapListSc extends Component {
                         onPress={() => this.searchMap}
                         name="magnifying-glass" size={30} style={{marginTop:5}}/>
                 </View>
-
                 <View style={styles.textView}>
                     <ScrollView horizontal style={{width:"94%", height:30, marginBottom:"3%", marginTop:"3%", marginLeft:"3%", borderWidth:1, borderColor:"#efefef", flexDirection:"row"}}>
                     {this.drawMapTag()}
                     </ScrollView>
                 </View>
 
-                <View style={{width:"94%", marginLeft:"3%", borderWidth:1, borderColor:"#dfdfdf"}}>
+                <View style={{width:"94%", marginLeft:"3%", height:"100%",paddingTop:"15%"}}>
                     <Carousel
                         layout={'default'}
                         ref={(c) => { this._carousel = c; }} 
@@ -183,12 +178,13 @@ export default class MapListSc extends Component {
                         data={this.state.mapList}
                         sliderWidth={parseInt(Dimensions.get('window').width / 100 * 94)}
                         itemWidth={parseInt(Dimensions.get('window').width / 100 * 70)}
+                        sliderHeight={parseInt(Dimensions.get('window').width / 100 * 94)}
                         renderItem={({item}) => 
-                            <TouchableOpacity style={{borderWidth:1}} onPress={() => Actions.friendDetail({userId:item.authorId, isMap:true})}>
+                            <TouchableOpacity onPress={() => Actions.friendDetail({userId:item.authorId, isMap:true})}>
                                 <View style={{borderWidth:1}}>
                                     <Icon 
                                         onPress={() => updateFavoriteMap(this.state, item, FavoriteWorld.get(item.id))}
-                                        name={(FavoriteWorld.get(item.id) ? "star-outlined" : "star")}
+                                        name={(FavoriteWorld.get(item.id) ? "star" : "star-outlined")}
                                         size={40} 
                                         style={{marginLeft:15, justifyContent:"center", width:40, height:40}}
                                     />
@@ -202,12 +198,10 @@ export default class MapListSc extends Component {
                                             />
                                         </View>
                                     </View>   
-                                    <View style={{marginLeft:"3%"}}>
-                                        <Text>맵 이름 : {item.name}</Text>
-                                        <Text>맵 정보 : {item.releaseStatus}</Text>
-                                        {item.publicOccupants !== undefined ? <Text>접속중인 월드 인원수 : {item.publicOccupants}</Text> : null}
-                                        <Text>맵 전체 인원수 : {item.occupants}</Text>
-                                        <Text>마지막 업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}</Text> 
+                                    <View style={{marginTop:"2%"}}>
+                                        <Text>{item.name}</Text>
+                                        <Text>전체 {item.occupants}명</Text>
+                                        <Text>업데이트 날짜 : {item.updated_at.substring(0, 10)}</Text> 
                                     </View>
                                 </View>
                             </TouchableOpacity>
@@ -226,13 +220,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor:"#fff"
     },
-    login: {
-        flex: 1.5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor:"red",
-        borderWidth:2
-    },
     info: {
         flex: 1,
         alignItems: 'center',
@@ -241,8 +228,6 @@ const styles = StyleSheet.create({
         borderWidth:2
     },
     textView:{
-        borderBottomWidth:1,
-        borderBottomColor:"#000",
         width:"95%",
         marginLeft:"2%",
         flexDirection:"row",
