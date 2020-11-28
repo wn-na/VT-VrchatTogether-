@@ -37,8 +37,7 @@ import {
     Dimensions,
     Alert,
     AsyncStorage,
-    ToastAndroid,
-    BackHandler
+    Linking
 } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { Actions } from 'react-native-router-flux';
@@ -167,7 +166,7 @@ export default class LoginSc extends Component {
                     </View>
                     <View style={{flexDirection:"row",width:"80%"}}>
                         <Button
-                        // onPress={this.logout.bind(this)}
+                        onPress={()=>Linking.openURL("https://vrchat.com/home/register")}
                         style={{marginTop:30,width:"100%",justifyContent:"center"}}
                         >
                         <Text>회원가입</Text>

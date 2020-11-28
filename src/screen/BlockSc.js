@@ -310,15 +310,22 @@ export default class BlockSc extends Component {
                         onPress={this.search}
                         name="magnifying-glass" size={30} style={{marginTop:5}}/>
                     </View>
-                    <View style={{alignItems:"flex-end",marginRight:"2%"}}>
-                        <View style={styles.selectView}>
-                            <Picker 
-                                selectedValue = {this.state.option}
-                                onValueChange= {this.filter}
-                            >
-                                <Picker.Item label = "내가 블락한" value = "block" />
-                                <Picker.Item label = "나를 블락한" value = "against" />
-                            </Picker>
+                    <View style={{flexDirection:"row"}}>
+                        <View style={{justifyContent:"center",width:"45%",marginLeft:"5%"}}>
+                            <Text>
+                                {this.state.option == "block" ? this.state.getBlock.length : this.state.getAgainst.length} 명
+                            </Text>
+                        </View>
+                        <View style={{width:"45%",marginRight:"2%",justifyContent:"flex-end"}}>
+                            <View style={styles.selectView}>
+                                <Picker 
+                                    selectedValue = {this.state.option}
+                                    onValueChange= {this.filter}
+                                >
+                                    <Picker.Item label = "내가 블락한" value = "block" />
+                                    <Picker.Item label = "나를 블락한" value = "against" />
+                                </Picker>
+                            </View>
                         </View>
                     </View>
                     {this.flist()}
@@ -364,7 +371,6 @@ const styles = StyleSheet.create({
     selectView:{
         borderBottomWidth:1,
         borderBottomColor:"#000",
-        width:"45%",
         marginLeft:"2%",
         marginTop:"5%",
         marginBottom:"5%"

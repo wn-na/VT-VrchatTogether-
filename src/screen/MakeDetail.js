@@ -87,7 +87,7 @@ export default class MakeDetail extends Component {
         let offset = 0;
         let data = [];
 
-        let fetc = await fetch(`https://api.vrchat.cloud/api/1/avatars?userId=`+this.props.userId, VRChatAPIGet)
+        let fetc = await fetch(`https://api.vrchat.cloud/api/1/avatars?n=100&userId=`+this.props.userId, VRChatAPIGet)
         .then(response => response.json());
 
         // 즐겨찾기검사
@@ -126,7 +126,7 @@ export default class MakeDetail extends Component {
         let offset=0;
         let data = [];
 
-        let fetc = await fetch(`https://api.vrchat.cloud/api/1/worlds?userId=`+this.props.userId, VRChatAPIGet)
+        let fetc = await fetch(`https://api.vrchat.cloud/api/1/worlds?n=100&userId=`+this.props.userId, VRChatAPIGet)
         .then(response => response.json());
 
         // 즐겨찾기검사

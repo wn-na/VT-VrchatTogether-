@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import Moment from 'moment';
 // common component
 import {
     Container,
@@ -67,7 +66,12 @@ export default class MapListSc extends Component {
 
     drawMapTag = () => 
         [...MapTags.keys()].map((key, idx) => 
-            <Text key={idx} style={this.state.tag == key ? styles.mapSelectTag : styles.mapTag} onPress={() => this.searchTagMap(key)}>{key}</Text>
+            <Text key={idx} style={this.state.tag == key ? styles.mapSelectTag : styles.mapTag} 
+            onPress={() => {
+                this.searchTagMap(key);
+                this._carousel.snapToItem(0,true,true);
+            }}>
+                {key}</Text>
         )
 
     searchMapList = (callback) => 
@@ -142,8 +146,6 @@ export default class MapListSc extends Component {
 
 
     render() {
-        Moment.locale('ko');
-        
         return (
             <View style={{flex:1}}>
                 <Header style={styles.logo}>
@@ -159,8 +161,8 @@ export default class MapListSc extends Component {
                         onPress={() => this.searchMap}
                         name="magnifying-glass" size={30} style={{marginTop:5}}/>
                 </View>
-                <View style={styles.textView}>
-                    <ScrollView horizontal style={{width:"94%", height:30, marginBottom:"3%", marginTop:"3%", marginLeft:"3%", borderWidth:1, borderColor:"#efefef", flexDirection:"row"}}>
+                <View>
+                    <ScrollView horizontal style={{width:"94%", height:30, marginBottom:"3%", marginTop:"3%", marginLeft:"3%", flexDirection:"row"}}>
                     {this.drawMapTag()}
                     </ScrollView>
                 </View>
@@ -174,6 +176,7 @@ export default class MapListSc extends Component {
                                 this.searchTagMap(this.state.tag, this.state.index + 1);
                             }
                         }}
+                        enableMomentum={"fast"}
                         extraData={this.state}
                         data={this.state.mapList}
                         sliderWidth={parseInt(Dimensions.get('window').width / 100 * 94)}
@@ -186,7 +189,7 @@ export default class MapListSc extends Component {
                                         onPress={() => updateFavoriteMap(this.state, item, FavoriteWorld.get(item.id))}
                                         name={(FavoriteWorld.get(item.id) ? "star" : "star-outlined")}
                                         size={40} 
-                                        style={{marginLeft:15, justifyContent:"center", width:40, height:40}}
+                                        style={{color:"#FFBB00",marginBottom:5}}
                                     />
                                     <View style={{flexDirection:"row",padding:"5%"}}>
                                         <View>
@@ -198,7 +201,7 @@ export default class MapListSc extends Component {
                                             />
                                         </View>
                                     </View>   
-                                    <View style={{marginTop:"2%"}}>
+                                    <View style={{margin:"5%"}}>
                                         <Text>{item.name}</Text>
                                         <Text>전체 {item.occupants}명</Text>
                                         <Text>업데이트 날짜 : {item.updated_at.substring(0, 10)}</Text> 
@@ -228,11 +231,13 @@ const styles = StyleSheet.create({
         borderWidth:2
     },
     textView:{
+        borderBottomWidth:1,
+        borderBottomColor:"#000",
         width:"95%",
         marginLeft:"2%",
         flexDirection:"row",
-        alignItems: 'flex-start',
-        justifyContent: 'flex-start'
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     mapTag: {
         textAlign: 'center',
@@ -242,8 +247,6 @@ const styles = StyleSheet.create({
         minWidth: 90,
         height:30,
         fontSize: 20,
-        borderWidth: 1,
-        borderColor:'#e4f4f4'
     },
     mapSelectTag: {
         textAlign: 'center',
@@ -253,8 +256,6 @@ const styles = StyleSheet.create({
         minWidth: 90,
         height:30,
         fontSize: 20,
-        borderWidth: 2,
-        borderColor:'#e4f4f4',
         borderBottomWidth:2,
         borderBottomColor:"red",
     }

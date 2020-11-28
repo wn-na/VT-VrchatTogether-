@@ -49,6 +49,7 @@ import Modal from 'react-native-modal';
 import {MapTags, updateFavoriteMap, FavoriteWorld, drawModal} from '../utils/MapUtils';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import {MapInfo} from '../utils/MapUtils';
+import { ThemeConsumer } from "react-native-elements";
 
 export default class FavoriteSc extends Component {
     constructor(props) {
@@ -71,7 +72,10 @@ export default class FavoriteSc extends Component {
             getAvatarFilter: [],
             getWorlds: [],
             getWorldsFilter: [],
-            getWorldsChooseId: null
+            getWorldsChooseId: null,
+            getWorldsGroup: [],
+            selectedGroupKey: null,
+            listIndex: 0
         };
     }
 
@@ -109,19 +113,54 @@ export default class FavoriteSc extends Component {
 			modalVisible: false
         });
 
-        console.log(this.state.getAvatars);
-
         return new Promise((resolve, reject) =>
         resolve(fetc));
 	}
 
     async getWorld() {
+        let data = [];
+        let offset = 0;
+        
+        await fetch("https://api.vrchat.cloud/api/1/favorite/groups?type=world", VRChatAPIGet)
+        .then(res => res.json())
+        .then(json => {
+            this.setState({
+                getWorldsGroup: json,
+                selectedGroupKey: json[0].name,
+            });
+            this.state.getWorldsGroup[0].selected = true;
+        });
+
+        // 즐겨찾기검사
+        for(let i=0;i<4;i++){
+            await fetch(`https://api.vrchat.cloud/api/1/favorites?type=world&n=100&offset=${offset}`, VRChatAPIGet)
+            .then(res => res.json())
+            .then(json => {
+                data = data.concat(json);
+
+                offset+=100;
+            });
+        }
+
         let fetc = await fetch("https://api.vrchat.cloud/api/1/worlds/favorites", VRChatAPIGet)
         .then((response) => response.json());
 
         for(let i=0;i<fetc.length;i++)
         {
             fetc[i].isFavorite = true;
+        }
+
+        for(let i=0;i<fetc.length;i++)
+        {
+            fetc[i].group = null;
+
+            for(let j=0;j<data.length;j++)
+            {
+                if(fetc[i].id == data[j].favoriteId)
+                {
+                    fetc[i].group = data[j].tags[0];
+                }
+            }
         }
 
         this.setState({
@@ -408,12 +447,15 @@ export default class FavoriteSc extends Component {
             return <View style={{width:"94%", marginLeft:"3%", height:"100%",paddingTop:"15%"}}>
                 <Carousel
                     layout={'default'}
-                    ref={(c) => { this._carousel = c; }} 
+                    ref={(c) => { this._carousel = c; }}
                     extraData={this.state}
-                    data={this.state.getWorlds}
+                    currentIndex={(i)=>console.log(i)}
+                    enableMomentum={"fast"}
+                    data={this.state.getWorlds.filter((v) => v.group == this.state.selectedGroupKey)}
                     sliderWidth={parseInt(Dimensions.get('window').width / 100 * 94)}
                     itemWidth={parseInt(Dimensions.get('window').width / 100 * 70)}
                     renderItem={({item}) => 
+                        item.group == this.state.selectedGroupKey &&
                         <TouchableOpacity onPress={() => Actions.friendDetail({userId:item.authorId, isMap:true})}>
                             <View style={{borderWidth:1,padding:"5%"}}>
                                 <View style={{alignItems:"flex-end"}}>
@@ -443,7 +485,7 @@ export default class FavoriteSc extends Component {
                                 <View style={{marginTop:"2%"}}>
                                     <Text>{item.name}</Text>
                                     <Text>전체 {item.occupants}명</Text>
-                                    <Text>업데이트 날짜 : {item.updated_at != null && item.updated_at.substring(0,10)} </Text> 
+                                    <Text>업데이트 날짜 : {item.updated_at != null && item.updated_at.substring(0,10)} </Text>
                                 </View>
                             </View>
                         </TouchableOpacity>
@@ -499,6 +541,38 @@ export default class FavoriteSc extends Component {
                 />
             </View>
         }
+    }
+
+    worldGroup = () => 
+    <View style={{justifyContent:"center",flexDirection:"row"}}>
+        {this.state.getWorldsGroup.map((item) => 
+            <Text 
+            onPress={() => this.changeTab(item.id, item.name)}
+            style={item.selected == true ? styles.selectedGroup : styles.group}>{item.displayName}</Text>
+        )}
+    </View>
+
+    changeTab(id, key) {
+        let fetc = this.state.getWorldsGroup;
+
+        for(let i=0;i<fetc.length;i++)
+        {
+            fetc[i].selected = false;
+        }
+
+        this.setState({
+            getWorldsGroup: fetc
+        });
+
+        fetc.filter((v) => v.id.indexOf(id) !== -1)[0].selected = true;
+        
+        this._carousel.snapToItem(0,true,true);
+        
+        this.setState({
+            getWorldsGroup: fetc,
+            selectedGroupKey: key,
+            listIndex: 0
+        });
     }
 
     filter = value => {
@@ -682,6 +756,7 @@ export default class FavoriteSc extends Component {
                             </Picker>
                         </View>
                     </View>
+                    { this.state.option == "world" && this.state.isWorldSearch == false && this.worldGroup()}
                     { this.state.option == "avatar" ? this.flistAvatar() : this.flistWorld() }
                 </ScrollView>
                 {this.state.getWorlds != null ?
@@ -769,5 +844,23 @@ const styles = StyleSheet.create({
         marginLeft:"2%",
         marginBottom:"5%",
         paddingBottom:"2%",
+    },
+    selectedGroup:{
+        paddingTop:"1%",
+        paddingBottom:"1%",
+        paddingLeft:"2%",
+        paddingRight:"2%",
+        marginLeft:"2%",
+        marginRight:"2%",
+        borderBottomWidth:1,
+        borderColor:"red"
+    },
+    group:{
+        paddingTop:"1%",
+        paddingBottom:"1%",
+        paddingLeft:"2%",
+        paddingRight:"2%",
+        marginLeft:"2%",
+        marginRight:"2%"
     }
 });

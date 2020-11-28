@@ -199,7 +199,9 @@ export default class MainSc extends Component {
                             <Text>로그아웃</Text>
                         </Button>
                     </View>
-                    {/* <View style={{position:"absolute",right:"0%",margin:"2%"}}>
+                    {/* 
+                    setting button
+                    <View style={{position:"absolute",right:"0%",margin:"2%"}}>
                         <Icon
                         name="cog" size={30}
                         />
@@ -214,8 +216,9 @@ export default class MainSc extends Component {
                         />
                         : null
                     }
-                    <Text style={{textAlign:"right"}}>
-                        {this.state.getUserInfo != null ? this.state.getUserInfo.displayName : null}{"\n"}
+                    <Text style={{textAlign:"center"}}>
+                        {this.state.getUserInfo != null && this.state.getUserInfo.displayName}{"\n"}
+                        {this.state.getUserInfo != null && this.state.getUserInfo.statusDescription}{"\n"}
                     </Text>
                     <Row>
                         <Col>
@@ -299,7 +302,7 @@ const styles = StyleSheet.create({
         marginTop:"-5%",
         justifyContent:"center",
         marginTop:"2%",
-        height:parseInt(Dimensions.get('window').width / 100 * 123),
+        height:parseInt(Dimensions.get('window').width / 100 * 110),
     },
     textView:{
         borderBottomWidth:1,
@@ -315,7 +318,7 @@ const styles = StyleSheet.create({
         fontSize:25,
         width:"45%",
         marginTop:10,
-        height:parseInt(Dimensions.get('window').width / 100 * 37),
+        height:parseInt(Dimensions.get('window').width / 100 * 32),
         margin:5,
         borderRadius:20
     }
