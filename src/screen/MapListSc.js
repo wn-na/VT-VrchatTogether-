@@ -38,15 +38,16 @@ import {
     Dimensions,
     Alert,
     Modal,
-    AsyncStorage
+    AsyncStorage,
+    KeyboardAvoidingView
 } from "react-native"
 import Icon from "react-native-vector-icons/Entypo"
 import { Actions } from 'react-native-router-flux'
-import utf8 from "utf8"
-import base64 from 'base-64'
 import Carousel from 'react-native-snap-carousel'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import {MapTags, updateFavoriteMap, FavoriteWorld, drawModal} from '../utils/MapUtils'
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
+import styles from '../css/css'
 
 export default class MapListSc extends Component {
     constructor(props) {
@@ -148,26 +149,39 @@ export default class MapListSc extends Component {
     render() {
         return (
             <View style={{flex:1}}>
-                <Header style={styles.logo}>
-                    <Text>맵 목록</Text>
-                </Header>
-                <View style={styles.textView}>
-                    <TextInput 
-                        value={this.state.search}
-                        onChangeText={(text) => this.setState({search:text})}
-                        onSubmitEditing={this.searchMap}
-                        style={{width:"85%"}}/>
-                    <Icon 
-                        onPress={() => this.searchMap}
-                        name="magnifying-glass" size={30} style={{marginTop:5}}/>
+                <View style={styles.logo}>
+                    <Text style={{color:"white"}}>맵 목록</Text>
                 </View>
-                <View>
-                    <ScrollView horizontal style={{width:"94%", height:30, marginBottom:"3%", marginTop:"3%", marginLeft:"3%", flexDirection:"row"}}>
+                <View style={styles.textView}>
+                    <View style={styles.textBox}>
+                        <TextInput 
+                            value={this.state.search}
+                            onChangeText={(text) => this.setState({search:text})}
+                            onSubmitEditing={this.searchMap}
+                            placeholder={"맵 검색"}
+                            style={{width:"90%",height:50}}/>
+                        <Icon 
+                            onPress={() => this.searchMap}
+                            name="magnifying-glass" size={25} style={{marginTop:5,color:"#3a4a6d"}}/>
+                    </View>
+                </View>
+                <View style={{alignItems:"center"}}>
+                    <ScrollView
+                    horizontal
+                    style={{
+                        width:"94%",
+                        minHeight:50,
+                        maxHeight:50,
+                        flexDirection:"row",
+                        borderColor:"#5a82dc",
+                        borderTopWidth:1,
+                        borderBottomWidth:1
+                    }}>
                     {this.drawMapTag()}
                     </ScrollView>
                 </View>
 
-                <View style={{width:"94%", marginLeft:"3%", height:"100%",paddingTop:"15%"}}>
+                <View style={{marginTop:"10%",alignItems:"center",flex:1}}>
                     <Carousel
                         layout={'default'}
                         ref={(c) => { this._carousel = c; }} 
@@ -179,32 +193,40 @@ export default class MapListSc extends Component {
                         enableMomentum={"fast"}
                         extraData={this.state}
                         data={this.state.mapList}
-                        sliderWidth={parseInt(Dimensions.get('window').width / 100 * 94)}
-                        itemWidth={parseInt(Dimensions.get('window').width / 100 * 70)}
-                        sliderHeight={parseInt(Dimensions.get('window').width / 100 * 94)}
+                        sliderWidth={parseInt(Dimensions.get('window').width / 100 * 100)}
+                        itemWidth={parseInt(Dimensions.get('window').width / 100 * 80)}
                         renderItem={({item}) => 
-                            <TouchableOpacity onPress={() => Actions.friendDetail({userId:item.authorId, isMap:true})}>
-                                <View style={{borderWidth:1}}>
-                                    <Icon 
-                                        onPress={() => updateFavoriteMap(this.state, item, FavoriteWorld.get(item.id))}
-                                        name={(FavoriteWorld.get(item.id) ? "star" : "star-outlined")}
-                                        size={40} 
-                                        style={{color:"#FFBB00",marginBottom:5}}
-                                    />
-                                    <View style={{flexDirection:"row",padding:"5%"}}>
+                            <TouchableOpacity
+                            style={styles.worldInfo}
+                            onPress={() => Actions.friendDetail({userId:item.authorId, isMap:true})}>
+                                <View>
+                                    <View style={{flexDirection:"row",justifyContent:"center"}}>
                                         <View>
+                                            <Text style={{textAlign:"center",color:"#2b3956",fontFamily:"NetmarbleM"}}>{item.name}</Text>
+                                            <Icon 
+                                                onPress={() => updateFavoriteMap(this.state, item, FavoriteWorld.get(item.id))}
+                                                name={(FavoriteWorld.get(item.id) ? "star" : "star-outlined")}
+                                                size={40} 
+                                                style={styles.worldIcon}
+                                            />
                                             <Image
-                                                style={{width: parseInt(Dimensions.get('window').width / 100 * 62), 
-                                                    height: parseInt(Dimensions.get('window').width / 100 * 40),
-                                                    borderRadius:5}}
+                                                style={{
+                                                    width: parseInt(Dimensions.get('window').width / 100 * 72), 
+                                                    height: parseInt(Dimensions.get('window').width / 100 * 50),
+                                                    borderRadius:5,
+                                                    marginTop:"5%",
+                                                    marginBottom:"5%"
+                                                }}
                                                 source={VRChatImage(item.thumbnailImageUrl)}
                                             />
                                         </View>
-                                    </View>   
-                                    <View style={{margin:"5%"}}>
-                                        <Text>{item.name}</Text>
-                                        <Text>전체 {item.occupants}명</Text>
-                                        <Text>업데이트 날짜 : {item.updated_at.substring(0, 10)}</Text> 
+                                    </View>
+                                    <View>
+                                        <Text style={{fontFamily:"NetmarbleL",color:"#2b3956",lineHeight:30}}>
+                                            제작자 : {item.authorName}{"\n"}
+                                            전체 : {item.occupants}명{"\n"}
+                                            업데이트 날짜 : {item.updated_at.substring(0, 10)}{"\n"}
+                                        </Text> 
                                     </View>
                                 </View>
                             </TouchableOpacity>
@@ -216,47 +238,3 @@ export default class MapListSc extends Component {
         );
     }
 }
-
-const styles = StyleSheet.create({
-    logo: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor:"#fff"
-    },
-    info: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor:"red",
-        borderWidth:2
-    },
-    textView:{
-        borderBottomWidth:1,
-        borderBottomColor:"#000",
-        width:"95%",
-        marginLeft:"2%",
-        flexDirection:"row",
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    mapTag: {
-        textAlign: 'center',
-        textAlignVertical: 'center',
-        fontWeight: 'bold',
-        width:"20%",
-        minWidth: 90,
-        height:30,
-        fontSize: 20,
-    },
-    mapSelectTag: {
-        textAlign: 'center',
-        textAlignVertical: 'center',
-        fontWeight: 'bold',
-        width:"20%",
-        minWidth: 90,
-        height:30,
-        fontSize: 20,
-        borderBottomWidth:2,
-        borderBottomColor:"red",
-    }
-});
