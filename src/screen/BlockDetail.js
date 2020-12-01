@@ -1,41 +1,16 @@
 import React, { Component } from "react";
 // common component
 import {
-    Container,
     Header,
-    Content,
-    Footer,
     Button,
-    Left,
-    Right,
-    Body,
-    Item,
-    Label,
-    Input,
-    H2,
-    H1,
-    Badge,
     Text,
-    SwipeRow,
-    Textarea,
-    Fab,
-    Switch,
-    Drawer
 } from "native-base";
 import {
     Image,
     StyleSheet,
-    SectionList,
-    FlatList,
-    TouchableOpacity,
     ScrollView,
     View,
-    TextInput,
-    Dimensions,
     Alert,
-    AsyncStorage,
-    Picker,
-    TouchableOpacityBase,
     ToastAndroid,
     ActivityIndicator
 } from "react-native";
@@ -145,7 +120,7 @@ export default class BlockDetail extends Component {
                 "Group "+number+"에 즐겨찾기 하시겠습니까?",
                 [
                     {text:"확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
+                        fetch(`https://api.vrchat.cloud/api/1/favorites`, VRChatAPIPostBody({
                             "type":"world",
                             "tags":["worlds"+number],
                             "favoriteId":id
@@ -253,7 +228,7 @@ export default class BlockDetail extends Component {
     }
     
     async isBlocked() {
-        await fetch("https://api.vrchat.cloud/api/1/auth/user/playermoderations", VRChatAPIGet)
+        await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderations`, VRChatAPIGet)
         .then(response => response.json())
         .then(json => {
             json = json.filter((v) => v.type.indexOf("block") !== -1);
@@ -275,7 +250,7 @@ export default class BlockDetail extends Component {
                 "블락하시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/auth/user/blocks", VRChatAPIPostBody({
+                        fetch(`https://api.vrchat.cloud/api/1/auth/user/blocks`, VRChatAPIPostBody({
                             "blocked":this.props.userId
                         }))
                         .then((response) => response.json())
@@ -297,7 +272,7 @@ export default class BlockDetail extends Component {
                 "블락을 해제하시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/auth/user/unblocks", VRChatAPIPutBody({
+                        fetch(`https://api.vrchat.cloud/api/1/auth/user/unblocks`, VRChatAPIPutBody({
                             "blocked":this.props.userId
                         }))
                         .then((response) => response.json())

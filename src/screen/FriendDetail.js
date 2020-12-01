@@ -1,41 +1,14 @@
 import React, { Component } from "react";
 // common component
 import {
-    Container,
-    Header,
-    Content,
-    Footer,
     Button,
-    Left,
-    Right,
-    Body,
-    Item,
-    Label,
-    Input,
-    H2,
-    H1,
-    Badge,
     Text,
-    SwipeRow,
-    Textarea,
-    Fab,
-    Switch,
-    Drawer
 } from "native-base";
 import {
     Image,
-    StyleSheet,
-    SectionList,
-    FlatList,
-    TouchableOpacity,
     ScrollView,
     View,
-    TextInput,
-    Dimensions,
     Alert,
-    AsyncStorage,
-    Picker,
-    TouchableOpacityBase,
     ToastAndroid,
     ActivityIndicator
 } from "react-native";
@@ -44,6 +17,7 @@ import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {UserGrade} from './../utils/UserUtils';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPutBody, VRChatAPIPost, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
+import styles from '../css/css';
 
 export default class FriendDetail extends Component {
     constructor(props) {
@@ -136,7 +110,7 @@ export default class FriendDetail extends Component {
         
         let groupName = null;
 
-        fetch("https://api.vrchat.cloud/api/1/favorite/groups?type=world", VRChatAPIGet)
+        fetch(`https://api.vrchat.cloud/api/1/favorite/groups?type=world`, VRChatAPIGet)
         .then(res => res.json())
         .then(json => {
             groupName = json[number];
@@ -162,7 +136,7 @@ export default class FriendDetail extends Component {
                 "Group "+(number+1)+"에 즐겨찾기 하시겠습니까?",
                 [
                     {text:"확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
+                        fetch(`https://api.vrchat.cloud/api/1/favorites`, VRChatAPIPostBody({
                             "type":"world",
                             "tags":[groupName],
                             "favoriteId":id
@@ -271,7 +245,7 @@ export default class FriendDetail extends Component {
     }
     
     isBlocked() {
-        fetch("https://api.vrchat.cloud/api/1/auth/user/playermoderated", VRChatAPIGet)
+        fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderated`, VRChatAPIGet)
         .then(response => response.json())
         .then(json => {
             json = json.filter((v) => v.type.indexOf("block") !== -1);
@@ -292,11 +266,11 @@ export default class FriendDetail extends Component {
                 "블락하시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/auth/user/blocks", VRChatAPIPostBody({
+                        fetch(`https://api.vrchat.cloud/api/1/auth/user/blocks`, VRChatAPIPostBody({
                             "blocked":this.props.userId
                         }))
                         .then((response) => response.json())
-                        .then((json) => {
+                        .then(() => {
                             ToastAndroid.show("처리가 완료되었습니다.", ToastAndroid.SHORT);
                             this.setState({
                                 isBlocked:true
@@ -314,7 +288,7 @@ export default class FriendDetail extends Component {
                 "블락을 해제하시겠습니까?",
                 [
                     {text: "확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/auth/user/unblocks", VRChatAPIPutBody({
+                        fetch(`https://api.vrchat.cloud/api/1/auth/user/unblocks`, VRChatAPIPutBody({
                             "blocked":this.props.userId
                         }))
                         .then((response) => response.json())
@@ -339,89 +313,96 @@ export default class FriendDetail extends Component {
         }
         return (
             <View style={{flex:1}}>
-                <Header style={styles.logo}>
-                    <Text>
+                <View style={styles.logo}>
+                    <Text style={{fontFamily:"NetmarbleM",color:"white"}}>
                         {  this.props.isMap ? "맵 제작자 정보" : (this.props.friendCheck != false ? "친구정보" : "아바타 제작자 정보")}
                     </Text>
-                </Header>
+                </View>
                 {this.state.getUserInfo != null ? 
                     <ScrollView>
-                        <View style={{flex:1,flexDirection:"row",padding:"5%"}}>
-                            <View>
-                                <Image
-                                    style={{width: 100, height: 100, borderRadius:20,borderColor:UserGrade(this.state.getUserInfo.tags), borderWidth:3}}
-                                    source={VRChatImage(this.state.getUserInfo.currentAvatarThumbnailImageUrl)}
-                                />
-                            </View>
-                            <View style={{width:"100%",marginLeft:"3%"}}>
-                                <Text>
-                                    {this.state.getUserInfo.displayName}{"  "}
-                                    {this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}
-                                </Text>
-                                {this.state.getUserInfo.statusDescription != "" && this.state.getUserInfo.statusDescription != null ?
-                                    <Text style={{width:"70%",marginTop:"3%"}}>
-                                        {this.state.getUserInfo.statusDescription != "" ? this.state.getUserInfo.statusDescription : ""}
-                                    </Text>
-                                    :
-                                    null
+                        <View style={{flex:1}}>
+                            <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%",marginTop:"3%"}}>
+                                <Text style={{fontFamily:"Godo_R",fontSize:25,color:"#5a82dc"}}>creator_information</Text>
+                                {this.state.isBlocked == true ? 
+                                <Icon 
+                                onPress={this.block.bind(this)}
+                                name={"block"} size={30} style={{textAlignVertical:"bottom",color:"#ef5261"}}/>
+                                :
+                                <Icon 
+                                onPress={this.block.bind(this)}
+                                name={"block"} size={30} style={{textAlignVertical:"bottom",color:"#888c8b"}}/>
                                 }
-                                <Text style={{marginTop:"3%"}}>
-                                    {this.state.getUserInfo.location == "private" ? "private" : this.state.getUserInfo.location != "private" && this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? "public" : this.state.getUserInfo.location == "offline" || this.state.getUserInfo.location == "" ? "offline" : null}{"\n"}
-                                </Text>
+                            </View>
+                            <View style={{flexDirection:"row",margin:"5%"}}>
+                                <View>
+                                    <Image
+                                        style={{width: 100, height: 100, borderRadius:20,borderColor:UserGrade(this.state.getUserInfo.tags), borderWidth:3}}
+                                        source={VRChatImage(this.state.getUserInfo.currentAvatarThumbnailImageUrl)}
+                                    />
+                                </View>
+                                <View style={{width:"100%",marginLeft:"3%"}}>
+                                    <Text style={styles.friendInfoText}>
+                                        {this.state.getUserInfo.displayName}{"  "}
+                                        {this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
+                                        {this.state.getUserInfo.statusDescription != "" && this.state.getUserInfo.statusDescription+"\n"}
+                                        {this.state.getUserInfo.location == "private" ? "private" : this.state.getUserInfo.location != "private" && this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? "public" : this.state.getUserInfo.location == "offline" || this.state.getUserInfo.location == "" ? "offline" : null}
+                                    </Text>
+                                </View>
                             </View>
                         </View>
                         <View style={{flexDirection:"row",width:"100%",paddingLeft:"5%",paddingRight:"5%",marginBottom:"3.5%"}}>
                             <Button 
                                 onPress={this.friendRequest.bind(this,this.state.getUserInfo.id,this.state.getUserInfo.isFriend)}
-                                style={{marginRight:15,width:"48%",justifyContent:"center"}}
+                                style={[{marginRight:15,width:"48%"},styles.requestButton]}
                             >
-                                <Text>{this.state.getUserInfo.isFriend == true ? "친구삭제" : "친구신청"}</Text>
+                                <Text style={{fontFamily:"NetmarbleL",color:"#2b3956"}}>{this.state.getUserInfo.isFriend == true ? "친구삭제" : "친구신청"}</Text>
                             </Button>
-                            <Button onPress={this.block.bind(this)}
-                                style={{width:"48%",justifyContent:"center"}}>
-                                <Text>{this.state.isBlocked == true ? "블락해제" : "블락"}</Text>
-                            </Button>
-                        </View>
-                        <View style={{width:"100%",paddingLeft:"5%",paddingRight:"5%",marginBottom:"3.5%"}}>
-                            <Button 
-                            onPress={()=> Actions.currentScene == "friendDetail" ? Actions.makeDetail({userId:this.props.userId}) : {}}
-                            style={{justifyContent:"center"}}>
-                                <Text>제작정보</Text>
+                            <Button onPress={()=> Actions.currentScene == "friendDetail" ? Actions.makeDetail({userId:this.props.userId}) : {}}
+                                style={[{width:"48%"},styles.requestButton]}>
+                                <Text style={{fontFamily:"NetmarbleL",color:"#2b3956"}}>제작정보</Text>
                             </Button>
                         </View>
                         {this.state.getUserWInfo != null ?
                             <View style={{marginTop:"2%"}}>
-                                <Text style={{marginLeft:"5%",fontSize:25}}>현재 월드</Text>
-                                <View style={styles.worldInfo}>
-                                    <View style={{alignItems:"flex-end"}}>
-                                    {this.state.isFavorite == true ? 
-                                    <Icon 
-                                    onPress={this.favorite.bind(this,-1,this.state.favoriteId)}
-                                    name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
-                                    :
-                                    <Icon 
-                                    onPress={() => this.setState({modalVisivle:true})}
-                                    name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>}
+                                <Text style={{marginLeft:"5%",fontSize:20,fontFamily:"NetmarbleL",color:"#2b3956"}}>현재 월드</Text>
+                                <View style={styles.worldInfoDetail}>
+                                    <View style={{
+                                        position:"absolute",
+                                        top:"15%",
+                                        right:"10%",
+                                        zIndex:1
+                                    }}>
+                                        {this.state.isFavorite == true ? 
+                                        <Icon 
+                                        onPress={this.favorite.bind(this,-1,this.state.favoriteId)}
+                                        name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+                                        :
+                                        <Icon 
+                                        onPress={() => this.setState({modalVisivle:true})}
+                                        name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>}
                                     </View>
-                                    <View>
-                                        <Image
-                                            style={{width: "100%", height: 250, borderRadius:20}}
-                                            source={VRChatImage(this.state.getUserWInfo.imageUrl)}
-                                        />
-                                    </View>
-                                    <Text>
+                                    <Text style={{textAlign:"center",fontFamily:"NetmarbleM",color:"#2b3956"}}>
                                         {this.state.getUserWInfo.name}
                                         {this.state.getUserInfo.instanceId.length <= 5 ? "#"+this.state.getUserInfo.instanceId : null}
                                     </Text>
-                                    <Text>
-                                        {this.state.getUserWInfo.description}
+                                    <View style={{marginTop:"2%",marginBottom:"4%"}}>
+                                        <Image
+                                            style={{width: "100%", height: 200, borderRadius:20}}
+                                            source={VRChatImage(this.state.getUserWInfo.imageUrl)}
+                                        />
+                                    </View>
+                                    <Text style={{fontFamily:"NetmarbleL",color:"#2b3956",lineHeight:25}}>
+                                        제작자 : {this.state.getUserWInfo.authorName}{"\n"}
+                                        접속중인 월드 인원 : {this.state.indiInfo.length != 0 ? this.state.indiInfo[0][1]+"/"+this.state.getUserWInfo.capacity : 
+                                        this.state.getUserWInfo.capacity+"/"+this.state.getUserWInfo.capacity}{"\n"}
+                                        전체 : {this.state.getUserWInfo.occupants+" 명"}{"\n"}
+                                        업데이트 날짜 : {this.state.getUserWInfo.updated_at.substring(0,10)}
+                                        {this.state.getUserWInfo.description != "" && this.state.getUserWInfo.description != null &&
+                                        "\n"+"\n"+this.state.getUserWInfo.description}
                                     </Text>
-                                        {this.state.indiInfo.length != 0 ? <Text>{this.state.indiInfo[0][1]}{"/"}{this.state.getUserWInfo.capacity} 명</Text> : 
-                                        <Text>{this.state.getUserWInfo.capacity}{"/"}{this.state.getUserWInfo.capacity} 명</Text>}
-                                    <Text>전체 {this.state.getUserWInfo.occupants+" 명"}</Text>
                                 </View>
                                 <Modal
-                                style={styles.modal}
+                                style={{flex:1,height:250}}
                                 isVisible={this.state.modalVisivle}
                                 onBackButtonPress={()=>this.setState({modalVisivle:false})}
                                 onBackdropPress={()=>this.setState({modalVisivle:false})}>
@@ -458,53 +439,3 @@ export default class FriendDetail extends Component {
         );
     }
 }
-
-const styles = StyleSheet.create({
-    logo: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor:"#fff"
-    },
-    login: {
-        flex: 1.5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor:"red",
-        borderWidth:2
-    },
-    worldInfo: {
-        flex: 1,
-        width:"90%",
-        padding:10,
-        borderWidth:1,
-        marginLeft:"5%"
-    },
-    groupButton:{
-        marginTop:10,
-        margin:15,
-        justifyContent:"center",
-        backgroundColor:"#fff",
-        color:"#000"
-    },
-    modal:{
-        flex:1,
-        height:250
-    },
-    textView:{
-        borderBottomWidth:1,
-        borderBottomColor:"#000",
-        width:"95%",
-        marginLeft:"2%",
-        flexDirection:"row",
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    selectView:{
-        borderBottomWidth:1,
-        borderBottomColor:"#000",
-        width:"35%",
-        marginLeft:"2%",
-        marginTop:"5%",
-        marginBottom:"5%"
-    }
-});

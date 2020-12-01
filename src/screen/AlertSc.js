@@ -1,41 +1,15 @@
 import React, { Component } from "react";
 // common component
 import {
-    Container,
-    Header,
-    Content,
-    Footer,
-    Button,
-    Left,
-    Right,
-    Body,
-    Item,
-    Label,
-    Input,
-    H2,
-    H1,
-    Badge,
     Text,
-    SwipeRow,
-    Picker,
-    Textarea,
-    Fab,
-    Switch,
-    Drawer
 } from "native-base";
 import {
-    Image,
-    StyleSheet,
-    SectionList,
     FlatList,
     TouchableOpacity,
     ScrollView,
     RefreshControl,
     View,
     TextInput,
-    Dimensions,
-    Alert,
-    AsyncStorage,
     ToastAndroid,
     ActivityIndicator
 } from "react-native";
@@ -43,6 +17,7 @@ import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {VRChatAPIGet} from '../utils/ApiUtils';
+import styles from '../css/css';
 
 export default class AlertSc extends Component {
     constructor(props) {
@@ -76,10 +51,9 @@ export default class AlertSc extends Component {
     async getAlerts() {
         console.info("AlertSc => getAlerts");
 
-        await fetch("https://api.vrchat.cloud/api/1/auth/user/notifications", VRChatAPIGet)
+        await fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications`, VRChatAPIGet)
         .then(responses => responses.json())
         .then(json => {
-            console.log(json)
             this.setState({
                 getAlerts:json.filter((v) => v.type.indexOf("friendRequest") !== -1),
                 modalVisible:false
@@ -158,19 +132,19 @@ export default class AlertSc extends Component {
         
         return (
             <View style={{flex:1}}>
-                <Header style={styles.logo}>
-                    <Text>알림</Text>
+                <View style={styles.logo}>
+                    <Text style={{fontFamily:"NetmarbleM",color:"white"}}>알림</Text>
                     <View  style={{position:"absolute",right:"5%"}}>
                     {this.state.refreshButton == false ?
                     <Icon
                     onPress={this.resetButton.bind(this)}
-                    name="cycle" size={20}
+                    name="cycle" size={20} style={{color:"white"}}
                     />
                     :
-                    <ActivityIndicator size={20} color="black"/>
+                    <ActivityIndicator size={20} color="white"/>
                     }
                     </View>
-                </Header>
+                </View>
                 <ScrollView 
                     refreshControl={
                         <RefreshControl
@@ -179,17 +153,19 @@ export default class AlertSc extends Component {
                         />
                     }
                 >
-                    <View style={styles.textView}>
-                        <TextInput 
-                            value={this.state.search}
-                            onChangeText={(text)=>this.setState({search:text})}
-                            onSubmitEditing={this.search}
-                            style={{width:"85%"}}
-                        />
-                        <Icon 
-                        onPress={this.search}
-                        name="magnifying-glass" size={30} style={{marginTop:5}}/>
-                    </View>
+                    <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%"}}>
+						<View style={{borderBottomWidth:1,width:"100%",flexDirection:"row",justifyContent:"space-between",marginTop:"5%",marginBottom:"5%"}}>
+							<TextInput 
+								value={this.state.search}
+								onChangeText={(text) => this.setState({search:text})}
+								onSubmitEditing={this.search}
+								placeholder={"이름 검색"}
+								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
+							<Icon 
+								onPress={this.search}
+								name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
+						</View>
+					</View>
                     <FlatList
                         data={this.state.getAlerts}
                         renderItem={({item}) => 
@@ -218,35 +194,3 @@ export default class AlertSc extends Component {
         );
     }
 }
-
-const styles = StyleSheet.create({
-    logo: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor:"#fff"
-    },
-    login: {
-        flex: 1.5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor:"red",
-        borderWidth:2
-    },
-    info: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor:"red",
-        borderWidth:2
-    },
-    textView:{
-        borderBottomWidth:1,
-        borderBottomColor:"#000",
-        width:"95%",
-        marginLeft:"2%",
-        marginBottom:"5%",
-        flexDirection:"row",
-        alignItems: 'center',
-        justifyContent: 'center'
-    }
-});

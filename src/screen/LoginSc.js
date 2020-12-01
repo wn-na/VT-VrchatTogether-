@@ -1,40 +1,13 @@
 import React, { Component } from "react";
 // common component
 import {
-    Container,
-    Header,
-    Content,
-    Footer,
     Button,
-    Left,
-    Right,
-    Body,
-    Item,
-    Label,
-    Input,
-    H2,
-    H1,
-    Badge,
     Text,
-    SwipeRow,
-    Picker,
-    Textarea,
-    Fab,
-    List,
-    ListItem,
-    Switch,
-    Drawer
 } from "native-base";
 import {
-    Image,
     StyleSheet,
-    SectionList,
-    FlatList,
-    TouchableOpacity,
-    ScrollView,
     View,
     TextInput,
-    Dimensions,
     Alert,
     AsyncStorage,
     Linking,
@@ -84,7 +57,7 @@ export default class LoginSc extends Component {
     {
         console.log("LoginSc => loginCheck");
 
-        fetch("https://api.vrchat.cloud/api/1/auth/user", VRChatAPIGet)
+        fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
         .then((response) => response.json())
         .then((responseJson) => {
             if(!responseJson.error)
@@ -110,7 +83,7 @@ export default class LoginSc extends Component {
         // utf8 문자 감지 후 base64 변환
         const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
 
-        fetch("https://api.vrchat.cloud/api/1/auth/user", VRChatAPIGetAuth(user))
+        fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGetAuth(user))
         .then(response => response.json())
         .then(responseJson => {
             if(!responseJson.error)

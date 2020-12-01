@@ -1,51 +1,20 @@
 import React, { Component } from "react";
 // common component
 import {
-    Container,
-    Header,
-    Content,
-    Footer,
     Button,
-    Left,
-    Right,
-    Body,
-    Item,
-    Label,
-    Input,
-    H2,
-    H1,
-    Badge,
     Text,
-    SwipeRow,
-    Picker,
-    Textarea,
-    Fab,
-    List,
-    ListItem,
-    Switch,
-    Drawer
 } from "native-base";
 import {
     Image,
-    StyleSheet,
-    SectionList,
-    FlatList,
-    TouchableOpacity,
-    SafeAreaView,
     ScrollView,
     RefreshControl,
     View,
-    TextInput,
-    Dimensions,
     Alert,
-    AsyncStorage,
     ToastAndroid,
-    BackHandler,
     ActivityIndicator,
     ImageBackground,
 } from "react-native";
 import {UserGrade,UserGradeName} from './../utils/UserUtils';
-import Icon from "react-native-vector-icons/Entypo";
 import Modal from 'react-native-modal';
 import { Actions } from "react-native-router-flux";
 import { Col, Row } from "react-native-easy-grid";
@@ -108,9 +77,9 @@ export default class MainSc extends Component {
             [
                 {text: "확인", onPress: () => {
                     console.log("press logout")
-                    fetch("https://api.vrchat.cloud/api/1/logout", VRChatAPIPut)
+                    fetch(`https://api.vrchat.cloud/api/1/logout`, VRChatAPIPut)
                     .then((response) => response.json())
-                    .then((responseJson) => {
+                    .then(() => {
                         Actions.replace("loginSc");
                     });
                 }},
@@ -124,7 +93,7 @@ export default class MainSc extends Component {
     {
         console.log("LoginSc => getUserInfo");
 
-        await fetch("https://api.vrchat.cloud/api/1/auth/user", VRChatAPIGet)
+        await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
         .then((response) => response.json())
         .then((responseJson) => {
             this.setState({
@@ -138,7 +107,7 @@ export default class MainSc extends Component {
     getAlerts() {
         console.info("MainSc => getAlerts");
 
-        fetch("https://api.vrchat.cloud/api/1/auth/user/notifications", VRChatAPIGet)
+        fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications`, VRChatAPIGet)
         .then(responses => responses.json())
         .then(json => {
             this.setState({
@@ -267,8 +236,32 @@ export default class MainSc extends Component {
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
+                                        style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/alert_icon.png")}/>
-                                        <Text style={styles.infoButtonText}>알림{"  "}{this.state.alertCount}</Text>
+                                        <Text style={styles.infoButtonText}>알림</Text>
+                                        {this.state.alertCount != 0 && 
+                                            <View style={{
+                                                position:"absolute",
+                                                width:25,
+                                                height:25,
+                                                borderRadius:50,
+                                                backgroundColor:"#f51414",
+                                                justifyContent:"center",
+                                                alignItems:"center",
+                                                left:"55%",
+                                                top:"-10%"
+                                            }}/>}
+                                        {this.state.alertCount != 0 && 
+                                            <Text style={{
+                                                position:"absolute",
+                                                left:"26.5%",
+                                                top:"-7%",
+                                                color:"white",
+                                                fontSize:13,
+                                                fontFamily:"NetmarbleM",
+                                                textAlign:"center",
+                                                width:60
+                                            }}>{this.state.alertCount}</Text>}
                                     </View>
                                 </Button>
                             </Col>
@@ -278,6 +271,7 @@ export default class MainSc extends Component {
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
+                                        style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/friend_icon.png")}/>
                                         <Text style={styles.infoButtonText}>친구목록</Text>
                                     </View>
@@ -291,6 +285,7 @@ export default class MainSc extends Component {
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
+                                        style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/favorite_icon.png")}/>
                                         <Text style={styles.infoButtonText}>즐겨찾기 관리</Text>
                                     </View>
@@ -302,6 +297,7 @@ export default class MainSc extends Component {
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
+                                        style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/avatar_icon.png")}/>
                                         <Text style={styles.infoButtonText}>아바타 목록</Text>
                                     </View>
@@ -315,6 +311,7 @@ export default class MainSc extends Component {
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
+                                        style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/block_icon.png")}/>
                                         <Text style={styles.infoButtonText}>블락 관리</Text>
                                     </View>
@@ -326,6 +323,7 @@ export default class MainSc extends Component {
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
+                                        style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/world_icon.png")}/>
                                         <Text style={styles.infoButtonText}>맵 목록</Text>
                                     </View>

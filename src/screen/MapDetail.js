@@ -2,49 +2,19 @@ import React, { Component } from "react";
 import Moment from 'moment';
 // common component
 import {
-    Container,
     Header,
-    Content,
-    Footer,
     Button,
-    Left,
-    Right,
-    Body,
-    Item,
-    Label,
-    Input,
-    H2,
-    H1,
-    Badge,
     Text,
-    SwipeRow,
-    Picker,
-    Textarea,
-    Fab,
-    List,
-    ListItem,
-    Switch,
-    Drawer
 } from "native-base";
 import {
     Image,
     StyleSheet,
-    SectionList,
-    FlatList,
-    TouchableOpacity,
     ScrollView,
     View,
-    TextInput,
-    Dimensions,
-    Alert,
-    AsyncStorage
 } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
-import { Actions } from 'react-native-router-flux';
-import utf8 from "utf8";
-import base64 from 'base-64';
 import {UserGrade} from './../utils/UserUtils';
-import {MapTags, MapInfo, drawModal} from '../utils/MapUtils';
+import {MapInfo, drawModal} from '../utils/MapUtils';
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class MapDetail extends Component {  

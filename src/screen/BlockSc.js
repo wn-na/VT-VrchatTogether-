@@ -1,39 +1,16 @@
 import React, { Component } from "react";
 // common component
 import {
-    Container,
     Header,
-    Content,
-    Footer,
-    Button,
-    Left,
-    Right,
-    Body,
-    Item,
-    Label,
-    Input,
-    H2,
-    H1,
-    Badge,
     Text,
-    SwipeRow,
-    Textarea,
-    Fab,
-    List,
-    ListItem,
-    Switch,
-    Drawer
 } from "native-base";
 import {
-    Image,
     StyleSheet,
-    SectionList,
     FlatList,
     TouchableOpacity,
     ScrollView,
     View,
     TextInput,
-    Dimensions,
     Alert,
     Picker,
     RefreshControl,
@@ -43,7 +20,6 @@ import {
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
-import {UserGrade} from './../utils/UserUtils';
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 
 export default class BlockSc extends Component {
@@ -83,7 +59,7 @@ export default class BlockSc extends Component {
     }
 
     async getBlock () {
-        await fetch("https://api.vrchat.cloud/api/1/auth/user/playermoderations", VRChatAPIGet)
+        await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderations`, VRChatAPIGet)
         .then((response) => response.json())
         .then(json => {
             json.sort((a,b) =>{
@@ -96,7 +72,7 @@ export default class BlockSc extends Component {
     }
 
     async getAgainst() {
-        await fetch("https://api.vrchat.cloud/api/1/auth/user/playermoderated", VRChatAPIGet)
+        await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderated`, VRChatAPIGet)
         .then((response) => response.json())
         .then(json => {
             json.sort((a,b) =>{

@@ -1,50 +1,20 @@
 import React, { Component } from "react";
 // common component
 import {
-    Container,
-    Header,
-    Content,
-    Footer,
-    Button,
-    Left,
-    Right,
-    Body,
-    Item,
-    Label,
-    Input,
-    H2,
-    H1,
-    Badge,
     Text,
-    SwipeRow,
-    Picker,
-    Textarea,
-    Fab,
-    List,
-    ListItem,
-    Switch,
-    Drawer
 } from "native-base"
 import {
     Image,
-    ActivityIndicator,
-    StyleSheet,
-    SectionList,
-    FlatList,
     TouchableOpacity,
     ScrollView,
     View,
     TextInput,
     Dimensions,
     Alert,
-    Modal,
-    AsyncStorage,
-    KeyboardAvoidingView
 } from "react-native"
 import Icon from "react-native-vector-icons/Entypo"
 import { Actions } from 'react-native-router-flux'
 import Carousel from 'react-native-snap-carousel'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import {MapTags, updateFavoriteMap, FavoriteWorld, drawModal} from '../utils/MapUtils'
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 import styles from '../css/css'
@@ -150,7 +120,7 @@ export default class MapListSc extends Component {
         return (
             <View style={{flex:1}}>
                 <View style={styles.logo}>
-                    <Text style={{color:"white"}}>맵 목록</Text>
+                    <Text style={{fontFamily:"NetmarbleM",color:"white"}}>맵 목록</Text>
                 </View>
                 <View style={styles.textView}>
                     <View style={styles.textBox}>
@@ -159,13 +129,13 @@ export default class MapListSc extends Component {
                             onChangeText={(text) => this.setState({search:text})}
                             onSubmitEditing={this.searchMap}
                             placeholder={"맵 검색"}
-                            style={{width:"90%",height:50}}/>
+                            style={{width:"90%",height:50,fontFamily:"NetmarbleL"}}/>
                         <Icon 
                             onPress={() => this.searchMap}
                             name="magnifying-glass" size={25} style={{marginTop:5,color:"#3a4a6d"}}/>
                     </View>
                 </View>
-                <View style={{alignItems:"center"}}>
+                <View style={{alignItems:"center",marginTop:"10%"}}>
                     <ScrollView
                     horizontal
                     style={{

@@ -42,7 +42,9 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import Modal from 'react-native-modal';
-import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils'
+import Carousel from 'react-native-snap-carousel';
+import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
+import styles from '../css/css';
 
 export default class MakeDetail extends Component {
     constructor(props) {
@@ -87,7 +89,7 @@ export default class MakeDetail extends Component {
         let offset = 0;
         let data = [];
 
-        let fetc = await fetch(`https://api.vrchat.cloud/api/1/avatars?n=100&userId=`+this.props.userId, VRChatAPIGet)
+        let fetc = await fetch(`https://api.vrchat.cloud/api/1/avatars?n=100&userId=${this.props.userId}`, VRChatAPIGet)
         .then(response => response.json());
 
         // 즐겨찾기검사
@@ -126,7 +128,7 @@ export default class MakeDetail extends Component {
         let offset=0;
         let data = [];
 
-        let fetc = await fetch(`https://api.vrchat.cloud/api/1/worlds?n=100&userId=`+this.props.userId, VRChatAPIGet)
+        let fetc = await fetch(`https://api.vrchat.cloud/api/1/worlds?n=100&userId=${this.props.userId}`, VRChatAPIGet)
         .then(response => response.json());
 
         // 즐겨찾기검사
@@ -167,46 +169,48 @@ export default class MakeDetail extends Component {
         {
             return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
                 <View>
-                <Text>아바타내역이 존재하지 않습니다.</Text>
+                    <Text style={{fontFamily:"NetmarbleL",color:"#2b3956"}}>아바타내역이 존재하지 않습니다.</Text>
                 </View>
             </View>
         }
 
         return <FlatList
+        style={styles.avatarListCon}
         data={this.state.getAvatars}
         extraData={this.state}
         renderItem={({item}) => 
-            <View style={{flexDirection:"row", padding:"5%", borderWidth:1}}>
-                <View>
-                    <Image
-                        style={{width: 100, height: 100, borderRadius:20}} 
-                        source={VRChatImage(item.thumbnailImageUrl)}
-                    />
-                </View>
-                <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
-                    <View style={{alignItems:"flex-start"}}>
-                        <Text>
-                            {item.name}
-                        </Text>
-                        <Text style={{marginTop:"3%"}}>
+            <View
+                style={styles.avatarList}>
+                <View style={styles.avatarListView}>
+                    <View>
+                        <Image
+                            style={{width: 100, height: 100, borderRadius:20}} 
+                            source={VRChatImage(item.thumbnailImageUrl)}
+                        />
+                    </View>
+                    <View style={{width:"100%",marginLeft:"3%"}}>
+                        <Text style={{fontFamily:"NetmarbleL",lineHeight:30}}>
+                            {item.name}{"\n"}
+                            {item.authorName}{"\n"}
                             {item.updated_at.substring(0,10)}
                         </Text>
-                    </View>
-                    <View style={{position:"absolute",top:"-10%",left:"63%"}}>
-                        {
-                        item.isFavorite == true ?
-                        <Icon 
-                        onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
-                        name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
-                        :
-                        <Icon 
-                        onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
-                        name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
-                        }
+                        <View style={{position:"absolute",top:"-10%",left:"60%"}}>
+                            {
+                            item.isFavorite == true ?
+                            <Icon 
+                            style={{zIndex:2}}
+                            onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
+                            name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+                            :
+                            <Icon 
+                            style={{zIndex:2}}
+                            onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
+                            name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+                            }
+                        </View>
                     </View>
                 </View>
-            </View>
-        }
+            </View>}
         />
     }
 
@@ -217,50 +221,101 @@ export default class MakeDetail extends Component {
         {
             return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
                 <View>
-                <Text>월드내역이 존재하지 않습니다.</Text>
+                    <Text style={{fontFamily:"NetmarbleL",color:"#2b3956"}}>월드내역이 존재하지 않습니다.</Text>
                 </View>
             </View>
         }
-
-        return <FlatList
-        data={this.state.getWorlds}
-        extraData={this.state}
-        renderItem={({item}) => 
-            <View style={{flexDirection:"row", padding:"5%", borderWidth:1}}>
-                <View>
-                    <Image
-                        style={{width: 100, height: 100, borderRadius:20}}
-                        source={VRChatImage(item.thumbnailImageUrl)}
-                    />
-                </View>
-                <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
-                    <View style={{alignItems:"flex-start",flex:1}}>
-                        <Text style={{width:"70%"}}>
-                            {item.name}
-                        </Text>
-                        <Text>
-                            {item.authorName}
-                        </Text>
-                        <Text style={{marginTop:"3%"}}>
-                            {item.updated_at.substring(0,10)}
-                        </Text>
-                    </View>
-                    <View style={{position:"absolute",top:"-10%",left:"63%"}}>
-                        {
-                        item.isFavorite == true ?
-                        <Icon 
-                        onPress={this.viewWorldFavorite.bind(this, item.favoriteId, item.id, item.isFavorite)}
-                        name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
-                        :
-                        <Icon 
-                        onPress={this.viewWorldFavorite.bind(this, item.favoriteId, item.id, item.isFavorite)}
-                        name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
-                        }
-                    </View>
-                </View>
-            </View>
-        }
-        />
+        return <View style={{marginTop:"10%",alignItems:"center",height:"100%"}}>
+            <Carousel
+                layout={'default'}
+                ref={(c) => { this._carousel = c; }}
+                extraData={this.state}
+                enableMomentum={"fast"}
+                data={this.state.getWorlds.filter((v) => v.group == this.state.selectedGroupKey)}
+                sliderWidth={parseInt(Dimensions.get('window').width / 100 * 100)}
+                itemWidth={parseInt(Dimensions.get('window').width / 100 * 80)}
+                renderItem={({item}) => 
+                    item.group == this.state.selectedGroupKey &&
+                    <View style={styles.worldInfo}>
+                        <View>
+                            <View style={{flexDirection:"row",justifyContent:"center"}}>
+                                <View>
+                                    {
+                                        item.isFavorite == true ?
+                                        <Icon 
+                                        style={{zIndex:2}}
+                                        onPress={this.favoriteWorld.bind(this, 0, item.favoriteId, item.id, item.isFavorite)}
+                                        name="star" size={35} style={styles.worldIcon}/>
+                                        :
+                                        <Icon 
+                                        style={{zIndex:2}}
+                                        onPress={() => this.setState({modalVisivle:true, getWorldsChooseId:item.id})}
+                                        name="star-outlined" size={35} style={styles.worldIcon}/>
+                                    }
+                                    <Text style={{textAlign:"center",color:"#2b3956",fontFamily:"NetmarbleM"}}>{item.name}</Text>
+                                    <Image
+                                        style={{
+                                            width: parseInt(Dimensions.get('window').width / 100 * 72), 
+                                            height: parseInt(Dimensions.get('window').width / 100 * 50),
+                                            borderRadius:5,
+                                            marginTop:"5%",
+                                            marginBottom:"5%"
+                                        }}
+                                        source={VRChatImage(item.thumbnailImageUrl)}
+                                    />
+                                </View>
+                            </View>
+                            <View>
+                                <Text style={{fontFamily:"NetmarbleL",color:"#2b3956",lineHeight:30}}>
+                                    제작자 : {item.authorName}{"\n"}
+                                    전체 : {item.occupants}명{"\n"}
+                                    업데이트 날짜 : {item.updated_at.substring(0, 10)}{"\n"}
+                                </Text> 
+                            </View>
+                        </View>
+                    </View>}
+            />
+        </View>
+        // 보류
+        // return <FlatList
+        // data={this.state.getWorlds}
+        // extraData={this.state}
+        // renderItem={({item}) => 
+        //     <View style={{flexDirection:"row", padding:"5%", borderWidth:1}}>
+        //         <View>
+        //             <Image
+        //                 style={{width: 100, height: 100, borderRadius:20}}
+        //                 source={VRChatImage(item.thumbnailImageUrl)}
+        //             />
+        //         </View>
+        //         <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
+        //             <View style={{alignItems:"flex-start",flex:1}}>
+        //                 <Text style={{width:"70%"}}>
+        //                     {item.name}
+        //                 </Text>
+        //                 <Text>
+        //                     {item.authorName}
+        //                 </Text>
+        //                 <Text style={{marginTop:"3%"}}>
+        //                     {item.updated_at.substring(0,10)}
+        //                 </Text>
+        //             </View>
+        //             <View style={{position:"absolute",top:"-10%",left:"63%"}}>
+        //                 {
+        //                 item.isFavorite == true ?
+        //                 <Icon 
+        //                 onPress={this.viewWorldFavorite.bind(this, item.favoriteId, item.id, item.isFavorite)}
+        //                 name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+        //                 :
+        //                 <Icon 
+        //                 onPress={this.viewWorldFavorite.bind(this, item.favoriteId, item.id, item.isFavorite)}
+        //                 name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+        //                 }
+        //             </View>
+        //         </View>
+        //     </View>
+        // }
+        // />
     }
 
     async favoriteAvatar(favoriteId, avatarId, isFavorite) {
@@ -568,21 +623,19 @@ export default class MakeDetail extends Component {
         
         return (
             <View style={{flex:1}}>
-                <Header style={styles.logo}>
-                    <Text>
-                        제작정보
-                    </Text>
+                <View style={styles.logo}>
+                    <Text style={{fontFamily:"NetmarbleM",color:"white"}}>제작정보</Text>
                     <View  style={{position:"absolute",right:"5%"}}>
                     {this.state.refreshButton == false ?
                     <Icon
                     onPress={this.resetButton.bind(this)}
-                    name="cycle" size={20}
+                    name="cycle" size={20} style={{color:"white"}}
                     />
                     :
-                    <ActivityIndicator size={20} color="black"/>
+                    <ActivityIndicator size={20} color="white"/>
                     }
                     </View>
-                </Header>
+                </View>
                 <ScrollView 
                     refreshControl={
                         <RefreshControl
@@ -591,17 +644,19 @@ export default class MakeDetail extends Component {
                         />
                     }
                 >
-                    <View style={styles.textView}>
-                        <TextInput 
-                            value={this.state.search}
-                            onChangeText={(text)=>this.setState({search:text})}
-                            onSubmitEditing={this.search}
-                            style={{width:"85%"}}
-                        />
-                        <Icon 
-                        onPress={this.search}
-                        name="magnifying-glass" size={30} style={{marginTop:5}}/>
-                    </View>
+                   <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%"}}>
+						<View style={{borderBottomWidth:1,width:"100%",flexDirection:"row",justifyContent:"space-between",marginTop:"5%"}}>
+							<TextInput 
+								value={this.state.search}
+								onChangeText={(text) => this.setState({search:text})}
+								onSubmitEditing={this.search}
+								placeholder={"검색"}
+								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
+							<Icon 
+								onPress={this.search}
+								name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
+						</View>
+					</View>
                     <View style={{alignItems:"flex-end",marginRight:"2%"}}>
                         <View style={styles.selectView}>
                             <Picker 
@@ -657,57 +712,3 @@ export default class MakeDetail extends Component {
         );
     }
 }
-
-const styles = StyleSheet.create({
-    logo: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor:"#fff"
-    },
-    login: {
-        flex: 1.5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor:"red",
-        borderWidth:2
-    },
-    worldInfo: {
-        flex: 1,
-        width:"90%",
-        padding:10,
-        borderWidth:1,
-        marginLeft:"5%"
-    },
-    groupButton:{
-        marginTop:10,
-        margin:15,
-        justifyContent:"center",
-        backgroundColor:"#fff",
-        color:"#000"
-    },
-    modal:{
-        flex:1,
-        height:250
-    },
-    list:{
-        width:"97%",
-        marginLeft:"1.5%"
-    },
-    textView:{
-        borderBottomWidth:1,
-        borderBottomColor:"#000",
-        width:"95%",
-        marginLeft:"2%",
-        flexDirection:"row",
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    selectView:{
-        borderBottomWidth:1,
-        borderBottomColor:"#000",
-        width:"35%",
-        marginLeft:"2%",
-        marginTop:"5%",
-        marginBottom:"5%"
-    }
-});
