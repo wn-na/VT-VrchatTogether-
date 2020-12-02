@@ -15,7 +15,7 @@ import {
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
-import {UserGrade} from './../utils/UserUtils';
+import {UserGrade} from '../utils/UserUtils';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPutBody, VRChatAPIPost, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleM,NetmarbleL,NetmarbleB,GodoR} from '../utils/CssUtils';
