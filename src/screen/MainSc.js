@@ -14,6 +14,7 @@ import {
     ActivityIndicator,
     ImageBackground,
 } from "react-native";
+import Icon from "react-native-vector-icons/Entypo";
 import {UserGrade,UserGradeName} from './../utils/UserUtils';
 import Modal from 'react-native-modal';
 import { Actions } from "react-native-router-flux";
@@ -21,11 +22,10 @@ import { Col, Row } from "react-native-easy-grid";
 import {VRChatAPIGet, VRChatImage, VRChatAPIPut} from '../utils/ApiUtils';
 import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
 import styles from '../css/css';
+import {NetmarbleM,NetmarbleB,NetmarbleL} from '../utils/CssUtils';
 
 export default class MainSc extends Component {
     constructor(props) {
-        console.info("MainSc => constructor");
-
         super(props);
 
         this.state = {
@@ -45,8 +45,6 @@ export default class MainSc extends Component {
     }
 
     async UNSAFE_componentWillMount() {
-        console.info("MainSc => componentWillMount");
-        
         getFavoriteMap();
         getFavoriteWorldTag();
 
@@ -59,31 +57,26 @@ export default class MainSc extends Component {
     }
 
     componentWillUnmount() {
-        console.info("MainSc => componentWillUnmount");
     }
 
     componentDidMount() {
-        console.info("MainSc => componentDidMount");
     }
 
     // 로그아웃 처리
     logout = () =>
     {
-        console.log("MainSc => logout");
-
         Alert.alert(
             "안내",
             "로그아웃 하시겠습니까?",
             [
                 {text: "확인", onPress: () => {
-                    console.log("press logout")
                     fetch(`https://api.vrchat.cloud/api/1/logout`, VRChatAPIPut)
                     .then((response) => response.json())
                     .then(() => {
                         Actions.replace("loginSc");
                     });
                 }},
-                {text: "취소", onPress: () => {console.log("press logout")}}
+                {text: "취소"}
             ]
         );
     }
@@ -91,8 +84,6 @@ export default class MainSc extends Component {
     // 자기정보 가져옴
     async getUserInfo ()
     {
-        console.log("LoginSc => getUserInfo");
-
         await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
         .then((response) => response.json())
         .then((responseJson) => {
@@ -105,8 +96,6 @@ export default class MainSc extends Component {
     }
 
     getAlerts() {
-        console.info("MainSc => getAlerts");
-
         fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications`, VRChatAPIGet)
         .then(responses => responses.json())
         .then(json => {
@@ -119,8 +108,6 @@ export default class MainSc extends Component {
     // 새로고침 시 5초 카운팅기능
     reset = () =>
     {
-        console.log("LoginSc => reset");
-
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -151,8 +138,6 @@ export default class MainSc extends Component {
     }
 
     render() {
-        console.info("MainSc => render");
-
         this.state.allCount = this.state.onCount + this.state.offCount;
 
         return (
@@ -168,67 +153,53 @@ export default class MainSc extends Component {
                 style={{width:"100%",height:"100%"}}
                 source={require("../css/imgs/main_background.png")}>
                     <View style={{flex:2}}>
-                        <ImageBackground
-                        style={{width:"100%",height:"100%"}}
-                        source={require("../css/imgs/main_top.png")}>
-                        <View style={{alignItems:"flex-start",position:"absolute",marginLeft:"2%"}}>
+                        <View style={{alignItems:"flex-end",marginRight:"2%"}}>
                             <Button
                                 onPress={this.logout.bind(this)}
                                 style={{marginTop:10,width:100,justifyContent:"center"}}
                                 >
-                                <Text style={{fontFamily:"NetmarbleM"}}>로그아웃</Text>
+                                <NetmarbleM style={{color:"white"}}>로그아웃</NetmarbleM>
                             </Button>
                         </View>
-                        <View style={{alignItems:"center",marginTop:"5%"}}>
-                            <View 
-                            style={{
-                                    width:110,
-                                    borderRadius:20,
-                                    borderWidth:2,
-                                    borderColor:UserGrade(this.state.getUserInfo.tags),
-                                    backgroundColor:UserGrade(this.state.getUserInfo.tags)
-                                }}>
-                                <Text style={{textAlign:"center",color:"white",fontFamily:"NetmarbleM"}}>
-                                    {UserGradeName(this.state.getUserInfo.tags)}
-                                </Text>
+                        <View style={styles.myInfo}>
+                            <View style={{flexDirection:"row"}}>
                                 <Image
-                                    style={{width:"100%", height: 90,borderBottomLeftRadius:20,borderBottomRightRadius:20}}
-                                    source={VRChatImage(this.state.getUserInfo.currentAvatarImageUrl)}
+                                    style={{width: 100, height: 100, borderRadius:10}}
+                                    source={VRChatImage(this.state.getUserInfo.currentAvatarThumbnailImageUrl)}
                                 />
+                                <NetmarbleL style={styles.myInfoText}>
+                                    {this.state.getUserInfo.displayName}{"  "}
+                                    {this.state.getUserInfo.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
+                                    {this.state.getUserInfo.statusDescription != "" && this.state.getUserInfo.statusDescription+"\n"}
+                                </NetmarbleL>
+                            </View>
+                            <View style={{justifyContent:"center",marginTop:"5%"}}>
+                                <View style={styles.userCount}>
+                                    <Row>
+                                        <Col>
+                                            <NetmarbleL style={styles.friendsCount}>
+                                                전체{"\n"}
+                                                {this.state.allCount+"명"}
+                                            </NetmarbleL>
+                                        </Col>
+                                        <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
+                                            <NetmarbleL style={styles.friendsCount}>
+                                                온라인{"\n"}
+                                                {this.state.onCount+"명"}
+                                            </NetmarbleL>
+                                        </Col>
+                                        <Col>
+                                            <NetmarbleL style={styles.friendsCount}>
+                                                오프라인{"\n"}
+                                                {this.state.offCount+"명"}
+                                            </NetmarbleL>
+                                        </Col>
+                                    </Row>
+                                </View>
                             </View>
                         </View>
-                        <Text style={{textAlign:"center",fontFamily:"NetmarbleM",color:"#2b3956",marginTop:"2%"}}>
-                            {this.state.getUserInfo != null && this.state.getUserInfo.displayName}{"\n"}
-                            {this.state.getUserInfo != null && this.state.getUserInfo.statusDescription}{"\n"}
-                        </Text>
-                        <View style={styles.userCountInfo}>
-                            <View style={styles.userCount}>
-                                <Row>
-                                    <Col>
-                                        <Text style={styles.friendsInfo}>
-                                            전체{"\n"}
-                                            {this.state.allCount+"명"}
-                                        </Text>
-                                    </Col>
-                                    <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"white"}}>
-                                        <Text style={styles.friendsInfo}>
-                                            온라인{"\n"}
-                                            {this.state.onCount+"명"}
-                                        </Text>
-                                    </Col>
-                                    <Col>
-                                        <Text style={styles.friendsInfo}>
-                                            오프라인{"\n"}
-                                            {this.state.offCount+"명"}
-                                        </Text>
-                                    </Col>
-                                </Row>
-                            </View>
-                        </View>
-                        </ImageBackground>
                     </View>
                     <View style={styles.menu}>
-                        <View style={{height:"10%"}}/>
                         <Row>
                             <Col style={{alignItems:"flex-end"}}>
                                 <Button
@@ -238,7 +209,7 @@ export default class MainSc extends Component {
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/alert_icon.png")}/>
-                                        <Text style={styles.infoButtonText}>알림</Text>
+                                        <NetmarbleM style={styles.infoButtonText}>알림</NetmarbleM>
                                         {this.state.alertCount != 0 && 
                                             <View style={{
                                                 position:"absolute",
@@ -252,16 +223,15 @@ export default class MainSc extends Component {
                                                 top:"-10%"
                                             }}/>}
                                         {this.state.alertCount != 0 && 
-                                            <Text style={{
+                                            <NetmarbleM style={{
                                                 position:"absolute",
                                                 left:"26.5%",
                                                 top:"-7%",
                                                 color:"white",
                                                 fontSize:13,
-                                                fontFamily:"NetmarbleM",
                                                 textAlign:"center",
                                                 width:60
-                                            }}>{this.state.alertCount}</Text>}
+                                            }}>{this.state.alertCount}</NetmarbleM>}
                                     </View>
                                 </Button>
                             </Col>
@@ -273,7 +243,7 @@ export default class MainSc extends Component {
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/friend_icon.png")}/>
-                                        <Text style={styles.infoButtonText}>친구목록</Text>
+                                        <NetmarbleM style={styles.infoButtonText}>친구목록</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -287,7 +257,7 @@ export default class MainSc extends Component {
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/favorite_icon.png")}/>
-                                        <Text style={styles.infoButtonText}>즐겨찾기 관리</Text>
+                                        <NetmarbleM style={styles.infoButtonText}>즐겨찾기 관리</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -299,7 +269,7 @@ export default class MainSc extends Component {
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/avatar_icon.png")}/>
-                                        <Text style={styles.infoButtonText}>아바타 목록</Text>
+                                        <NetmarbleM style={styles.infoButtonText}>아바타 목록</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -313,7 +283,7 @@ export default class MainSc extends Component {
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/block_icon.png")}/>
-                                        <Text style={styles.infoButtonText}>블락 관리</Text>
+                                        <NetmarbleM style={styles.infoButtonText}>블락 관리</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -325,12 +295,11 @@ export default class MainSc extends Component {
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/world_icon.png")}/>
-                                        <Text style={styles.infoButtonText}>맵 목록</Text>
+                                        <NetmarbleM style={styles.infoButtonText}>맵 목록</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
                         </Row>
-                        <View style={{height:"10%"}}/>
                     </View>
                     <Modal
                     isVisible={this.state.modalVisible}>

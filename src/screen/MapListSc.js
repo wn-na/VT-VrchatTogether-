@@ -11,6 +11,7 @@ import {
     TextInput,
     Dimensions,
     Alert,
+    ActivityIndicator,
 } from "react-native"
 import Icon from "react-native-vector-icons/Entypo"
 import { Actions } from 'react-native-router-flux'
@@ -18,11 +19,15 @@ import Carousel from 'react-native-snap-carousel'
 import {MapTags, updateFavoriteMap, FavoriteWorld, drawModal} from '../utils/MapUtils'
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 import styles from '../css/css'
+import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 
 export default class MapListSc extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            refreshing:false,
+            refreshTime:false,
+            refreshButton:false,
             mapList: [],
             index: 0,
             mapCount: 10,
@@ -37,12 +42,12 @@ export default class MapListSc extends Component {
 
     drawMapTag = () => 
         [...MapTags.keys()].map((key, idx) => 
-            <Text key={idx} style={this.state.tag == key ? styles.mapSelectTag : styles.mapTag} 
+            <NetmarbleL
+            key={idx} style={this.state.tag == key ? styles.mapSelectTag : styles.mapTag} 
             onPress={() => {
                 this.searchTagMap(key);
                 this._carousel.snapToItem(0,true,true);
-            }}>
-                {key}</Text>
+            }}>{key}</NetmarbleL>
         )
 
     searchMapList = (callback) => 
@@ -115,12 +120,30 @@ export default class MapListSc extends Component {
         })
     }
 
+    reset() {
+
+    }
+
+    resetButton() {
+
+    }
 
     render() {
         return (
             <View style={{flex:1}}>
                 <View style={styles.logo}>
-                    <Text style={{fontFamily:"NetmarbleM",color:"white"}}>맵 목록</Text>
+                    <Icon
+					onPress={()=>Actions.pop()}
+					name="chevron-left" size={25} style={{color:"white"}}/>
+                    <NetmarbleM style={{color:"white"}}>맵 목록</NetmarbleM>
+                    {this.state.refreshButton == false ?
+                    <Icon
+                    onPress={this.resetButton.bind(this)}
+                    name="cycle" size={20} style={{color:"white"}}
+                    />
+                    :
+                    <ActivityIndicator size={20} color="white"/>
+                    }
                 </View>
                 <View style={styles.textView}>
                     <View style={styles.textBox}>
@@ -168,11 +191,11 @@ export default class MapListSc extends Component {
                         renderItem={({item}) => 
                             <TouchableOpacity
                             style={styles.worldInfo}
-                            onPress={() => Actions.friendDetail({userId:item.authorId, isMap:true})}>
+                            onPress={() => Actions.currentScene == "mapListSc" && Actions.userDetail({userId:item.authorId, isFriend:false})}>
                                 <View>
                                     <View style={{flexDirection:"row",justifyContent:"center"}}>
                                         <View>
-                                            <Text style={{textAlign:"center",color:"#2b3956",fontFamily:"NetmarbleM"}}>{item.name}</Text>
+                                            <NetmarbleM style={{textAlign:"center"}}>{item.name}</NetmarbleM>
                                             <Icon 
                                                 onPress={() => updateFavoriteMap(this.state, item, FavoriteWorld.get(item.id))}
                                                 name={(FavoriteWorld.get(item.id) ? "star" : "star-outlined")}
@@ -192,11 +215,11 @@ export default class MapListSc extends Component {
                                         </View>
                                     </View>
                                     <View>
-                                        <Text style={{fontFamily:"NetmarbleL",color:"#2b3956",lineHeight:30}}>
+                                        <NetmarbleL style={{lineHeight:30}}>
                                             제작자 : {item.authorName}{"\n"}
                                             전체 : {item.occupants}명{"\n"}
                                             업데이트 날짜 : {item.updated_at.substring(0, 10)}{"\n"}
-                                        </Text> 
+                                        </NetmarbleL> 
                                     </View>
                                 </View>
                             </TouchableOpacity>

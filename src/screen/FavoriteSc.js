@@ -24,11 +24,10 @@ import Carousel from 'react-native-snap-carousel';
 import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import styles from '../css/css';
+import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 
 export default class FavoriteSc extends Component {
     constructor(props) {
-        console.info("FavoriteSc => constructor");
-
         super(props);
 
         this.state = {
@@ -54,7 +53,6 @@ export default class FavoriteSc extends Component {
     }
 
     UNSAFE_componentWillMount() {
-        console.info("FavoriteSc => componentWillMount");
         Promise.all([this.getAvatar(),this.getWorld()])
         .then(() => {
             this.setState({
@@ -64,16 +62,12 @@ export default class FavoriteSc extends Component {
     }
 
     componentWillUnmount() {
-        console.info("FavoriteSc => componentWillUnmount");
     }
 
     componentDidMount() {
-        console.info("FavoriteSc => componentDidMount");
     }
 
     async getAvatar(){
-		console.log("AvatarListSc => getAvatar");
-
 		let fetc = await fetch(`https://api.vrchat.cloud/api/1/avatars/favorites?sort=_updated_at&order=descending`, VRChatAPIGet)
 		.then(response => response.json());
 		
@@ -147,8 +141,6 @@ export default class FavoriteSc extends Component {
     }
 
     async favoriteAvatar(favoriteId, avatarId, isFavorite) {
-		console.log("AvatarListSc => favoriteAvatar");
-
 		if(isFavorite == false)
         {
             await fetch(`https://api.vrchat.cloud/api/1/favorites`, VRChatAPIPostBody({
@@ -208,11 +200,8 @@ export default class FavoriteSc extends Component {
 	}
 
     async favoriteWorld(number, favoriteId, worldId, isFavorite) {
-
         let groupName = null;
-
-        console.log(favoriteId);
-
+        
         await fetch(`https://api.vrchat.cloud/api/1/favorite/groups?type=world`, VRChatAPIGet)
         .then(res => res.json())
         .then(json => {
@@ -229,52 +218,42 @@ export default class FavoriteSc extends Component {
 
         if(isFavorite == false)
         {
-            Alert.alert(
-                "안내",
-                "Group "+(number+1)+"에 즐겨찾기 하시겠습니까?",
-                [
-                    {text:"확인", onPress: () => {
-                        fetch(`https://api.vrchat.cloud/api/1/favorites`, VRChatAPIPostBody({
-                            "type":"world",
-                            "tags":[groupName],
-                            "favoriteId":worldId
-                        }))
-                        .then((response) => response.json())
-                        .then((json) => {
-                            console.log(json)
-                            if(!json.error)
-                            {
-                                for(let i=0;i<this.state.getWorlds.length;i++)
-                                {
-                                    if(this.state.getWorlds[i].id == worldId)
-                                    {
-                                        this.state.getWorlds[i].isFavorite = true;
-                                        this.state.getWorlds[i].favoriteId = json.id;
-                                    }
-                                }
-                                
-                                this.setState({
-                                    modalVisivle: false
-                                });
+            fetch(`https://api.vrchat.cloud/api/1/favorites`, VRChatAPIPostBody({
+                "type":"world",
+                "tags":[groupName],
+                "favoriteId":worldId
+            }))
+            .then((response) => response.json())
+            .then((json) => {
+                if(!json.error)
+                {
+                    for(let i=0;i<this.state.getWorlds.length;i++)
+                    {
+                        if(this.state.getWorlds[i].id == worldId)
+                        {
+                            this.state.getWorlds[i].isFavorite = true;
+                            this.state.getWorlds[i].favoriteId = json.id;
+                            this.state.getWorlds[i].group = groupName;
+                        }
+                    }
+                    
+                    this.setState({
+                        modalVisible: false
+                    });
 
-                                ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
-                            }
-                            else
-                            {
-                                ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
-                            }
-                        });
-                    }},
-                    {text:"취소"}
-                ]
-            );
+                    ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
+                }
+                else
+                {
+                    ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+                }
+            });
         }
         else if(isFavorite == true)
         {
             await fetch(`https://api.vrchat.cloud/api/1/favorites/${favoriteId}`, VRChatAPIDelete)
             .then((response) => response.json())
             .then((json) => {
-                console.log(json)
                 if(!json.error)
                 {
                     for(let i=0;i<this.state.getWorlds.length;i++)
@@ -305,7 +284,7 @@ export default class FavoriteSc extends Component {
         {
             return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
                 <View>
-                <Text>아바타내역이 존재하지 않습니다.</Text>
+                    <NetmarbleL>아바타내역이 존재하지 않습니다.</NetmarbleL>
                 </View>
             </View>
         }
@@ -317,7 +296,7 @@ export default class FavoriteSc extends Component {
 				extraData={this.state}
 				renderItem={({item}) =>
                     <TouchableOpacity
-                    onPress={()=> Actions.currentScene == "avatarListSc" ? Actions.friendDetail({userId:item.authorId, friendCheck:false}) : {}}
+                    onPress={()=> Actions.currentScene == "favoriteSc" ? Actions.userDetail({userId:item.authorId, isFriend:false}) : {}}
                     style={styles.avatarList}>
                     <View style={styles.avatarListView}>
                         <View>
@@ -327,11 +306,11 @@ export default class FavoriteSc extends Component {
                             />
                         </View>
                         <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
-                            <Text style={{fontFamily:"NetmarbleL",lineHeight:30}}>
+                            <NetmarbleL style={{lineHeight:30}}>
                                 {item.name}{"\n"}
                                 {item.authorName}{"\n"}
                                 {item.updated_at.substring(0,10)}
-                            </Text>
+                            </NetmarbleL>
                             <View style={{position:"absolute",top:"-10%",left:"60%"}}>
                                 {
                                 item.isFavorite == true ?
@@ -359,7 +338,7 @@ export default class FavoriteSc extends Component {
 				extraData={this.state}
 				renderItem={({item}) =>
                     <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "avatarListSc" ? Actions.friendDetail({userId:item.authorId, friendCheck:false}) : {}}
+                        onPress={()=> Actions.currentScene == "favoriteSc" ? Actions.userDetail({userId:item.authorId, isFriend:false}) : {}}
                         style={styles.avatarList}>
                         <View style={styles.avatarListView}>
                             <View>
@@ -369,11 +348,11 @@ export default class FavoriteSc extends Component {
                                 />
                             </View>
                             <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
-                                <Text style={{fontFamily:"NetmarbleL",lineHeight:30}}>
+                                <NetmarbleL style={{lineHeight:30}}>
                                     {item.name}{"\n"}
                                     {item.authorName}{"\n"}
                                     {item.updated_at.substring(0,10)}
-                                </Text>
+                                </NetmarbleL>
                                 <View style={{position:"absolute",top:"-10%",left:"60%"}}>
                                     {
                                     item.isFavorite == true ?
@@ -400,7 +379,7 @@ export default class FavoriteSc extends Component {
         {
             return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
                 <View>
-                <Text>월드내역이 존재하지 않습니다.</Text>
+                    <NetmarbleL>월드내역이 존재하지 않습니다.</NetmarbleL>
                 </View>
             </View>
         }
@@ -419,7 +398,7 @@ export default class FavoriteSc extends Component {
                         item.group == this.state.selectedGroupKey &&
                         <TouchableOpacity
                             style={styles.worldInfo}
-                            onPress={() => Actions.friendDetail({userId:item.authorId, isMap:true})}>
+                            onPress={() => Actions.currentScene == "favoriteSc" && Actions.userDetail({userId:item.authorId, isMap:true})}>
                             <View>
                                 <View style={{flexDirection:"row",justifyContent:"center"}}>
                                     <View>
@@ -432,10 +411,10 @@ export default class FavoriteSc extends Component {
                                             :
                                             <Icon 
                                             style={{zIndex:2}}
-                                            onPress={() => this.setState({modalVisivle:true, getWorldsChooseId:item.id})}
+                                            onPress={() => this.setState({modalVisible:true, getWorldsChooseId:item.id})}
                                             name="star-outlined" size={35} style={styles.worldIcon}/>
                                         }
-                                        <Text style={{textAlign:"center",color:"#2b3956",fontFamily:"NetmarbleM"}}>{item.name}</Text>
+                                        <NetmarbleM style={{textAlign:"center"}}>{item.name}</NetmarbleM>
                                         <Image
                                             style={{
                                                 width: parseInt(Dimensions.get('window').width / 100 * 72), 
@@ -449,11 +428,11 @@ export default class FavoriteSc extends Component {
                                     </View>
                                 </View>
                                 <View>
-                                    <Text style={{fontFamily:"NetmarbleL",color:"#2b3956",lineHeight:30}}>
+                                    <NetmarbleL style={{lineHeight:30}}>
                                         제작자 : {item.authorName}{"\n"}
                                         전체 : {item.occupants}명{"\n"}
                                         업데이트 날짜 : {item.updated_at.substring(0, 10)}{"\n"}
-                                    </Text> 
+                                    </NetmarbleL>
                                 </View>
                             </View>
                         </TouchableOpacity>}
@@ -471,7 +450,7 @@ export default class FavoriteSc extends Component {
                     sliderWidth={parseInt(Dimensions.get('window').width / 100 * 94)}
                     itemWidth={parseInt(Dimensions.get('window').width / 100 * 70)}
                     renderItem={({item}) => 
-                        <TouchableOpacity onPress={() => Actions.friendDetail({userId:item.authorId, isMap:true})}>
+                        <TouchableOpacity onPress={() => Actions.currentScene == "favoriteSc" && Actions.userDetail({userId:item.authorId, isMap:true})}>
                             <View style={{borderWidth:1,padding:"5%"}}>
                                 <View style={{alignItems:"flex-end"}}>
                                     {
@@ -483,7 +462,7 @@ export default class FavoriteSc extends Component {
                                         :
                                         <Icon 
                                         style={{zIndex:2}}
-                                        onPress={() => this.setState({modalVisivle:true, getWorldsChooseId:item.id})}
+                                        onPress={() => this.setState({modalVisible:true, getWorldsChooseId:item.id})}
                                         name="star-outlined" size={35} style={styles.worldIcon}/>
                                     }
                                 </View>
@@ -497,11 +476,11 @@ export default class FavoriteSc extends Component {
                                         />
                                     </View>
                                 </View>   
-                                <View style={{marginTop:"2%"}}>
-                                    <Text>{item.name}</Text>
-                                    <Text>전체 {item.occupants}명</Text>
-                                    <Text>업데이트 날짜 : {item.updated_at != null && item.updated_at.substring(0,10)} </Text> 
-                                </View>
+                                <NetmarbleL style={{lineHeight:30}}>
+                                    제작자 : {item.authorName}{"\n"}
+                                    전체 : {item.occupants}명{"\n"}
+                                    업데이트 날짜 : {item.updated_at.substring(0, 10)}{"\n"}
+                                </NetmarbleL>
                             </View>
                         </TouchableOpacity>}
                 />
@@ -523,9 +502,9 @@ export default class FavoriteSc extends Component {
                 borderBottomWidth:1
             }}>
             {this.state.getWorldsGroup.map((item) => 
-                <Text 
+                <NetmarbleL 
                 onPress={() => this.changeTab(item.id, item.name)}
-                style={item.selected == true ? styles.mapSelectTag : styles.mapTag}>{item.displayName}</Text>
+                style={item.selected == true ? styles.mapSelectTag : styles.mapTag}>{item.displayName}</NetmarbleL>
             )}
         </ScrollView>
     </View>
@@ -560,8 +539,6 @@ export default class FavoriteSc extends Component {
     }
 
     search = () => {
-        console.log("FavoriteSc => search")
-
         let serachCheck;
 
         if(this.state.search == null || this.state.search == "")
@@ -617,8 +594,6 @@ export default class FavoriteSc extends Component {
     }
 
     reset(){
-        console.log("FriendListSc => reset");
-        console.log(this.state.refreshTime);
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -649,8 +624,6 @@ export default class FavoriteSc extends Component {
     }
 
     resetButton() {
-        console.log("FriendListSc => resetButton");
-
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -687,13 +660,13 @@ export default class FavoriteSc extends Component {
     }
 
     render() {
-        console.info("FavoriteSc => render");
-        
         return (
             <View style={{flex:1}}>
                 <View style={styles.logo}>
-                    <Text style={{fontFamily:"NetmarbleM",color:"white"}}>즐겨찾기 관리</Text>
-                    <View  style={{position:"absolute",right:"5%"}}>
+                    <Icon
+					onPress={()=>Actions.pop()}
+					name="chevron-left" size={25} style={{color:"white"}}/>
+                    <NetmarbleM style={{color:"white"}}>즐겨찾기 관리</NetmarbleM>
                     {this.state.refreshButton == false ?
                     <Icon
                     onPress={this.resetButton.bind(this)}
@@ -702,7 +675,6 @@ export default class FavoriteSc extends Component {
                     :
                     <ActivityIndicator size={20} color="white"/>
                     }
-                    </View>
                 </View>
                 <ScrollView
                     refreshControl={
@@ -741,21 +713,22 @@ export default class FavoriteSc extends Component {
                 </ScrollView>
                 {this.state.getWorlds != null ?
                     <Modal
+                    animationType="slide"
                     style={styles.modal}
                     isVisible={this.state.modalVisible}
-                    onBackButtonPress={()=>this.setState({modalVisivle:false})}
-                    onBackdropPress={()=>this.setState({modalVisivle:false})}>
-                        {this.state.modalVisivle == true ?
+                    onBackButtonPress={()=>this.setState({modalVisible:false})}
+                    onBackdropPress={()=>this.setState({modalVisible:false})}>
+                        {this.state.modalVisible == true ?
                             <View style={{backgroundColor:"#fff"}}>
-                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 0, null, this.state.getWorldsChooseId, false)} ><Text style={{color:"#000"}}>Group 1</Text></Button>
-                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 1, null, this.state.getWorldsChooseId, false)} ><Text style={{color:"#000"}}>Group 2</Text></Button>
-                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 2, null, this.state.getWorldsChooseId, false)} ><Text style={{color:"#000"}}>Group 3</Text></Button>
-                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 3, null, this.state.getWorldsChooseId, false)} ><Text style={{color:"#000"}}>Group 4</Text></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 0, null, this.state.getWorldsChooseId, false)} ><NetmarbleL style={{color:"#000"}}>Group 1</NetmarbleL></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 1, null, this.state.getWorldsChooseId, false)} ><NetmarbleL style={{color:"#000"}}>Group 2</NetmarbleL></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 2, null, this.state.getWorldsChooseId, false)} ><NetmarbleL style={{color:"#000"}}>Group 3</NetmarbleL></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 3, null, this.state.getWorldsChooseId, false)} ><NetmarbleL style={{color:"#000"}}>Group 4</NetmarbleL></Button>
                             <View style={{alignItems:"center"}}>
                             <Button 
-                            onPress={()=>this.setState({modalVisivle:false})}
-                            style={{width:"20%",height:40,margin:10,justifyContent:"center"}}>
-                                <Text>취소</Text>
+                            onPress={()=>this.setState({modalVisible:false})}
+                            style={[styles.requestButton,{width:"20%",height:40,margin:10,justifyContent:"center"}]}>
+                                <NetmarbleL>취소</NetmarbleL>
                             </Button>
                             </View>
                         </View>

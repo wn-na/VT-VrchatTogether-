@@ -5,36 +5,104 @@ import {
 } from 'react-native';
 
 export default StyleSheet.create({
-    logo: {
+    NetmarbleM: {
+        fontFamily:"NetmarbleM",
+        color:"#2b3956"
+    },
+    NetmarbleL: {
+        fontFamily:"NetmarbleL",
+        color:"#2b3956"
+    },
+    NetmarbleB: {
+        fontFamily:"NetmarbleB",
+        color:"#2b3956"
+    },
+    GodoR: {
+        fontFamily:"GodoR",
+        color:"#2b3956"
+    },
+    GodoL: {
+        fontFamily:"GodoL",
+        color:"#2b3956"
+    },
+    loginLogo: {
+        flex: 2,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    loginBox: {
+        flex: 1.5,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    loginTextBox: {
+        borderBottomWidth:1,
+        borderBottomColor:"#000",
+        width:"80%",
+        flexDirection:"row",
+    },
+    freindLogo: {
+        paddingTop:"4%",
+        paddingLeft:"4%",
+        paddingRight:"4%",
+        alignItems: "flex-start",
+        justifyContent:"space-between",
+        flexDirection:"row",
         backgroundColor:"#5a82dc",
         borderBottomLeftRadius:20,
         borderBottomRightRadius:20,
-        height:50
+        height:100
+    },
+    logo: {
+        paddingTop:"3%",
+        paddingLeft:"4%",
+        paddingRight:"4%",
+        alignItems: "flex-start",
+        justifyContent:"space-between",
+        flexDirection:"row",
+        backgroundColor:"#5a82dc",
+        borderBottomLeftRadius:20,
+        borderBottomRightRadius:20,
+        height:45
     },
     topMain: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    userCountInfo :{
-        justifyContent:"center",
-        flexDirection:"row"
-    },
-    userCount :{
-        width:"60%",
-        backgroundColor:"#5a82dc",
-        flexDirection:"row",
-        borderRadius: 10,
-        padding:5
-    },
-    friendsInfo: {
+    myInfo: {
         textAlign:"center",
         fontSize:13,
-        padding:"10%",
+        margin:"5%",
+        padding:"5%",
         color:"white",
-        fontFamily:"NetmarbleB"
+        fontFamily:"NetmarbleB",
+        borderRadius:10,
+        backgroundColor:"white",
+        elevation:10
+    },
+    myInfoText: {
+        marginLeft:"3%",
+        width:"70%",
+        lineHeight:30,
+        color:"#2b3956"
+    },
+    friendsCount: {
+        textAlign:"center",
+        fontSize:16,
+        padding:"10%",
+        color:"#2b3956",
+        textAlignVertical:"top"
+    },
+    userCount :{
+        width:"100%",
+        flexDirection:"row",
+        borderTopWidth:1,
+        borderColor:"#4d221e1f",
+        paddingTop:10,
+        paddingBottom:10,
+        paddingLeft:5,
+        paddingRight:5
     },
     menu: {
         flex:3
@@ -75,36 +143,35 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginTop:10,
-        width:"70%",
-        height:"91.5%",
+        width:"80%",
+        height:"90%",
         margin:5,
-        borderRadius:15
+        borderRadius:15,
+        elevation:5
     },
     infoButtonText: {
         marginTop:"10%",
         color:"#2b3956",
         fontSize:15,
-        fontFamily:"NetmarbleM",
     },
     mapTag: {
         textAlign: 'center',
-        fontFamily:"Godo_R",
         width:"20%",
         color:"#3a4a6d",
         minWidth: 90,
-        fontSize: 25,
-        justifyContent:"center"
+        justifyContent:"center",
+        textAlignVertical:"center"
     },
     mapSelectTag: {
         textAlign: 'center',
         justifyContent:"center",
-        fontFamily:"Godo_R",
         width:"20%",
         color:"#3a4a6d",
         minWidth: 90,
-        fontSize: 25,
         borderBottomWidth:4,
         borderBottomColor:"#5a82dc",
+        textAlignVertical:"center",
+        fontFamily:"NetmarbleB",
     },
     worldInfo: {
         borderWidth:1,
@@ -127,37 +194,17 @@ export default StyleSheet.create({
         right:"2%",
         zIndex:2
     },
-    friendListCon: {
-        marginLeft:"5%",
-        marginRight:"5%"
-    },
     friendList: {
         borderWidth:1,
         borderRadius:10,
         borderColor:"#4d221e1f",
         marginBottom:"5%",
         alignItems:"flex-end",
+        marginLeft:"5%",
+        marginRight:"5%",
+        elevation:5,
     },
     friendListView: {
-        flexDirection:"row",
-        width:"97%",
-        padding:"5%",
-        borderRadius:9,
-        backgroundColor:"white"
-    },
-    avatarListCon: {
-        marginLeft:"5%",
-        marginRight:"5%"
-    },
-    avatarList: {
-        borderWidth:1,
-        borderRadius:10,
-        borderColor:"#4d221e1f",
-        backgroundColor:"#9ccbeb",
-        marginBottom:"5%",
-        alignItems:"flex-end",
-    },
-    avatarListView: {
         flexDirection:"row",
         width:"97%",
         padding:"5%",
@@ -167,9 +214,26 @@ export default StyleSheet.create({
     friendInfoText: {
         marginLeft:"3%",
         width:"70%",
-        fontFamily:"NetmarbleL",
         lineHeight:30,
         color:"#2b3956"
+    },
+    avatarList: {
+        borderWidth:1,
+        borderRadius:10,
+        borderColor:"#4d221e1f",
+        backgroundColor:"#9ccbeb",
+        marginBottom:"5%",
+        alignItems:"flex-end",
+        marginLeft:"5%",
+        marginRight:"5%",
+        elevation:5,
+    },
+    avatarListView: {
+        flexDirection:"row",
+        width:"97%",
+        padding:"5%",
+        borderRadius:9,
+        backgroundColor:"white"
     },
     groupButton: {
         marginTop:10,
@@ -186,7 +250,6 @@ export default StyleSheet.create({
         borderColor: "#b3e59f"
     },
     selectedMenuGroup:{
-        fontFamily:"NemarbleL",
         color:"#2b3956",
         paddingTop:"1%",
         paddingBottom:"1%",
@@ -198,7 +261,6 @@ export default StyleSheet.create({
         borderColor:"red"
     },
     menuGroup:{
-        fontFamily:"NemarbleL",
         color:"#2b3956",
         paddingTop:"1%",
         paddingBottom:"1%",

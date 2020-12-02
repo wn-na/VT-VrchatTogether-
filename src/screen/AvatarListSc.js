@@ -46,6 +46,7 @@ import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import styles from '../css/css';
+import {NetmarbleM,NetmarbleL} from '../utils/CssUtils';
 
 export default class AvatarListSc extends Component {
 	constructor(props) {
@@ -64,21 +65,16 @@ export default class AvatarListSc extends Component {
 	}
 
 	UNSAFE_componentWillMount() {
-		console.log("AvatarListSc => UNSAFE_componentWillMount");
 		this.getAvatar();
 	}
 
 	componentWillUnmount() {
-		console.log("AvatarListSc => componentWillUnmount");
 	}
 
 	componentDidMount() {
-		console.log("AvatarListSc => componentDidMount");
 	}
 
 	async getAvatar(){
-		console.log("AvatarListSc => getAvatar");
-
 		let favoriteOffset = 0;
 		let data = [];
 
@@ -118,8 +114,6 @@ export default class AvatarListSc extends Component {
 	}
 
 	async moreGetAvatar() {
-		console.log("AvatarListSc => moreGetAvatar");
-
 		let favoriteOffset = 0;
 		let data = [];
 		
@@ -164,8 +158,6 @@ export default class AvatarListSc extends Component {
 	}
 
 	async favoriteAvatar(favoriteId, avatarId, isFavorite) {
-		console.log("AvatarListSc => favoriteAvatar");
-
 		if(isFavorite == false)
         {
             await fetch(`https://api.vrchat.cloud/api/1/favorites`, VRChatAPIPostBody({
@@ -228,12 +220,11 @@ export default class AvatarListSc extends Component {
 		if(this.state.isSearch == false)
 		{
 			return <FlatList
-				style={styles.avatarListCon}
 				data={this.state.getAvatars}
 				extraData={this.state}
 				renderItem={({item}) =>
 					<TouchableOpacity
-					onPress={()=> Actions.currentScene == "avatarListSc" ? Actions.friendDetail({userId:item.authorId, friendCheck:false}) : {}}
+					onPress={()=> Actions.currentScene == "avatarListSc" ? Actions.userDetail({userId:item.authorId, isFriend:false}) : {}}
 					style={styles.avatarList}>
 					<View style={styles.avatarListView}>
 						<View>
@@ -243,11 +234,11 @@ export default class AvatarListSc extends Component {
 							/>
 						</View>
 						<View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
-							<Text style={{fontFamily:"NetmarbleL",lineHeight:30}}>
+							<NetmarbleL style={{width:"70%",lineHeight:30}}>
 								{item.name}{"\n"}
 								{item.authorName}{"\n"}
 								{item.updated_at.substring(0,10)}
-							</Text>
+							</NetmarbleL>
 							<View style={{position:"absolute",top:"-10%",left:"60%"}}>
 								{
 								item.isFavorite == true ?
@@ -270,12 +261,11 @@ export default class AvatarListSc extends Component {
 		else if(this.state.isSearch == true)
 		{
 			return <FlatList
-				style={styles.avatarListCon}
 				data={this.state.getAvatarFilter}
 				extraData={this.state}
 				renderItem={({item}) =>
 					<TouchableOpacity
-					onPress={()=> Actions.currentScene == "avatarListSc" ? Actions.friendDetail({userId:item.authorId, friendCheck:false}) : {}}
+					onPress={()=> Actions.currentScene == "avatarListSc" ? Actions.userDetail({userId:item.authorId, isFriend:false}) : {}}
 					style={styles.avatarList}>
 					<View style={styles.avatarListView}>
 						<View>
@@ -285,11 +275,11 @@ export default class AvatarListSc extends Component {
 							/>
 						</View>
 						<View style={{width:"100%",marginLeft:"3%"}}>
-							<Text style={{fontFamily:"NetmarbleL",lineHeight:30}}>
+							<NetmarbleL style={{width:"70%",lineHeight:30}}>
 								{item.name}{"\n"}
 								{item.authorName}{"\n"}
 								{item.updated_at.substring(0,10)}
-							</Text>
+							</NetmarbleL>
 							<View style={{position:"absolute",top:"-10%",left:"60%"}}>
 								{
 								item.isFavorite == true ?
@@ -312,7 +302,6 @@ export default class AvatarListSc extends Component {
 	}
 
 	search=()=>{
-        console.log("AvatarListSc => search");
         let serachCheck;
 
         if(this.state.search == null || this.state.search == "")
@@ -350,8 +339,6 @@ export default class AvatarListSc extends Component {
     }
 
 	reset() {
-		console.log("AvatarListSc => reset");
-
 		this.state.modalVisible = true;
 		this.state.refreshButton = true;
 
@@ -374,21 +361,24 @@ export default class AvatarListSc extends Component {
 		return (
 			<View style={{flex:1}}>
 				<View style={styles.logo}>
-					<Text style={{fontFamily:"NetmarbleM",color:"white"}}>아바타목록</Text>
-                    <View  style={{position:"absolute",right:"5%"}}>
-                    {this.state.refreshButton == false ?
-                    <Icon
-                    onPress={this.reset.bind(this)}
-                    name="cycle" size={20} style={{color:"white"}}
-                    />
-                    :
-                    <ActivityIndicator size={20} color="white"/>
-                    }
-                    </View>
-                </View>
+					<Icon
+					onPress={()=>Actions.pop()}
+					name="chevron-left" size={25} style={{color:"white"}}/>
+					<NetmarbleM style={{color:"white"}}>아바타목록</NetmarbleM>
+					{this.state.refreshButton == false ?
+					<Icon
+					onPress={this.reset.bind(this)}
+					name="cycle" size={20} style={{color:"white"}}
+					/>
+					:
+					<ActivityIndicator size={20} color="white"/>
+					}
+				</View>
 				<ScrollView
-				onEndReached={() => console.log("end of list")}
-				onEndReachedThreshold={0}
+				onScroll={({nativeEvent}) => {
+					console.log(nativeEvent);
+				  }}
+				scrollEventThrottle={400}
 				refreshControl={
 					<RefreshControl
 						onRefresh={this.reset.bind(this)}
@@ -417,13 +407,13 @@ export default class AvatarListSc extends Component {
 						}}>
 							<Button
 							onPress={this.moreGetAvatar.bind(this)}
-							style={{
+							style={[{
 								width:"100%",
 								justifyContent:"center",
 								alignItems:"center",
 								backgroundColor: "#5a82dc"
-							}}>
-								<Text style={{fontFamily:"NetmarbleL"}}>더보기</Text>
+							},styles.requestButton]}>
+								<NetmarbleL style={styles}>더보기</NetmarbleL>
 							</Button>
 						</View>
 					:null}

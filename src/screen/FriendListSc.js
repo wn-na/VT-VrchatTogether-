@@ -20,13 +20,13 @@ import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {UserGrade} from './../utils/UserUtils';
+import { Col, Row } from "react-native-easy-grid";
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils';
 import styles from '../css/css';
+import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 
 export default class FriendListSc extends Component {
     constructor(props) {
-        console.info("FriendListSc => constructor");
-
         super(props);
 
         this.state = {
@@ -46,16 +46,13 @@ export default class FriendListSc extends Component {
     }
 
     UNSAFE_componentWillMount() {
-        console.info("FriendListSc => componentWillMount");
         this.getFirend();
     }
 
     componentWillUnmount() {
-        console.info("FriendListSc => componentWillUnmount");
     }
 
     componentDidMount() {
-        console.info("FriendListSc => componentDidMount");
     }
 
     async getFirendOn(offSet)
@@ -126,14 +123,12 @@ export default class FriendListSc extends Component {
     }
 
     filter = value => {
-        console.log("FriendListSc => filter");
         this.setState({
             option:value
         });
     }
 
     search=()=>{
-        console.log("FriendListSc => search");
         let serachCheck;
 
         if(this.state.search == null || this.state.search == "")
@@ -186,13 +181,12 @@ export default class FriendListSc extends Component {
         if(this.state.getFilterFirend != null && this.state.searchMode == "0")
         {
             return <FlatList
-                style={styles.friendListCon}
                 data={this.state.getFilterFirend}
                 onRefresh={this.reset.bind(this)}
                 refreshing={this.state.refreshing}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.friendDetail({userId:item.id}) : {}}
+                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.userDetail({userId:item.id, isFriend:true}) : {}}
                         style={[{backgroundColor:UserGrade(item.tags)},styles.friendList]}
                     >
                         <View style={styles.friendListView}>
@@ -202,12 +196,12 @@ export default class FriendListSc extends Component {
                                     source={VRChatImage(item.currentAvatarThumbnailImageUrl)}
                                 />
                             </View>
-                            <Text style={styles.friendInfoText}>
+                            <NetmarbleL style={styles.friendInfoText}>
                                 {item.displayName}{"  "}
                                 {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
                                 {item.statusDescription != "" && item.statusDescription+"\n"}
                                 {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}
-                            </Text>
+                            </NetmarbleL>
                         </View>
                     </TouchableOpacity>
                 }
@@ -217,11 +211,10 @@ export default class FriendListSc extends Component {
         if(this.state.option == "all")
         {
             return <FlatList
-                style={styles.friendListCon}
                 data={this.state.getFirend}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.friendDetail({userId:item.id}) : {}}
+                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.userDetail({userId:item.id, isFriend:true}) : {}}
                         style={[{backgroundColor:UserGrade(item.tags)},styles.friendList]}
                     >
                         <View style={styles.friendListView}>
@@ -231,12 +224,12 @@ export default class FriendListSc extends Component {
                                     source={VRChatImage(item.currentAvatarThumbnailImageUrl)}
                                 />
                             </View>
-                            <Text style={styles.friendInfoText}>
+                            <NetmarbleL style={styles.friendInfoText}>
                                 {item.displayName}{"  "}
                                 {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
                                 {item.statusDescription != "" && item.statusDescription+"\n"}
                                 {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}
-                            </Text>
+                            </NetmarbleL>
                         </View>
                     </TouchableOpacity>
                 }
@@ -245,11 +238,10 @@ export default class FriendListSc extends Component {
         else if(this.state.option == "on")
         {
             return <FlatList
-                style={styles.friendListCon}
                 data={this.state.getFirendOn}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.friendDetail({userId:item.id}) : {}}
+                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.userDetail({userId:item.id, isFriend:true}) : {}}
                         style={[{backgroundColor:UserGrade(item.tags)},styles.friendList]}
                     >
                         <View style={styles.friendListView}>
@@ -259,12 +251,12 @@ export default class FriendListSc extends Component {
                                     source={VRChatImage(item.currentAvatarThumbnailImageUrl)}
                                 />
                             </View>
-                            <Text style={styles.friendInfoText}>
+                            <NetmarbleL style={styles.friendInfoText}>
                                 {item.displayName}{"  "}
                                 {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
                                 {item.statusDescription != "" && item.statusDescription+"\n"}
                                 {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}
-                            </Text>
+                            </NetmarbleL>
                         </View>
                     </TouchableOpacity>
                 }
@@ -273,11 +265,10 @@ export default class FriendListSc extends Component {
         else if(this.state.option == "off")
         {
             return <FlatList
-                style={styles.friendListCon}
                 data={this.state.getFirendOff}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.friendDetail({userId:item.id}) : {}}
+                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.userDetail({userId:item.id, isFriend:true}) : {}}
                         style={[{backgroundColor:UserGrade(item.tags)},styles.friendList]}
                     >
                         <View style={styles.friendListView}>
@@ -287,12 +278,12 @@ export default class FriendListSc extends Component {
                                     source={VRChatImage(item.currentAvatarThumbnailImageUrl)}
                                 />
                             </View>
-                            <Text style={styles.friendInfoText}>
+                            <NetmarbleL style={styles.friendInfoText}>
                                 {item.displayName}{"  "}
                                 {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
                                 {item.statusDescription != "" && item.statusDescription+"\n"}
                                 {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}
-                            </Text>
+                            </NetmarbleL>
                         </View>
                     </TouchableOpacity>
                 }
@@ -301,8 +292,6 @@ export default class FriendListSc extends Component {
     }
     
     reset(){
-        console.log("FriendListSc => reset");
-
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -333,8 +322,6 @@ export default class FriendListSc extends Component {
     }
 
     resetButton(){
-        console.log("FriendListSc => resetButton");
-
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -371,25 +358,10 @@ export default class FriendListSc extends Component {
     }
 
     render() {
-        console.info("FriendListSc => render");
-
         this.state.allCount = this.state.onCount + this.state.offCount;
 
         return (
             <View style={{flex:1}}>
-                <View style={styles.logo}>
-                    <Text style={{fontFamily:"NetmarbleM",color:"white"}}>친구목록</Text>
-                    <View  style={{position:"absolute",right:"5%"}}>
-                    {this.state.refreshButton == false ?
-                    <Icon
-                    onPress={this.resetButton.bind(this)}
-                    name="cycle" size={20} style={{color:"white"}}
-                    />
-                    :
-                    <ActivityIndicator size={20} color="white"/>
-                    }
-                    </View>
-                </View>
                 <ScrollView 
                     refreshControl={
                         <RefreshControl
@@ -398,9 +370,46 @@ export default class FriendListSc extends Component {
                         />
                     }
                 >
-                    <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"2%",marginRight:"2%"}}>
-                        <Text style={{textAlignVertical:"bottom",fontFamily:"NetmarbleL",color:"#2b3956"}}>전체 {this.state.allCount} 명</Text>
-                        <View style={{borderBottomWidth:1,width:"60%",flexDirection:"row",justifyContent:"space-between"}}>
+                    <View style={styles.freindLogo}>
+                        <Icon
+                        onPress={()=>Actions.pop()}
+                        name="chevron-left" size={25} style={{color:"white"}}/>
+                        <NetmarbleM style={{color:"white"}}>친구목록</NetmarbleM>
+                        {this.state.refreshButton == false ?
+                        <Icon
+                        onPress={this.resetButton.bind(this)}
+                        name="cycle" size={20} style={{color:"white"}}
+                        />
+                        :
+                        <ActivityIndicator size={20} color="white"/>
+                        }
+                    </View>
+                    <View style={{justifyContent:"center",marginTop:-50,margin:"5%",padding:"2%",backgroundColor:"white",elevation:15,borderRadius:10}}>
+                        <View style={{width:"100%",flexDirection:"row"}}>
+                            <Row>
+                                <Col>
+                                    <NetmarbleL style={styles.friendsCount}>
+                                        전체{"\n"}
+                                        {this.state.allCount+"명"}
+                                    </NetmarbleL>
+                                </Col>
+                                <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
+                                    <NetmarbleL style={styles.friendsCount}>
+                                        온라인{"\n"}
+                                        {this.state.onCount+"명"}
+                                    </NetmarbleL>
+                                </Col>
+                                <Col>
+                                    <NetmarbleL style={styles.friendsCount}>
+                                        오프라인{"\n"}
+                                        {this.state.offCount+"명"}
+                                    </NetmarbleL>
+                                </Col>
+                            </Row>
+                        </View>
+                    </View>
+                    <View style={{flexDirection:"row",justifyContent:"center"}}>
+                        <View style={{borderBottomWidth:1,width:"90%",flexDirection:"row",justifyContent:"space-between"}}>
                             <TextInput 
                                 value={this.state.search}
                                 onChangeText={(text) => this.setState({search:text})}
@@ -412,8 +421,7 @@ export default class FriendListSc extends Component {
                                 name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
                         </View>
                     </View>
-                    <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"2%",marginRight:"2%",height:70}}>
-                        <Text style={{textAlignVertical:"center",fontFamily:"NetmarbleL",color:"#2b3956"}}>온라인 {this.state.onCount} 명</Text>
+                    <View style={{flexDirection:"row",justifyContent:"flex-end",marginRight:"5%",height:70}}>
                         <View style={styles.selectView}>
                             <Picker 
                                 selectedValue = {this.state.option}

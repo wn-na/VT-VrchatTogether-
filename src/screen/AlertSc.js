@@ -2,6 +2,7 @@ import React, { Component } from "react";
 // common component
 import {
     Text,
+    Button
 } from "native-base";
 import {
     FlatList,
@@ -11,18 +12,18 @@ import {
     View,
     TextInput,
     ToastAndroid,
-    ActivityIndicator
+    ActivityIndicator,
+    Alert
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
-import {VRChatAPIGet} from '../utils/ApiUtils';
+import {VRChatAPIGet,VRChatAPIDelete,VRChatAPIPut} from '../utils/ApiUtils';
 import styles from '../css/css';
+import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 
 export default class AlertSc extends Component {
     constructor(props) {
-        console.info("AlertSc => constructor");
-
         super(props);
 
         this.state = {
@@ -35,22 +36,16 @@ export default class AlertSc extends Component {
     }
 
     UNSAFE_componentWillMount() {
-        console.info("AlertSc => componentWillMount");
-
         this.getAlerts();
     }
 
     componentWillUnmount() {
-        console.info("AlertSc => componentWillUnmount");
     }
 
     componentDidMount() {
-        console.info("AlertSc => componentDidMount");
     }
 
     async getAlerts() {
-        console.info("AlertSc => getAlerts");
-
         await fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications`, VRChatAPIGet)
         .then(responses => responses.json())
         .then(json => {
@@ -58,12 +53,61 @@ export default class AlertSc extends Component {
                 getAlerts:json.filter((v) => v.type.indexOf("friendRequest") !== -1),
                 modalVisible:false
             });
-        })
+        });
+    }
+
+    friendRequest(notiId,type) {
+        if(type == true)
+        {
+            Alert.alert(
+                "안내",
+                "친구신청을 수락하시겠습니까?",
+                [
+                    {text: "확인", onPress: () => {
+                        fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications/${notiId}/accept`, VRChatAPIPut)
+                        .then((response) => response.json())
+                        .then((json) => {
+                            if(json.success.status_code == "200")
+                            {
+                                this.setState({
+                                    getAlerts: this.state.getAlerts.filter(v => v.id !== notiId)
+                                });
+
+                                ToastAndroid.show("수락이 완료되었습니다.", ToastAndroid.SHORT);
+                            }
+                            else
+                            {
+                                ToastAndroid.show("수락에 실패하였습니다.", ToastAndroid.SHORT);
+                            }
+                        });
+                    }},
+                    {text: "취소"}
+                ]
+            );
+        }
+        else
+        {
+            Alert.alert(
+                "안내",
+                "친구신청을 거절하시겠습니까?",
+                [
+                    {text: "확인", onPress: () => {
+                        fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications/${notiId}/accept`, VRChatAPIDelete)
+                        .then((response) => response.json())
+                        .then(() => {
+                            this.setState({
+                                getAlerts: this.state.getAlerts.filter(v => v.id !== notiId)
+                            });
+                            ToastAndroid.show("거절이 완료되었습니다.", ToastAndroid.SHORT);
+                        });
+                    }},
+                    {text: "취소"}
+                ]
+            );
+        }
     }
 
     reset() {
-        console.info("AlertSc => reset");
-
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -92,8 +136,6 @@ export default class AlertSc extends Component {
     }
 
     resetButton() {
-        console.info("AlertSc => resetButton");
-
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -128,13 +170,13 @@ export default class AlertSc extends Component {
     }
 
     render() {
-        console.info("AlertSc => render");
-        
         return (
             <View style={{flex:1}}>
                 <View style={styles.logo}>
-                    <Text style={{fontFamily:"NetmarbleM",color:"white"}}>알림</Text>
-                    <View  style={{position:"absolute",right:"5%"}}>
+                    <Icon
+					onPress={()=>Actions.pop()}
+					name="chevron-left" size={25} style={{color:"white"}}/>
+                    <NetmarbleM style={{color:"white"}}>알림</NetmarbleM>
                     {this.state.refreshButton == false ?
                     <Icon
                     onPress={this.resetButton.bind(this)}
@@ -143,7 +185,6 @@ export default class AlertSc extends Component {
                     :
                     <ActivityIndicator size={20} color="white"/>
                     }
-                    </View>
                 </View>
                 <ScrollView 
                     refreshControl={
@@ -170,17 +211,28 @@ export default class AlertSc extends Component {
                         data={this.state.getAlerts}
                         renderItem={({item}) => 
                             <TouchableOpacity
-                                onPress={()=> Actions.currentScene == "alertSc" ? Actions.alertDetail({userId:item.senderUserId, notiId:item.id, option:"against"}) : {}}
-                                style={{padding:"5%",borderWidth:1,marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
+                                onPress={()=> Actions.currentScene == "alertSc" ? Actions.userDetail({userId:item.senderUserId, notiId:item.id, option:"against"}) : {}}
+                                style={{padding:"5%",borderWidth:1,borderRadius:10,borderColor:"#4d221e1f",marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
                             >
-                                <Text>친구추가요청</Text>
                                 <View style={{flexDirection:"row",width:"100%"}}>
-                                    <Text style={{width:"70%"}}>
+                                    <NetmarbleL style={{width:"60%"}}>
                                         {item.senderUsername}
-                                    </Text>
-                                    <Text style={{width:"30%"}}>
+                                    </NetmarbleL>
+                                    <NetmarbleL style={{width:"40%"}}>
                                         {item.created_at.substring(0,10)}
-                                    </Text>
+                                    </NetmarbleL>
+                                </View>
+                                <View style={{justifyContent:"space-around",flexDirection:"row",marginTop:"3%"}}>
+                                    <Button 
+                                    onPress={this.friendRequest.bind(this,item.id,true)}
+                                    style={[{width:"48%"},styles.requestButton]}>
+                                        <NetmarbleL>수락</NetmarbleL>
+                                    </Button>
+                                    <Button 
+                                    onPress={this.friendRequest.bind(this,item.id,false)}
+                                    style={[{width:"48%"},styles.requestButton]}>
+                                        <NetmarbleL>거절</NetmarbleL>
+                                    </Button>
                                 </View>
                             </TouchableOpacity>
                         }

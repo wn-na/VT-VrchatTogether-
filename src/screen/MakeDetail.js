@@ -45,6 +45,7 @@ import Modal from 'react-native-modal';
 import Carousel from 'react-native-snap-carousel';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import styles from '../css/css';
+import {NetmarbleM,NetmarbleL,NetmarbleB,GodoR} from '../utils/CssUtils';
 
 export default class MakeDetail extends Component {
     constructor(props) {
@@ -86,20 +87,30 @@ export default class MakeDetail extends Component {
 
     async getAvatars() {
         console.info("MakeDetail => getAvatars");
-        let offset = 0;
+        let avatarOffset = 0;
+        let favoriteOffset = 0;
         let data = [];
+        let fetc = [];
 
-        let fetc = await fetch(`https://api.vrchat.cloud/api/1/avatars?n=100&userId=${this.props.userId}`, VRChatAPIGet)
-        .then(response => response.json());
+        for(let i=0;i<10;i++)
+        {
+            await fetch(`https://api.vrchat.cloud/api/1/avatars?n=100&userId=${this.props.userId}&offset=${avatarOffset}`, VRChatAPIGet)
+            .then(response => response.json())
+            .then(json => {
+                fetc = fetc.concat(json);
+                
+                avatarOffset+= 100;
+            });
+        }
 
         // 즐겨찾기검사
         for(let i=0;i<2;i++){
-            await fetch(`https://api.vrchat.cloud/api/1/favorites?type=avatar&n=100&offset=${offset}`, VRChatAPIGet)
+            await fetch(`https://api.vrchat.cloud/api/1/favorites?type=avatar&n=100&offset=${favoriteOffset}`, VRChatAPIGet)
             .then(res => res.json())
             .then(json => {
                 data = data.concat(json);
                 
-                offset+=100;
+                favoriteOffset+=100;
             });
         }
 
@@ -169,7 +180,7 @@ export default class MakeDetail extends Component {
         {
             return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
                 <View>
-                    <Text style={{fontFamily:"NetmarbleL",color:"#2b3956"}}>아바타내역이 존재하지 않습니다.</Text>
+                    <NetmarbleL>아바타내역이 존재하지 않습니다.</NetmarbleL>
                 </View>
             </View>
         }
@@ -189,11 +200,11 @@ export default class MakeDetail extends Component {
                         />
                     </View>
                     <View style={{width:"100%",marginLeft:"3%"}}>
-                        <Text style={{fontFamily:"NetmarbleL",lineHeight:30}}>
+                        <NetmarbleL style={{width:"70%",lineHeight:30}}>
                             {item.name}{"\n"}
                             {item.authorName}{"\n"}
                             {item.updated_at.substring(0,10)}
-                        </Text>
+                        </NetmarbleL>
                         <View style={{position:"absolute",top:"-10%",left:"60%"}}>
                             {
                             item.isFavorite == true ?
@@ -221,7 +232,7 @@ export default class MakeDetail extends Component {
         {
             return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
                 <View>
-                    <Text style={{fontFamily:"NetmarbleL",color:"#2b3956"}}>월드내역이 존재하지 않습니다.</Text>
+                    <NetmarbleL>월드내역이 존재하지 않습니다.</NetmarbleL>
                 </View>
             </View>
         }
@@ -252,7 +263,7 @@ export default class MakeDetail extends Component {
                                         onPress={() => this.setState({modalVisivle:true, getWorldsChooseId:item.id})}
                                         name="star-outlined" size={35} style={styles.worldIcon}/>
                                     }
-                                    <Text style={{textAlign:"center",color:"#2b3956",fontFamily:"NetmarbleM"}}>{item.name}</Text>
+                                    <NetmarbleM style={{textAlign:"center"}}>{item.name}</NetmarbleM>
                                     <Image
                                         style={{
                                             width: parseInt(Dimensions.get('window').width / 100 * 72), 
@@ -266,11 +277,11 @@ export default class MakeDetail extends Component {
                                 </View>
                             </View>
                             <View>
-                                <Text style={{fontFamily:"NetmarbleL",color:"#2b3956",lineHeight:30}}>
+                                <NetmarbleL style={{lineHeight:30}}>
                                     제작자 : {item.authorName}{"\n"}
                                     전체 : {item.occupants}명{"\n"}
                                     업데이트 날짜 : {item.updated_at.substring(0, 10)}{"\n"}
-                                </Text> 
+                                </NetmarbleL> 
                             </View>
                         </View>
                     </View>}
@@ -624,8 +635,10 @@ export default class MakeDetail extends Component {
         return (
             <View style={{flex:1}}>
                 <View style={styles.logo}>
-                    <Text style={{fontFamily:"NetmarbleM",color:"white"}}>제작정보</Text>
-                    <View  style={{position:"absolute",right:"5%"}}>
+                    <Icon
+					onPress={()=>Actions.pop()}
+					name="chevron-left" size={25} style={{color:"white"}}/>
+                    <NetmarbleM style={{color:"white"}}>제작정보</NetmarbleM>
                     {this.state.refreshButton == false ?
                     <Icon
                     onPress={this.resetButton.bind(this)}
@@ -634,7 +647,6 @@ export default class MakeDetail extends Component {
                     :
                     <ActivityIndicator size={20} color="white"/>
                     }
-                    </View>
                 </View>
                 <ScrollView 
                     refreshControl={
@@ -678,25 +690,25 @@ export default class MakeDetail extends Component {
                         <View style={{backgroundColor:"#fff"}}>
                             <Button style={styles.groupButton} 
                             onPress={this.favoriteWorld.bind(this, 1, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
-                                <Text style={{color:"#000"}}>Group 1</Text>
+                                <NetmarbleL>Group 1</NetmarbleL>
                             </Button>
                             <Button style={styles.groupButton} 
                             onPress={this.favoriteWorld.bind(this, 2, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
-                                <Text style={{color:"#000"}}>Group 2</Text>
+                                <NetmarbleL>Group 2</NetmarbleL>
                             </Button>
                             <Button style={styles.groupButton} 
                             onPress={this.favoriteWorld.bind(this, 3, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
-                                <Text style={{color:"#000"}}>Group 3</Text>
+                                <NetmarbleL>Group 3</NetmarbleL>
                             </Button>
                             <Button style={styles.groupButton} 
                             onPress={this.favoriteWorld.bind(this, 4, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
-                                <Text style={{color:"#000"}}>Group 4</Text>
+                                <NetmarbleL>Group 4</NetmarbleL>
                             </Button>
                             <View style={{alignItems:"center"}}>
                             <Button 
                             onPress={()=>this.setState({modalVisivle:false})}
                             style={{width:"20%",height:40,margin:10,justifyContent:"center"}}>
-                                <Text>취소</Text>
+                                <NetmarbleL>취소</NetmarbleL>
                             </Button>
                             </View>
                         </View>

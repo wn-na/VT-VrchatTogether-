@@ -137,7 +137,8 @@ drawWorldTagList = (state, item) => {
 }
 
 export function drawModal(state) {
-    return <Modal animationType="fade"
+    return <Modal
+                animationType="slide"
                 transparent={true}
                 visible={!!state.display || false}
                 onBackButtonPress={()=>state.toggleModal()}

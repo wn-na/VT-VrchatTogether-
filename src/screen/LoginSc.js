@@ -5,25 +5,27 @@ import {
     Text,
 } from "native-base";
 import {
-    StyleSheet,
     View,
     TextInput,
     Alert,
     AsyncStorage,
     Linking,
-    BackHandler
+    BackHandler,
+    Image,
+    ScrollView
 } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
 import Modal from 'react-native-modal';
-import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils'
+import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils';
+import styles from '../css/css';
+import {NetmarbleL} from '../utils/CssUtils';
+import { ThemeConsumer } from "react-native-elements";
 
 export default class LoginSc extends Component {
     constructor(props) {
-        console.info("LoginSc => constructor");
-
         super(props);
 
         this.state = {
@@ -35,7 +37,6 @@ export default class LoginSc extends Component {
     }
 
     UNSAFE_componentWillMount() {
-        console.info("LoginSc => componentWillMount");
         AsyncStorage.getItem("storage_id",(err, value)=>{
             this.setState({
                 id:value
@@ -46,17 +47,13 @@ export default class LoginSc extends Component {
     }
 
     componentWillUnmount() {
-        console.info("LoginSc => componentWillUnmount");
     }
 
     componentDidMount() {
-        console.info("LoginSc => componentDidMount");
     }
 
     loginCheck = () =>
     {
-        console.log("LoginSc => loginCheck");
-
         fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
         .then((response) => response.json())
         .then((responseJson) => {
@@ -78,8 +75,6 @@ export default class LoginSc extends Component {
 
     login = () =>
     {
-        console.log("LoginSc => login");
-        
         // utf8 문자 감지 후 base64 변환
         const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
 
@@ -96,56 +91,54 @@ export default class LoginSc extends Component {
                 Alert.alert(
                     "오류",
                     "아이디 혹은 비밀번호가 일치하지 않습니다.",
-                    [{text: "확인", onPress: () => console.log("press login")}]
+                    [{text: "확인"}]
                 );
             }
-        })
-        .catch((r) => {
-            console.log(r);
-        })
+        });
     }
     
     render() {
-        console.info("LoginSc => render");
-        
         return (
             this.state.loginCheck == false ?
-            <View style={{flex:1}}>
-                <View style={styles.logo}>
-                    <Text>로고</Text>
+            <ScrollView style={{flexGrow:1}}>
+                <View style={styles.loginLogo}>
+                    <Image
+                    style={{width:450,height:450}}
+                    source={require('../css/imgs/logo.png')}/>
                 </View>
-                <View style={styles.login}>
-                    <View style={styles.textView}>
+                <View style={styles.loginBox}>
+                    <View style={styles.loginTextBox}>
                         <Icon name="user" size={30} style={{marginTop:5}}/>
                         <TextInput 
                         placeholder="이메일을 입력해주세요."
                         value={this.state.id}
                         onChangeText={(text)=>this.setState({id:text})}
-                        style={{marginLeft:"5%",width:"95%"}}/>
+                        onSubmitEditing={() => { this.secondTextInput.focus(); }}
+                        style={{marginLeft:"5%",width:"95%",fontFamily:"NetmarbleL"}}/>
                     </View>
-                    <View style={styles.textView}>
+                    <View style={styles.loginTextBox}>
                         <Icon name="lock" size={30} style={{marginTop:5}}/>
                         <TextInput 
+                        ref={(input) => { this.secondTextInput = input; }}
                         placeholder="비밀번호을 입력해주세요."
                         value={this.state.pw}
                         onChangeText={(text)=>this.setState({pw:text})}
+                        onSubmitEditing={this.login.bind(this)}
                         secureTextEntry
-                        style={{marginLeft:"5%",width:"95%"}}/>
+                        style={{marginLeft:"5%",width:"95%",fontFamily:"NetmarbleL"}}/>
                     </View>
                     <View style={{flexDirection:"row",width:"80%"}}>
                         <Button
                         onPress={this.login.bind(this)}
-                        style={{marginTop:40,width:"100%",justifyContent:"center"}}
-                        >
-                        <Text>로그인</Text>
+                        style={[styles.requestButton,{width:"100%",marginTop:40}]}>
+                        <NetmarbleL>로그인</NetmarbleL>
                         </Button>
                     </View>
                     <View style={{flexDirection:"row",width:"80%"}}>
                         <Button
-                        onPress={()=>Linking.openURL("https://vrchat.com/home/register")}
-                        style={{marginTop:30,width:"100%",justifyContent:"center"}}
-                        >
-                        <Text>회원가입</Text>
+                        onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
+                        style={[styles.requestButton,{width:"100%",marginTop:30}]}>
+                        <NetmarbleL>회원가입</NetmarbleL>
                         </Button>
                     </View>
                 </View>
@@ -180,7 +173,7 @@ export default class LoginSc extends Component {
                         </View>
                     </View>
                 </Modal>
-            </View>
+            </ScrollView>
             :
             <View>
 
@@ -189,30 +182,23 @@ export default class LoginSc extends Component {
     }
 }
 
-const styles = StyleSheet.create({
-    logo: {
-        flex: 1.5,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    login: {
-        flex: 2,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    info: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor:"red",
-        borderWidth:2
-    },
-    textView:{
-        borderBottomWidth:1,
-        borderBottomColor:"#000",
-        width:"80%",
-        flexDirection:"row",
-        alignItems: 'flex-start',
-        justifyContent: 'flex-start'
-    }
-});
+// const styles = StyleSheet.create({
+//     logo: {
+//         flex: 2,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//     },
+//     login: {
+//         flex: 2,
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//     },
+//     textView:{
+//         borderBottomWidth:1,
+//         borderBottomColor:"#000",
+//         width:"80%",
+//         flexDirection:"row",
+//         alignItems: 'flex-start',
+//         justifyContent: 'flex-start'
+//     }
+// });

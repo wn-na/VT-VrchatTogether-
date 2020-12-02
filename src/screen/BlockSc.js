@@ -21,11 +21,11 @@ import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
+import styles from '../css/css';
+import {NetmarbleL, NetmarbleM} from '../utils/CssUtils';
 
 export default class BlockSc extends Component {
     constructor(props) {
-        console.info("BlockSc => constructor");
-
         super(props);
 
         this.state = {
@@ -40,8 +40,6 @@ export default class BlockSc extends Component {
     }
 
     UNSAFE_componentWillMount() {
-        console.info("BlockSc => componentWillMount");
-
         Promise.all([this.getBlock(),this.getAgainst()])
         .then(() => {
             this.setState({
@@ -51,11 +49,9 @@ export default class BlockSc extends Component {
     }
 
     componentWillUnmount() {
-        console.info("BlockSc => componentWillUnmount");
     }
 
     componentDidMount() {
-        console.info("BlockSc => componentDidMount");
     }
 
     async getBlock () {
@@ -85,7 +81,6 @@ export default class BlockSc extends Component {
     }
 
     search = () => {
-        console.log("BlockSc => search")
         let serachCheck;
 
         if(this.state.search == null || this.state.search == "")
@@ -125,8 +120,6 @@ export default class BlockSc extends Component {
     }
 
     filter = value => {
-        console.log("BlockSc => filter");
-        
         this.setState({
             option:value
         });
@@ -141,16 +134,16 @@ export default class BlockSc extends Component {
                 data={this.state.getBlock}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "blockSc" ? Actions.blockDetail({userId:item.targetUserId, option:"block"}) : {}}
+                        onPress={()=> Actions.currentScene == "blockSc" ? Actions.userDetail({userId:item.targetUserId, option:"block"}) : {}}
                         style={{padding:"5%",borderWidth:1,marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
                     >
                         <View style={{flexDirection:"row",width:"100%"}}>
-                            <Text style={{width:"70%"}}>
+                            <NetmarbleL style={{width:"63%"}}>
                                 {item.targetDisplayName}
-                            </Text>
-                            <Text style={{width:"30%"}}>
+                            </NetmarbleL>
+                            <NetmarbleL style={{width:"37%"}}>
                                 {item.created.substring(0,10)}
-                            </Text>
+                            </NetmarbleL>
                         </View>
                     </TouchableOpacity>
                 }
@@ -163,16 +156,16 @@ export default class BlockSc extends Component {
                 data={this.state.getAgainst}
                 renderItem={({item}) => 
                     <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "blockSc" ? Actions.blockDetail({userId:item.sourceUserId, option:"against"}) : {}}
+                        onPress={()=> Actions.currentScene == "blockSc" ? Actions.userDetail({userId:item.sourceUserId, option:"against"}) : {}}
                         style={{padding:"5%",borderWidth:1,marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
                     >
                         <View style={{flexDirection:"row",width:"100%"}}>
-                            <Text style={{width:"70%"}}>
+                            <NetmarbleL style={{width:"63%"}}>
                                 {item.sourceDisplayName}
-                            </Text>
-                            <Text style={{width:"30%"}}>
+                            </NetmarbleL>
+                            <NetmarbleL style={{width:"37%"}}>
                                 {item.created.substring(0,10)}
-                            </Text>
+                            </NetmarbleL>
                         </View>
                     </TouchableOpacity>
                 }
@@ -181,8 +174,6 @@ export default class BlockSc extends Component {
     }
 
     reset(){
-        console.info("BlockSc => reset");
-
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -212,8 +203,6 @@ export default class BlockSc extends Component {
     }
 
     resetButton(){
-        console.info("MakeDetail => resetButton");
-
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -250,23 +239,22 @@ export default class BlockSc extends Component {
     }
 
     render() {
-        console.info("BlockSc => render");
-        
         return (
             <View style={{flex:1}}>
-                <Header style={styles.logo}>
-                    <Text>블락관리</Text>
-                    <View  style={{position:"absolute",right:"5%"}}>
+                <View style={styles.logo}>
+                    <Icon
+					onPress={()=>Actions.pop()}
+					name="chevron-left" size={25} style={{color:"white"}}/>
+                    <NetmarbleM style={{color:"white"}}>블락관리</NetmarbleM>
                     {this.state.refreshButton == false ?
                     <Icon
                     onPress={this.resetButton.bind(this)}
-                    name="cycle" size={20}
+                    name="cycle" size={20} style={{color:"white"}}
                     />
                     :
-                    <ActivityIndicator size={20} color="black"/>
+                    <ActivityIndicator size={20} color="white"/>
                     }
-                    </View>
-                </Header>
+                </View>
                 <ScrollView 
                     refreshControl={
                         <RefreshControl
@@ -275,33 +263,31 @@ export default class BlockSc extends Component {
                         />
                     }
                 >
-                    <View style={styles.textView}>
-                        <TextInput 
-                            value={this.state.search}
-                            onChangeText={(text)=>this.setState({search:text})}
-                            onSubmitEditing={this.search}
-                            style={{width:"85%"}}
-                        />
-                        <Icon 
-                        onPress={this.search}
-                        name="magnifying-glass" size={30} style={{marginTop:5}}/>
-                    </View>
-                    <View style={{flexDirection:"row"}}>
-                        <View style={{justifyContent:"center",width:"45%",marginLeft:"5%"}}>
-                            <Text>
-                                {this.state.option == "block" ? this.state.getBlock.length : this.state.getAgainst.length} 명
-                            </Text>
-                        </View>
-                        <View style={{width:"45%",marginRight:"2%",justifyContent:"flex-end"}}>
-                            <View style={styles.selectView}>
-                                <Picker 
-                                    selectedValue = {this.state.option}
-                                    onValueChange= {this.filter}
-                                >
-                                    <Picker.Item label = "내가 블락한" value = "block" />
-                                    <Picker.Item label = "나를 블락한" value = "against" />
-                                </Picker>
-                            </View>
+                    <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%"}}>
+						<View style={{borderBottomWidth:1,width:"100%",flexDirection:"row",justifyContent:"space-between",marginTop:"5%",marginBottom:"5%"}}>
+							<TextInput 
+								value={this.state.search}
+								onChangeText={(text) => this.setState({search:text})}
+								onSubmitEditing={this.search}
+								placeholder={"이름 검색"}
+								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
+							<Icon 
+								onPress={this.search}
+								name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
+						</View>
+					</View>
+                    <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%",height:70}}>
+                        <NetmarbleL style={{textAlignVertical:"center"}}>
+                            {this.state.option == "block" ? this.state.getBlock.length : this.state.getAgainst.length}  명
+                        </NetmarbleL>
+                        <View style={[styles.selectView,{width:"45%"}]}>
+                            <Picker 
+                                selectedValue = {this.state.option}
+                                onValueChange= {this.filter}
+                            >
+                                <Picker.Item label = "내가 블락한" value = "block" />
+                                <Picker.Item label = "나를 블락한" value = "against" />
+                            </Picker>
                         </View>
                     </View>
                     {this.flist()}
@@ -314,41 +300,3 @@ export default class BlockSc extends Component {
         );
     }
 }
-
-const styles = StyleSheet.create({
-    logo: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor:"#fff"
-    },
-    login: {
-        flex: 1.5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor:"red",
-        borderWidth:2
-    },
-    info: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor:"red",
-        borderWidth:2
-    },
-    textView:{
-        borderBottomWidth:1,
-        borderBottomColor:"#000",
-        width:"95%",
-        marginLeft:"2%",
-        flexDirection:"row",
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    selectView:{
-        borderBottomWidth:1,
-        borderBottomColor:"#000",
-        marginLeft:"2%",
-        marginTop:"5%",
-        marginBottom:"5%"
-    }
-});
