@@ -1,5 +1,5 @@
 export const UserTagColor = {
-    'system_trust_legend': '#be64a5',
+    'system_trust_legend': '#f8bc3a',
     'system_trust_veteran': '#be64a5',
     'system_trust_trusted': '#ff781e',
     'system_trust_known': '#64be46',

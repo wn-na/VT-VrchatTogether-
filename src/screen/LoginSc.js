@@ -21,8 +21,7 @@ import base64 from 'base-64';
 import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils';
 import styles from '../css/css';
-import {NetmarbleL} from '../utils/CssUtils';
-import { ThemeConsumer } from "react-native-elements";
+import {NetmarbleL,NetmarbleB} from '../utils/CssUtils';
 
 export default class LoginSc extends Component {
     constructor(props) {
@@ -43,6 +42,12 @@ export default class LoginSc extends Component {
             });
         });
         
+        AsyncStorage.getItem("permit_check",(err, value)=>{
+            // this.setState({
+            //     isPermit:value == "check" ? false : true
+            // });
+        });
+        
         this.loginCheck();
     }
 
@@ -50,6 +55,14 @@ export default class LoginSc extends Component {
     }
 
     componentDidMount() {
+    }
+
+    permit() {
+        AsyncStorage.setItem("permit_check", "check");
+        
+        this.setState({
+            isPermit: false
+        });
     }
 
     loginCheck = () =>
@@ -144,30 +157,30 @@ export default class LoginSc extends Component {
                 </View>
                 <Modal
                 isVisible={this.state.isPermit}>
-                    <View style={{backgroundColor:"#fff",padding:"5%"}}>
+                    <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
                         <View style={{alignItems:"center"}}>
-                            <Text style={{fontSize:30}}>
+                            <NetmarbleB style={{fontSize:30}}>
                                 안내
-                            </Text>
-                            <Text style={{textAlign:"center"}}>
-                                이 앱은 비공식 앱입니다. API서비스가 종료되면 스토어에서 내려오게됩니다.{"\n"}
-                                또한 앱을 악용할 경우 Vrchat 계정 자체를 정지당할 수 있습니다.
+                            </NetmarbleB>
+                            <NetmarbleL style={{textAlign:"center"}}>
+                                VT는 <NetmarbleB>비공식 앱</NetmarbleB>입니다.{"\n"}
+                                앱을 악용할 경우 Vrchat 계정을 정지 당할 수 있습니다.
                                 그에 따른 책임은 사용자에게 있으며, 해당 앱을 사용하는 것은
                                 이 부분의 동의하는 것으로 간주합니다.{"\n"}
-                            </Text>
-                            <Text>
+                            </NetmarbleL>
+                            <NetmarbleB>
                                 동의 하시겠습니까?
-                            </Text>
+                            </NetmarbleB>
                             <View style={{flexDirection:"row"}}>
                                 <Button 
-                                onPress={()=>this.setState({isPermit:false})}
-                                style={{width:"20%",height:40,margin:10,justifyContent:"center"}}>
-                                    <Text>동의</Text>
+                                onPress={this.permit.bind(this)}
+                                style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
+                                    <NetmarbleL>동의</NetmarbleL>
                                 </Button>
                                 <Button 
                                 onPress={()=>BackHandler.exitApp()}
-                                style={{width:"20%",height:40,margin:10,justifyContent:"center"}}>
-                                    <Text>취소</Text>
+                                style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
+                                    <NetmarbleL>비동의</NetmarbleL>
                                 </Button>
                             </View>
                         </View>

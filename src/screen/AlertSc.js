@@ -107,6 +107,38 @@ export default class AlertSc extends Component {
         }
     }
 
+    search = () => {
+        let serachCheck;
+
+        if(this.state.search == null || this.state.search == "")
+        {
+            Alert.alert(
+                '오류',
+                '검색어를 입력해주세요.',
+                [{text: "확인"}]
+            );
+        }
+        else
+        {
+            if(this.state.getAlerts != null)
+            {
+                serachCheck = this.state.getAlerts.filter((v) => v.senderUsername.indexOf(this.state.search) !== -1) 
+                this.setState({
+                    getAlerts:serachCheck
+                })
+            }
+
+            if(serachCheck.length == 0)
+            {
+                Alert.alert(
+                    '오류',
+                    '검색결과가 존재하지 않습니다.',
+                    [{text: "확인"}]
+                );
+            }
+        }
+    }
+
     reset() {
         if(this.state.refreshTime == false)
         {
@@ -222,7 +254,7 @@ export default class AlertSc extends Component {
                                         {item.created_at.substring(0,10)}
                                     </NetmarbleL>
                                 </View>
-                                <View style={{justifyContent:"space-around",flexDirection:"row",marginTop:"3%"}}>
+                                <View style={{justifyContent:"space-around",flexDirection:"row",marginTop:"10%"}}>
                                     <Button 
                                     onPress={this.friendRequest.bind(this,item.id,true)}
                                     style={[{width:"48%"},styles.requestButton]}>

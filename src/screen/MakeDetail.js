@@ -1,51 +1,29 @@
 import React, { Component } from "react";
 // common component
 import {
-    Container,
-    Header,
-    Content,
-    Footer,
     Button,
-    Left,
-    Right,
-    Body,
-    Item,
-    Label,
-    Input,
-    H2,
-    H1,
-    Badge,
-    Text,
-    SwipeRow,
-    Textarea,
-    Fab,
-    Switch,
-    Drawer
 } from "native-base";
 import {
     Image,
-    StyleSheet,
-    SectionList,
     FlatList,
-    TouchableOpacity,
     ScrollView,
     View,
     TextInput,
     Dimensions,
     Alert,
-    AsyncStorage,
     Picker,
-    TouchableOpacityBase,
+    TouchableOpacity,
     RefreshControl,
     ToastAndroid,
     ActivityIndicator
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import Modal from 'react-native-modal';
+import { Actions } from 'react-native-router-flux';
 import Carousel from 'react-native-snap-carousel';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import styles from '../css/css';
-import {NetmarbleM,NetmarbleL,NetmarbleB,GodoR} from '../utils/CssUtils';
+import {NetmarbleM,NetmarbleL} from '../utils/CssUtils';
 
 export default class MakeDetail extends Component {
     constructor(props) {
@@ -56,126 +34,130 @@ export default class MakeDetail extends Component {
         this.state = {
             getAvatars:[],
             getWorlds:[],
+            getFavoriteAvatars:[],
+            getFavoriteWorlds:[],
             refreshing:false,
             refreshTime:false,
             refreshButton:false,
             option:"avatar",
-            modalVisivle:false,
+            modalVisible:false,
             modalLoading:true,
         };
     }
 
     async UNSAFE_componentWillMount() {
-        console.info("MakeDetail => componentWillMount");
-        let promise;
-
-        promise = Promise.all([this.getAvatars(),this.getWorlds()]);
-        promise.done(() => {
-            this.setState({
-                modalLoading:false
-            })
-        })
-    }
-
-    componentWillUnmount() {
-        console.info("MakeDetail => componentWillUnmount");
-    }
-
-    componentDidMount() {
-        console.info("MakeDetail => componentDidMount");
-    }
-
-    async getAvatars() {
-        console.info("MakeDetail => getAvatars");
-        let avatarOffset = 0;
-        let favoriteOffset = 0;
-        let data = [];
-        let fetc = [];
+        let offset=0;
+        let checkPromise;
 
         for(let i=0;i<10;i++)
         {
-            await fetch(`https://api.vrchat.cloud/api/1/avatars?n=100&userId=${this.props.userId}&offset=${avatarOffset}`, VRChatAPIGet)
-            .then(response => response.json())
-            .then(json => {
-                fetc = fetc.concat(json);
-                
-                avatarOffset+= 100;
-            });
+            Promise.all([this.getAvatars(offset),this.getWorlds(offset)]);
         }
 
-        // 즐겨찾기검사
-        for(let i=0;i<2;i++){
-            await fetch(`https://api.vrchat.cloud/api/1/favorites?type=avatar&n=100&offset=${favoriteOffset}`, VRChatAPIGet)
-            .then(res => res.json())
-            .then(json => {
-                data = data.concat(json);
-                
-                favoriteOffset+=100;
-            });
-        }
-
-        for(let i=0;i<fetc.length;i++)
+        for(let i=0;i<2;i++)
         {
-            fetc[i].isFavorite = false;
-            fetc[i].favoriteId = null;
+            checkPromise = Promise.all([this.checkFavorite(offset)]);
+        }
 
-            for(let j=0;j<data.length;j++)
+        checkPromise.done(()=>{
+            for(let i=0;i<this.state.getAvatars.length;i++)
             {
-                if(fetc[i].id == data[j].favoriteId)
+                this.state.getAvatars[i].isFavorite = false;
+                this.state.getAvatars[i].favoriteId = null;
+
+                for(let j=0;j<this.state.getFavoriteAvatars.length;j++)
                 {
-                    fetc[i].isFavorite = true;
-                    fetc[i].favoriteId = data[j].id;
+                    if(this.state.getAvatars[i].id == this.state.getFavoriteAvatars[j].favoriteId)
+                    {
+                        this.state.getAvatars[i].isFavorite = true;
+                        this.state.getAvatars[i].favoriteId = this.state.getFavoriteAvatars[j].id;
+                    }
                 }
             }
-        }
+
+            for(let i=0;i<this.state.getWorlds.length;i++)
+            {
+                this.state.getWorlds[i].isFavorite = false;
+                this.state.getWorlds[i].favoriteId = null;
+
+                for(let j=0;j<this.state.getFavoriteWorlds.length;j++)
+                {
+                    if(this.state.getWorlds[i].id == this.state.getFavoriteWorlds[j].favoriteId)
+                    {
+                        this.state.getWorlds[i].isFavorite = true;
+                        this.state.getWorlds[i].favoriteId = this.state.getFavoriteWorlds[j].id;
+                    }
+                }
+            }
+
+            this.setState({
+                modalLoading: false
+            })
+        });
+    }
+
+    componentWillUnmount() {
+    }
+
+    componentDidMount() {
+    }
+
+    async checkFavorite(offset) {
+        await fetch(`https://api.vrchat.cloud/api/1/favorites?type=avatar&n=100&offset=${offset}`, VRChatAPIGet)
+        .then(res => res.json())
+        .then(json => {
+            this.setState({
+                getFavoriteAvatars: this.state.getFavoriteAvatars.concat(json)
+            });
+        });
+
+        await fetch(`https://api.vrchat.cloud/api/1/favorites?type=world&n=100&offset=${offset}`, VRChatAPIGet)
+        .then(res => res.json())
+        .then(json => {
+            this.setState({
+                getFavoriteWorlds: this.state.getFavoriteWorlds.concat(json)
+            });
+        });
+
+        return new Promise((resolve, reject) =>
+        resolve(this.state));
+    }
+
+    async getAvatars(avatarOffset) {
+        let fetc = [];
+        
+        await fetch(`https://api.vrchat.cloud/api/1/avatars?n=100&userId=${this.props.userId}&offset=${avatarOffset}`, VRChatAPIGet)
+        .then(response => response.json())
+        .then(json => {
+            fetc = fetc.concat(json);
+        });
 
         this.setState({
             getAvatars:fetc
         });
+
+        return new Promise((resolve, reject) =>
+        resolve(this.state.getAvatars));
     }
 
-    async getWorlds() {
-        console.info("MakeDetail => getWorlds");
-        let offset=0;
-        let data = [];
+    async getWorlds(worldOffset) {
+        let fetc = [];
 
-        let fetc = await fetch(`https://api.vrchat.cloud/api/1/worlds?n=100&userId=${this.props.userId}`, VRChatAPIGet)
-        .then(response => response.json());
-
-        // 즐겨찾기검사
-        for(let i=0;i<2;i++){
-            await fetch(`https://api.vrchat.cloud/api/1/favorites?type=world&n=100&offset=${offset}`, VRChatAPIGet)
-            .then(res => res.json())
-            .then(json => {
-                data = data.concat(json);
-                
-                offset+=100;
-            });
-        }
-
-        for(let i=0;i<fetc.length;i++)
-        {
-            fetc[i].isFavorite = false;
-            fetc[i].favoriteId = null;
-
-            for(let j=0;j<data.length;j++)
-            {
-                if(fetc[i].id == data[j].favoriteId)
-                {
-                    fetc[i].isFavorite = true;
-                    fetc[i].favoriteId = data[j].id;
-                }
-            }
-        }
+        await fetch(`https://api.vrchat.cloud/api/1/worlds?n=100&userId=${this.props.userId}&offset=${worldOffset}`, VRChatAPIGet)
+        .then(response => response.json())
+        .then(json => {
+            fetc = fetc.concat(json);
+        });
 
         this.setState({
             getWorlds:fetc
         });
+
+        return new Promise((resolve, reject) => {
+        resolve(this.state.getWorlds)});
     }
 
     avatarList() {
-        console.info("MakeDetail => avatarList");
-
         if(this.state.getAvatars.length < 1)
         {
             return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
@@ -207,16 +189,20 @@ export default class MakeDetail extends Component {
                         </NetmarbleL>
                         <View style={{position:"absolute",top:"-10%",left:"60%"}}>
                             {
-                            item.isFavorite == true ?
-                            <Icon 
-                            style={{zIndex:2}}
-                            onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
-                            name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
-                            :
-                            <Icon 
-                            style={{zIndex:2}}
-                            onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
-                            name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+                                item.isFavorite == true ? 
+                                <TouchableOpacity
+                                onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+                                    <Image
+                                    source={require('../css/imgs/favorite_star.png')}
+                                    style={{width:30,height:30}}/>
+                                </TouchableOpacity>
+                                :
+                                <TouchableOpacity
+                                onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+                                    <Image
+                                    source={require('../css/imgs/unfavorite_star.png')}
+                                    style={{width:30,height:30}}/>
+                                </TouchableOpacity> 
                             }
                         </View>
                     </View>
@@ -226,8 +212,6 @@ export default class MakeDetail extends Component {
     }
 
     worldList() {
-        console.info("MakeDetail => worldList");
-
         if(this.state.getWorlds.length < 1)
         {
             return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
@@ -251,29 +235,37 @@ export default class MakeDetail extends Component {
                         <View>
                             <View style={{flexDirection:"row",justifyContent:"center"}}>
                                 <View>
-                                    {
-                                        item.isFavorite == true ?
-                                        <Icon 
-                                        style={{zIndex:2}}
-                                        onPress={this.favoriteWorld.bind(this, 0, item.favoriteId, item.id, item.isFavorite)}
-                                        name="star" size={35} style={styles.worldIcon}/>
-                                        :
-                                        <Icon 
-                                        style={{zIndex:2}}
-                                        onPress={() => this.setState({modalVisivle:true, getWorldsChooseId:item.id})}
-                                        name="star-outlined" size={35} style={styles.worldIcon}/>
-                                    }
                                     <NetmarbleM style={{textAlign:"center"}}>{item.name}</NetmarbleM>
-                                    <Image
-                                        style={{
-                                            width: parseInt(Dimensions.get('window').width / 100 * 72), 
-                                            height: parseInt(Dimensions.get('window').width / 100 * 50),
-                                            borderRadius:5,
-                                            marginTop:"5%",
-                                            marginBottom:"5%"
-                                        }}
-                                        source={VRChatImage(item.thumbnailImageUrl)}
-                                    />
+                                    <View>
+                                        {
+                                            item.isFavorite == true ? 
+                                            <TouchableOpacity
+                                            style={styles.worldIcon}
+                                            onPress={this.favoriteWorld.bind(this, 0, item.favoriteId, item.id, item.isFavorite)}>
+                                                <Image
+                                                source={require('../css/imgs/favorite_star.png')}
+                                                style={{width:30,height:30}}/>
+                                            </TouchableOpacity>
+                                            :
+                                            <TouchableOpacity
+                                            style={styles.worldIcon}
+                                            onPress={() => this.setState({modalVisible:true, getWorldsChooseId:item.id})}>
+                                                <Image
+                                                source={require('../css/imgs/unfavorite_star.png')}
+                                                style={{width:30,height:30}}/>
+                                            </TouchableOpacity>
+                                        }
+                                        <Image
+                                            style={{
+                                                width: parseInt(Dimensions.get('window').width / 100 * 72), 
+                                                height: parseInt(Dimensions.get('window').width / 100 * 50),
+                                                borderRadius:5,
+                                                marginTop:"5%",
+                                                marginBottom:"5%"
+                                            }}
+                                            source={VRChatImage(item.thumbnailImageUrl)}
+                                        />
+                                    </View>
                                 </View>
                             </View>
                             <View>
@@ -287,50 +279,9 @@ export default class MakeDetail extends Component {
                     </View>}
             />
         </View>
-        // 보류
-        // return <FlatList
-        // data={this.state.getWorlds}
-        // extraData={this.state}
-        // renderItem={({item}) => 
-        //     <View style={{flexDirection:"row", padding:"5%", borderWidth:1}}>
-        //         <View>
-        //             <Image
-        //                 style={{width: 100, height: 100, borderRadius:20}}
-        //                 source={VRChatImage(item.thumbnailImageUrl)}
-        //             />
-        //         </View>
-        //         <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
-        //             <View style={{alignItems:"flex-start",flex:1}}>
-        //                 <Text style={{width:"70%"}}>
-        //                     {item.name}
-        //                 </Text>
-        //                 <Text>
-        //                     {item.authorName}
-        //                 </Text>
-        //                 <Text style={{marginTop:"3%"}}>
-        //                     {item.updated_at.substring(0,10)}
-        //                 </Text>
-        //             </View>
-        //             <View style={{position:"absolute",top:"-10%",left:"63%"}}>
-        //                 {
-        //                 item.isFavorite == true ?
-        //                 <Icon 
-        //                 onPress={this.viewWorldFavorite.bind(this, item.favoriteId, item.id, item.isFavorite)}
-        //                 name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
-        //                 :
-        //                 <Icon 
-        //                 onPress={this.viewWorldFavorite.bind(this, item.favoriteId, item.id, item.isFavorite)}
-        //                 name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
-        //                 }
-        //             </View>
-        //         </View>
-        //     </View>
-        // }
-        // />
     }
 
     async favoriteAvatar(favoriteId, avatarId, isFavorite) {
-
         if(isFavorite == false)
         {
             await fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
@@ -391,15 +342,11 @@ export default class MakeDetail extends Component {
     }
 
     async favoriteWorld(number, favoriteId, worldId, isFavorite) {
-        console.log("MakeDetail => this.favoriteWorld");
-
         let groupName = null;
-
-        fetch("https://api.vrchat.cloud/api/1/favorite/groups?type=world", VRChatAPIGet)
+        await fetch("https://api.vrchat.cloud/api/1/favorite/groups?type=world", VRChatAPIGet)
         .then(res => res.json())
         .then(json => {
             groupName = json[number];
-            
             if(groupName == null)
             {
                 groupName = "worlds"+(number+1);
@@ -412,52 +359,42 @@ export default class MakeDetail extends Component {
 
         if(isFavorite == false)
         {
-            Alert.alert(
-                "안내",
-                "Group "+(number+1)+"에 즐겨찾기 하시겠습니까?",
-                [
-                    {text:"확인", onPress: () => {
-                        fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
-                            "type":"world",
-                            "tags":[groupName],
-                            "favoriteId":worldId
-                        }))
-                        .then((response) => response.json())
-                        .then((json) => {
-                            console.log(json)
-                            if(!json.error)
-                            {
-                                for(let i=0;i<this.state.getWorlds.length;i++)
-                                {
-                                    if(this.state.getWorlds[i].id == worldId)
-                                    {
-                                        this.state.getWorlds[i].isFavorite = true;
-                                        this.state.getWorlds[i].favoriteId = json.id;
-                                    }
-                                }
-                                
-                                this.setState({
-                                    modalVisivle: false
-                                });
+            fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
+                "type":"world",
+                "tags":[groupName],
+                "favoriteId":worldId
+            }))
+            .then((response) => response.json())
+            .then((json) => {
+                console.log(json)
+                if(!json.error)
+                {
+                    for(let i=0;i<this.state.getWorlds.length;i++)
+                    {
+                        if(this.state.getWorlds[i].id == worldId)
+                        {
+                            this.state.getWorlds[i].isFavorite = true;
+                            this.state.getWorlds[i].favoriteId = json.id;
+                        }
+                    }
 
-                                ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
-                            }
-                            else
-                            {
-                                ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
-                            }
-                        });
-                    }},
-                    {text:"취소"}
-                ]
-            );
+                    ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
+                }
+                else
+                {
+                    ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+                }
+
+                this.setState({
+                    modalVisible: false
+                });
+            });
         }
         else if(isFavorite == true)
         {
             await fetch("https://api.vrchat.cloud/api/1/favorites/"+favoriteId, VRChatAPIDelete)
             .then((response) => response.json())
             .then((json) => {
-                console.log(json)
                 if(!json.error)
                 {
                     for(let i=0;i<this.state.getWorlds.length;i++)
@@ -486,12 +423,12 @@ export default class MakeDetail extends Component {
     viewWorldFavorite(favoriteId, avatarId, isFavorite) {
         if(isFavorite == false)
         {
-            this.state.modalVisivle = true;
+            this.state.modalVisible = true;
         }
         else
         {
             this.favoriteWorld(0, favoriteId, avatarId, isFavorite)
-            this.state.modalVisivle = false;
+            this.state.modalVisible = false;
         }
 
         this.setState({
@@ -502,15 +439,12 @@ export default class MakeDetail extends Component {
     }
 
     filter = value => {
-        console.info("MakeDetail => filter");
-
         this.setState({
             option:value
         });
     }
 
     search = () => {
-        console.info("MakeDetail => search");
         let serachCheck;
 
         if(this.state.search == null || this.state.search == "")
@@ -562,8 +496,6 @@ export default class MakeDetail extends Component {
     }
 
     reset() {
-        console.info("MakeDetail => reset");
-
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -573,11 +505,53 @@ export default class MakeDetail extends Component {
                 this.state.refreshTime = false;
             }, 5000);
 
-            Promise.all([this.getAvatars(),this.getWorlds()])
-            .then(() => {
+            let checkPromise;
+            let offset = 0;
+
+            for(let i=0;i<10;i++)
+            {
+                Promise.all([this.getAvatars(offset),this.getWorlds(offset)]);
+            }
+
+            for(let i=0;i<2;i++)
+            {
+                checkPromise = Promise.all([this.checkFavorite(offset)]);
+            }
+
+            checkPromise.done(()=>{
+                for(let i=0;i<this.state.getAvatars.length;i++)
+                {
+                    this.state.getAvatars[i].isFavorite = false;
+                    this.state.getAvatars[i].favoriteId = null;
+
+                    for(let j=0;j<this.state.getFavoriteAvatars.length;j++)
+                    {
+                        if(this.state.getAvatars[i].id == this.state.getFavoriteAvatars[j].favoriteId)
+                        {
+                            this.state.getAvatars[i].isFavorite = true;
+                            this.state.getAvatars[i].favoriteId = this.state.getFavoriteAvatars[j].id;
+                        }
+                    }
+                }
+
+                for(let i=0;i<this.state.getWorlds.length;i++)
+                {
+                    this.state.getWorlds[i].isFavorite = false;
+                    this.state.getWorlds[i].favoriteId = null;
+
+                    for(let j=0;j<this.state.getFavoriteWorlds.length;j++)
+                    {
+                        if(this.state.getWorlds[i].id == this.state.getFavoriteWorlds[j].favoriteId)
+                        {
+                            this.state.getWorlds[i].isFavorite = true;
+                            this.state.getWorlds[i].favoriteId = this.state.getFavoriteWorlds[j].id;
+                        }
+                    }
+                }
+
                 this.setState({
-                    modalLoading : false
-                });
+                    modalLoading: false
+                })
             });
 
             this.setState({
@@ -592,8 +566,6 @@ export default class MakeDetail extends Component {
     }
 
     resetButton(){
-        console.info("MakeDetail => resetButton");
-
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -604,20 +576,59 @@ export default class MakeDetail extends Component {
                 this.state.refreshTime = false;
             }, 5000);
 
-            let promise;
+            let checkPromise;
+            let offset = 0;
 
-            promise = Promise.all([this.getAvatars(),this.getWorlds()]);
-            promise.done(() => {
+            for(let i=0;i<10;i++)
+            {
+                Promise.all([this.getAvatars(offset),this.getWorlds(offset)]);
+            }
+    
+            for(let i=0;i<2;i++)
+            {
+                checkPromise = Promise.all([this.checkFavorite(offset)]);
+            }
+    
+            checkPromise.done(()=>{
                 setTimeout(() => {
                     this.setState({
                         refreshButton : false
                     });
                 }, 1000);
+                for(let i=0;i<this.state.getAvatars.length;i++)
+                {
+                    this.state.getAvatars[i].isFavorite = false;
+                    this.state.getAvatars[i].favoriteId = null;
+    
+                    for(let j=0;j<this.state.getFavoriteAvatars.length;j++)
+                    {
+                        if(this.state.getAvatars[i].id == this.state.getFavoriteAvatars[j].favoriteId)
+                        {
+                            this.state.getAvatars[i].isFavorite = true;
+                            this.state.getAvatars[i].favoriteId = this.state.getFavoriteAvatars[j].id;
+                        }
+                    }
+                }
+    
+                for(let i=0;i<this.state.getWorlds.length;i++)
+                {
+                    this.state.getWorlds[i].isFavorite = false;
+                    this.state.getWorlds[i].favoriteId = null;
+    
+                    for(let j=0;j<this.state.getFavoriteWorlds.length;j++)
+                    {
+                        if(this.state.getWorlds[i].id == this.state.getFavoriteWorlds[j].favoriteId)
+                        {
+                            this.state.getWorlds[i].isFavorite = true;
+                            this.state.getWorlds[i].favoriteId = this.state.getFavoriteWorlds[j].id;
+                        }
+                    }
+                }
+    
                 this.setState({
-                    modalLoading : false
-                });
+                    modalLoading: false
+                })
             });
-
             this.setState({
                 refreshing:false,
                 search:null
@@ -630,8 +641,6 @@ export default class MakeDetail extends Component {
     }
 
     render() {
-        console.info("MakeDetail => render");
-        
         return (
             <View style={{flex:1}}>
                 <View style={styles.logo}>
@@ -683,33 +692,21 @@ export default class MakeDetail extends Component {
                     {this.state.option == "avatar" ? this.avatarList() : this.worldList()}
                     <Modal
                     style={styles.modal}
-                    isVisible={this.state.modalVisivle}
-                    onBackButtonPress={()=>this.setState({modalVisivle:false})}
-                    onBackdropPress={()=>this.setState({modalVisivle:false})}>
-                        {this.state.modalVisivle == true ? 
-                        <View style={{backgroundColor:"#fff"}}>
-                            <Button style={styles.groupButton} 
-                            onPress={this.favoriteWorld.bind(this, 1, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
-                                <NetmarbleL>Group 1</NetmarbleL>
-                            </Button>
-                            <Button style={styles.groupButton} 
-                            onPress={this.favoriteWorld.bind(this, 2, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
-                                <NetmarbleL>Group 2</NetmarbleL>
-                            </Button>
-                            <Button style={styles.groupButton} 
-                            onPress={this.favoriteWorld.bind(this, 3, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
-                                <NetmarbleL>Group 3</NetmarbleL>
-                            </Button>
-                            <Button style={styles.groupButton} 
-                            onPress={this.favoriteWorld.bind(this, 4, this.state.favoriteId, this.state.avatarId, this.state.isFavorite)} >
-                                <NetmarbleL>Group 4</NetmarbleL>
-                            </Button>
+                    isVisible={this.state.modalVisible}
+                    onBackButtonPress={()=>this.setState({modalVisible:false})}
+                    onBackdropPress={()=>this.setState({modalVisible:false})}>
+                        {this.state.modalVisible == true ? 
+                        <View style={{backgroundColor:"#fff",borderRadius:10}}>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 0, null, this.state.getWorldsChooseId, false)}><NetmarbleL>Group 1</NetmarbleL></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 1, null, this.state.getWorldsChooseId, false)}><NetmarbleL>Group 2</NetmarbleL></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 2, null, this.state.getWorldsChooseId, false)}><NetmarbleL>Group 3</NetmarbleL></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 3, null, this.state.getWorldsChooseId, false)}><NetmarbleL>Group 4</NetmarbleL></Button>
                             <View style={{alignItems:"center"}}>
-                            <Button 
-                            onPress={()=>this.setState({modalVisivle:false})}
-                            style={{width:"20%",height:40,margin:10,justifyContent:"center"}}>
-                                <NetmarbleL>취소</NetmarbleL>
-                            </Button>
+                                <Button 
+                                onPress={()=>this.setState({modalVisible:false})}
+                                style={[styles.requestButton,{width:"20%",height:40,margin:10,justifyContent:"center"}]}>
+                                    <NetmarbleL>취소</NetmarbleL>
+                                </Button>
                             </View>
                         </View>
                         :

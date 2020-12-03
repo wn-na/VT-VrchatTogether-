@@ -38,11 +38,14 @@ import {
     Dimensions,
     Alert,
     Modal,
-    AsyncStorage
+    AsyncStorage,
+    ToastAndroid
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import {VRChatAPIDelete, VRChatAPIGet, VRChatAPIPostBody, VRChatAPIPut, VRChatImage} from '../utils/ApiUtils'
+import styles from '../css/css';
+import {NetmarbleL} from '../utils/CssUtils';
 
 export let FavoriteWorld = new Map();
 export let FavoriteWorldTag = new Map();
@@ -61,7 +64,7 @@ export function getFavoriteWorldTag() {
     then(responseJson => {
         if(!responseJson.error){
             FavoriteWorldTag.clear();
-            responseJson.forEach(element => FavoriteWorldTag.set(element.displayName, element.id))
+            responseJson.forEach(element => FavoriteWorldTag.set(element.name, element.id))
             if(FavoriteWorldTag.size < 4){
                 for(let i = FavoriteWorldTag.size; i < 4; i++)
                     FavoriteWorldTag.set(`worlds${i+1}`, `worlds${i+1}`)
@@ -85,19 +88,19 @@ addFavoriteWorld = (state, item, tags) => {
     fetch(`https://api.vrchat.cloud/api/1/favorites`, VRChatAPIPostBody({
         'type': 'world',
         'favoriteId': item.id,
-        'tags': tags
+        'tags': [tags]
     })).
     then(response => response.json()).
     then(responseJson => {
         if(!responseJson.error) {
             FavoriteWorld.set(responseJson.favoriteId, {...item, favoriteId : responseJson.id})
-        }   
+            ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
+        }
+        else
+        {
+            ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+        }
         state.toggleModal()
-        Alert.alert(
-            `즐겨찾기(추가)`,
-            `맵 id : ${item.id} / ${!responseJson.error ? '성공' : `실패 : ${responseJson.error.message}`}`,
-            [{text: "확인", onPress: () => null}]
-        )
     })
 }
 
@@ -106,20 +109,20 @@ deleteFavoiriteWorld = (state, item) => {
     then(response => response.json()).
     then(responseJson => {
         if(!responseJson.error) {
-            FavoriteWorld.delete(item.id)
+            FavoriteWorld.delete(item.id);
+            state.tmp();
+            ToastAndroid.show("삭제 완료되었습니다.", ToastAndroid.SHORT);
         }
-        state.updateFunction()
-        Alert.alert(
-            `즐겨찾기(해제)`,
-            `맵 id : ${item.id} / ${!responseJson.error ? '성공' : `실패 : ${responseJson.error.message}`}`,
-            [{text: "확인", onPress: () => null}]
-        )
-    })   
+        else
+        {
+            ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+        }
+    });
 }
 
 export function updateFavoriteMap (state, item, isFavorite)  {
     if(isFavorite){
-        this.deleteFavoiriteWorld(state, item)
+        this.deleteFavoiriteWorld(state, item);
     } else {
         state.toggleModal(item)            
     }
@@ -130,8 +133,8 @@ drawWorldTagList = (state, item) => {
         <Button
             key={FavoriteWorldTag.get(element)}
             onPress={() => this.addFavoriteWorld(state, item, element)}
-            style={{width:"80%", height:40, margin:15, justifyContent:"center", backgroundColor:"#fff", color:"#000"}}>
-            <Text style={{color:"#000"}}>Group {String(idx + 1)}</Text>
+            style={[styles.groupButton,{width:"90%"}]}>
+            <NetmarbleL style={{color:"#000"}}>Group {String(idx + 1)}</NetmarbleL>
         </Button>
     )
 }
@@ -144,11 +147,12 @@ export function drawModal(state) {
                 onBackButtonPress={()=>state.toggleModal()}
                 onBackdropPress={()=>state.toggleModal()}>
                 <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor:'rgba(0,0,0,0.5)'}}>
-                    <View style={{alignItems:"center", height:"45%", width:"95%", borderColor:"#cdcdcd", borderWidth: 1, backgroundColor:"#fff"}}>
+                    <View style={{alignItems:"center", height:"45%", width:"95%", backgroundColor:"#fff",borderRadius:10}}>
                         {drawWorldTagList(state, state.display)}
-                        <Button style={{width:"80%",height:40,margin:10,justifyContent:"center"}}
-                            onPress={()=>state.toggleModal()}>
-                            <Text>취소</Text>
+                        <Button
+                        style={[styles.requestButton,{width:"80%",height:40,margin:10,justifyContent:"center"}]}
+                        onPress={()=>state.toggleModal()}>
+                            <NetmarbleL>취소</NetmarbleL>
                         </Button>
                     </View>
                 </View>

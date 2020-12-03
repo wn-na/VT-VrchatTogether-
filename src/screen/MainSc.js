@@ -13,6 +13,7 @@ import {
     ToastAndroid,
     ActivityIndicator,
     ImageBackground,
+    TouchableOpacity
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import {UserGrade,UserGradeName} from './../utils/UserUtils';
@@ -44,10 +45,7 @@ export default class MainSc extends Component {
         };
     }
 
-    async UNSAFE_componentWillMount() {
-        getFavoriteMap();
-        getFavoriteWorldTag();
-
+    UNSAFE_componentWillMount() {
         Promise.all([this.getUserInfo(),this.getAlerts(),getFavoriteMap(),getFavoriteWorldTag()])
         .then(() => {
             this.setState({
@@ -153,20 +151,23 @@ export default class MainSc extends Component {
                 style={{width:"100%",height:"100%"}}
                 source={require("../css/imgs/main_background.png")}>
                     <View style={{flex:2}}>
-                        <View style={{alignItems:"flex-end",marginRight:"2%"}}>
-                            <Button
-                                onPress={this.logout.bind(this)}
-                                style={{marginTop:10,width:100,justifyContent:"center"}}
-                                >
-                                <NetmarbleM style={{color:"white"}}>로그아웃</NetmarbleM>
-                            </Button>
-                        </View>
                         <View style={styles.myInfo}>
                             <View style={{flexDirection:"row"}}>
-                                <Image
-                                    style={{width: 100, height: 100, borderRadius:10}}
-                                    source={VRChatImage(this.state.getUserInfo.currentAvatarThumbnailImageUrl)}
-                                />
+                                <View style={{marginTop:-20}}>
+                                    <NetmarbleL style={{textAlign:"center",color:UserGrade(this.state.getUserInfo.tags)}}>
+                                        {UserGradeName(this.state.getUserInfo.tags)}
+                                    </NetmarbleL>
+                                    <Image
+                                        style={{width: 100, height: 100, borderRadius:10,borderWidth:3,borderColor:UserGrade(this.state.getUserInfo.tags)}}
+                                        source={VRChatImage(this.state.getUserInfo.currentAvatarThumbnailImageUrl)}
+                                    />
+                                </View>
+                                <TouchableOpacity
+                                style={{position:"absolute",right:"0%",zIndex:1}}
+                                onPress={this.logout.bind(this)}>
+                                    <Icon
+                                    size={25} name={"log-out"} style={{color:"#2b3956"}}/>
+                                </TouchableOpacity>
                                 <NetmarbleL style={styles.myInfoText}>
                                     {this.state.getUserInfo.displayName}{"  "}
                                     {this.state.getUserInfo.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
@@ -177,22 +178,31 @@ export default class MainSc extends Component {
                                 <View style={styles.userCount}>
                                     <Row>
                                         <Col>
-                                            <NetmarbleL style={styles.friendsCount}>
-                                                전체{"\n"}
-                                                {this.state.allCount+"명"}
-                                            </NetmarbleL>
+                                            <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"all"})}>
+                                                <NetmarbleL 
+                                                style={styles.friendsCount}>
+                                                    전체{"\n"}
+                                                    {this.state.allCount+"명"}
+                                                </NetmarbleL>
+                                            </TouchableOpacity>
                                         </Col>
                                         <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
-                                            <NetmarbleL style={styles.friendsCount}>
-                                                온라인{"\n"}
-                                                {this.state.onCount+"명"}
-                                            </NetmarbleL>
+                                            <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"on"})}>
+                                                <NetmarbleL 
+                                                style={styles.friendsCount}>
+                                                    온라인{"\n"}
+                                                    {this.state.onCount+"명"}
+                                                </NetmarbleL>
+                                            </TouchableOpacity>
                                         </Col>
                                         <Col>
-                                            <NetmarbleL style={styles.friendsCount}>
-                                                오프라인{"\n"}
-                                                {this.state.offCount+"명"}
-                                            </NetmarbleL>
+                                            <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"off"})}>
+                                                <NetmarbleL 
+                                                style={styles.friendsCount}>
+                                                    오프라인{"\n"}
+                                                    {this.state.offCount+"명"}
+                                                </NetmarbleL>
+                                            </TouchableOpacity>
                                         </Col>
                                     </Row>
                                 </View>
@@ -203,7 +213,7 @@ export default class MainSc extends Component {
                         <Row>
                             <Col style={{alignItems:"flex-end"}}>
                                 <Button
-                                onPress={Actions.alertSc}
+                                onPress={Actions.currentScene == "mainSc" && Actions.alertSc}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
@@ -237,7 +247,7 @@ export default class MainSc extends Component {
                             </Col>
                             <Col>
                                 <Button
-                                onPress={Actions.friendListSc}
+                                onPress={() => Actions.currentScene == "mainSc" && Actions.friendListSc({option:"all"})}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
@@ -251,7 +261,7 @@ export default class MainSc extends Component {
                         <Row>
                             <Col style={{alignItems:"flex-end"}}>
                                 <Button
-                                onPress={Actions.favoriteSc}
+                                onPress={Actions.currentScene == "mainSc" && Actions.favoriteSc}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
@@ -263,7 +273,7 @@ export default class MainSc extends Component {
                             </Col>
                             <Col>
                                 <Button
-                                onPress={Actions.avatarListSc}
+                                onPress={Actions.currentScene == "mainSc" && Actions.avatarListSc}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
@@ -277,7 +287,7 @@ export default class MainSc extends Component {
                         <Row>
                             <Col style={{alignItems:"flex-end"}}>
                                 <Button
-                                onPress={Actions.blockSc}
+                                onPress={Actions.currentScene == "mainSc" && Actions.blockSc}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
@@ -289,7 +299,7 @@ export default class MainSc extends Component {
                             </Col>
                             <Col>
                                 <Button
-                                onPress={Actions.mapListSc}
+                                onPress={Actions.currentScene == "mainSc" && Actions.mapListSc}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 

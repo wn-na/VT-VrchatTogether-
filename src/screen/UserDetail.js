@@ -10,12 +10,13 @@ import {
     View,
     Alert,
     ToastAndroid,
-    ActivityIndicator
+    ActivityIndicator,
+    TouchableOpacity
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
-import {UserGrade} from '../utils/UserUtils';
+import {UserGrade,UserGradeName} from '../utils/UserUtils';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPutBody, VRChatAPIPost, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleM,NetmarbleL,NetmarbleB,GodoR} from '../utils/CssUtils';
@@ -31,7 +32,7 @@ export default class UserDetail extends Component {
             isBlocked:false,
             isFavorite:false,
             favoriteId:null,
-            modalVisivle:false,
+            modalVisible:false,
             modalLoading:true
         };
     }
@@ -98,14 +99,13 @@ export default class UserDetail extends Component {
         resolve(true));
     }
 
-    favorite(number, id) {
+    async favorite(number, id) {
         let groupName = null;
 
-        fetch(`https://api.vrchat.cloud/api/1/favorite/groups?type=world`, VRChatAPIGet)
+        await fetch(`https://api.vrchat.cloud/api/1/favorite/groups?type=world`, VRChatAPIGet)
         .then(res => res.json())
         .then(json => {
             groupName = json[number];
-            
             if(groupName == null)
             {
                 groupName = "worlds"+(number+1);
@@ -119,70 +119,43 @@ export default class UserDetail extends Component {
         if(this.state.isFavorite == false)
         {
             this.setState({
-                modalVisivle:true
+                modalVisible:true
             });
-
-            Alert.alert(
-                "안내",
-                "Group "+(number+1)+"에 즐겨찾기 하시겠습니까?",
-                [
-                    {text:"확인", onPress: () => {
-                        fetch(`https://api.vrchat.cloud/api/1/favorites`, VRChatAPIPostBody({
-                            "type":"world",
-                            "tags":[groupName],
-                            "favoriteId":id
-                        }))
-                        .then((response) => response.json())
-                        .then((json) => {
-                            if(json.error)
-                            {
-                                Alert.alert(
-                                    "오류",
-                                    "이미 즐겨찾기 되었습니다.",
-                                    [
-                                        {text:"확인", onPress:()=>{
-                                            this.setState({
-                                                modalVisivle:false
-                                            });
-                                        }}
-                                    ]
-                                )
-                            }
-                            else
-                            {
-                                this.setState({
-                                    modalVisivle:false,
-                                    isFavorite:true,
-                                    favoriteId:json.id
-                                });
-                                ToastAndroid.show("등록이 완료되었습니다.", ToastAndroid.SHORT);
-                            }
-                        });
-                    }},
-                    {text:"취소"}
-                ]
-            );
+            fetch(`https://api.vrchat.cloud/api/1/favorites`, VRChatAPIPostBody({
+                "type":"world",
+                "tags":[groupName],
+                "favoriteId":id
+            }))
+            .then((response) => response.json())
+            .then((json) => {
+                if(!json.error)
+                {
+                    this.setState({
+                        modalVisible:false,
+                        isFavorite:true,
+                        favoriteId:json.id
+                    });
+                    ToastAndroid.show("등록이 완료되었습니다.", ToastAndroid.SHORT);
+                }
+                else
+                {
+                    this.setState({
+                        modalVisible:false
+                    });
+                    ToastAndroid.show("오류가 발생하였습니다.", ToastAndroid.SHORT);
+                }
+            });
         }
         else
         {
             fetch(`https://api.vrchat.cloud/api/1/favorites/${id}`, VRChatAPIDelete)
-            Alert.alert(
-                "안내",
-                "즐겨찾기에서 삭제하시겠습니까?",
-                [
-                    {text: "확인", onPress: () => {
-                        fetch(`https://api.vrchat.cloud/api/1/favorites/${id}`, VRChatAPIDelete)
-                        .then((response) => response.json())
-                        .then((json) => {
-                            this.setState({
-                                isFavorite:false
-                            })
-                            ToastAndroid.show("삭제가 완료되었습니다.", ToastAndroid.SHORT);
-                        });
-                    }},
-                    {text: "취소"}
-                ]
-            );
+            .then((response) => response.json())
+            .then((json) => {
+                this.setState({
+                    isFavorite:false
+                })
+                ToastAndroid.show("삭제가 완료되었습니다.", ToastAndroid.SHORT);
+            });
         }
     }
 
@@ -199,11 +172,7 @@ export default class UserDetail extends Component {
                         .then((json) => {
                             if(json.success.status_code == "200")
                             {
-                                this.setState({
-                                    getUserInfo:{
-                                        isFriend:false
-                                    }
-                                })
+                                this.state.getUserInfo.isFriend = false;
                                 ToastAndroid.show("삭제가 완료되었습니다.", ToastAndroid.SHORT);
                             }
                             else
@@ -226,7 +195,14 @@ export default class UserDetail extends Component {
                         fetch(`https://api.vrchat.cloud/api/1/user/${id}/friendRequest`, VRChatAPIPost)
                         .then((response) => response.json())
                         .then((json) => {
-                            ToastAndroid.show("신청이 완료되었습니다.", ToastAndroid.SHORT);
+                            if(json.name == "RateLimitError")
+                            {
+                                ToastAndroid.show("알수없는 오류가 발생하였습니다.", ToastAndroid.SHORT);    
+                            }
+                            else
+                            {
+                                ToastAndroid.show("신청이 완료되었습니다.", ToastAndroid.SHORT);
+                            }
                         });
                     }},
                     {text: "취소"}
@@ -315,20 +291,31 @@ export default class UserDetail extends Component {
                 {this.state.getUserInfo != null ? 
                     <ScrollView>
                         <View style={{flex:1}}>
-                            <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%",marginTop:"3%"}}>
+                            <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%",marginTop:"1%"}}>
                                 <GodoR style={{fontSize:25,color:"#5a82dc"}}>Information</GodoR>
-                                {this.state.isBlocked == true ? 
-                                <Icon 
-                                onPress={this.block.bind(this)}
-                                name={"block"} size={30} style={{textAlignVertical:"bottom",color:"#ef5261"}}/>
-                                :
-                                <Icon 
-                                onPress={this.block.bind(this)}
-                                name={"block"} size={30} style={{textAlignVertical:"bottom",color:"#888c8b"}}/>
-                                }
+                                <View style={{flexDirection:"row",marginTop:10}}>
+                                    <TouchableOpacity
+                                    onPress={()=>{Actions.currentScene == "userDetail" && Actions.makeDetail({userId:this.props.userId})}}>
+                                        <Image 
+                                        style={{width:30,height:30,marginRight:30}}
+                                        source={require('../css/imgs/make_detail_icon.png')}/>
+                                    </TouchableOpacity>
+                                    {this.state.isBlocked == true ? 
+                                    <Icon 
+                                    onPress={this.block.bind(this)}
+                                    name={"block"} size={30} style={{color:"#ef5261"}}/>
+                                    :
+                                    <Icon 
+                                    onPress={this.block.bind(this)}
+                                    name={"block"} size={30} style={{color:"#888c8b"}}/>
+                                    }
+                                </View>
                             </View>
                             <View style={{flexDirection:"row",margin:"5%"}}>
-                                <View>
+                                <View style={{marginTop:-20}}>
+                                    <NetmarbleL style={{textAlign:"center",color:UserGrade(this.state.getUserInfo.tags)}}>
+                                        {UserGradeName(this.state.getUserInfo.tags)}
+                                    </NetmarbleL>
                                     <Image
                                         style={{width: 100, height: 100, borderRadius:20,borderColor:UserGrade(this.state.getUserInfo.tags), borderWidth:3}}
                                         source={VRChatImage(this.state.getUserInfo.currentAvatarThumbnailImageUrl)}
@@ -347,13 +334,9 @@ export default class UserDetail extends Component {
                         <View style={{flexDirection:"row",width:"100%",paddingLeft:"5%",paddingRight:"5%",marginBottom:"3.5%"}}>
                             <Button 
                                 onPress={this.friendRequest.bind(this,this.state.getUserInfo.id,this.state.getUserInfo.isFriend)}
-                                style={[{marginRight:15,width:"48%"},styles.requestButton]}
+                                style={[{marginRight:15,width:"100%"},styles.requestButton]}
                             >
                                 <NetmarbleL>{this.state.getUserInfo.isFriend == true ? "친구삭제" : "친구신청"}</NetmarbleL>
-                            </Button>
-                            <Button onPress={()=> Actions.currentScene == "userDetail" ? Actions.makeDetail({userId:this.props.userId}) : {}}
-                                style={[{width:"48%"},styles.requestButton]}>
-                                <NetmarbleL>제작정보</NetmarbleL>
                             </Button>
                         </View>
                         {this.state.getUserWInfo != null ?
@@ -366,14 +349,22 @@ export default class UserDetail extends Component {
                                         right:"10%",
                                         zIndex:1
                                     }}>
-                                        {this.state.isFavorite == true ? 
-                                        <Icon 
-                                        onPress={this.favorite.bind(this,-1,this.state.favoriteId)}
-                                        name="star" size={30} style={{color:"#FFBB00"}}/>
-                                        :
-                                        <Icon 
-                                        onPress={() => this.setState({modalVisivle:true})}
-                                        name="star-outlined" size={30} style={{color:"#FFBB00"}}/>}
+                                        {
+                                            this.state.isFavorite == true ? 
+                                            <TouchableOpacity
+                                            onPress={this.favorite.bind(this,-1,this.state.favoriteId)}>
+                                                <Image
+                                                source={require('../css/imgs/favorite_star.png')}
+                                                style={{width:30,height:30}}/>
+                                            </TouchableOpacity>
+                                            :
+                                            <TouchableOpacity
+                                            onPress={() => this.setState({modalVisible:true})}>
+                                                <Image
+                                                source={require('../css/imgs/unfavorite_star.png')}
+                                                style={{width:30,height:30}}/>
+                                            </TouchableOpacity>
+                                        }
                                     </View>
                                     <NetmarbleM style={{textAlign:"center",fontFamily:"NetmarbleM",color:"#2b3956"}}>
                                         {this.state.getUserWInfo.name}
@@ -397,21 +388,21 @@ export default class UserDetail extends Component {
                                 </View>
                                 <Modal
                                 style={{flex:1,height:250}}
-                                isVisible={this.state.modalVisivle}
-                                onBackButtonPress={()=>this.setState({modalVisivle:false})}
-                                onBackdropPress={()=>this.setState({modalVisivle:false})}>
-                                    {this.state.modalVisivle == true ?
-                                        <View style={{backgroundColor:"#fff"}}>
+                                isVisible={this.state.modalVisible}
+                                onBackButtonPress={()=>this.setState({modalVisible:false})}
+                                onBackdropPress={()=>this.setState({modalVisible:false})}>
+                                    {this.state.modalVisible == true ?
+                                    <View style={{backgroundColor:"#fff",borderRadius:10}}>
                                         <Button style={styles.groupButton} onPress={this.favorite.bind(this, 0, this.state.getUserWInfo.id)} ><NetmarbleL>Group 1</NetmarbleL></Button>
                                         <Button style={styles.groupButton} onPress={this.favorite.bind(this, 1, this.state.getUserWInfo.id)} ><NetmarbleL>Group 2</NetmarbleL></Button>
                                         <Button style={styles.groupButton} onPress={this.favorite.bind(this, 2, this.state.getUserWInfo.id)} ><NetmarbleL>Group 3</NetmarbleL></Button>
                                         <Button style={styles.groupButton} onPress={this.favorite.bind(this, 3, this.state.getUserWInfo.id)} ><NetmarbleL>Group 4</NetmarbleL></Button>
                                         <View style={{alignItems:"center"}}>
-                                        <Button 
-                                        onPress={()=>this.setState({modalVisivle:false})}
-                                        style={[styles.requestButton,{width:"20%",height:40,margin:10,justifyContent:"center"}]}>
-                                            <NetmarbleL>취소</NetmarbleL>
-                                        </Button>
+                                            <Button 
+                                            onPress={()=>this.setState({modalVisible:false})}
+                                            style={[styles.requestButton,{width:"20%",height:40,margin:10,justifyContent:"center"}]}>
+                                                <NetmarbleL>취소</NetmarbleL>
+                                            </Button>
                                         </View>
                                     </View>
                                     :

@@ -112,7 +112,7 @@ export default class FavoriteSc extends Component {
 
         let fetc = await fetch(`https://api.vrchat.cloud/api/1/worlds/favorites`, VRChatAPIGet)
         .then((response) => response.json());
-
+        
         for(let i=0;i<fetc.length;i++)
         {
             fetc[i].isFavorite = true;
@@ -236,10 +236,6 @@ export default class FavoriteSc extends Component {
                             this.state.getWorlds[i].group = groupName;
                         }
                     }
-                    
-                    this.setState({
-                        modalVisible: false
-                    });
 
                     ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
                 }
@@ -247,6 +243,10 @@ export default class FavoriteSc extends Component {
                 {
                     ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
                 }
+                
+                this.setState({
+                    modalVisible: false
+                });
             });
         }
         else if(isFavorite == true)
@@ -402,29 +402,37 @@ export default class FavoriteSc extends Component {
                             <View>
                                 <View style={{flexDirection:"row",justifyContent:"center"}}>
                                     <View>
-                                        {
-                                            item.isFavorite == true ?
-                                            <Icon 
-                                            style={{zIndex:2}}
-                                            onPress={this.favoriteWorld.bind(this, 0, item.favoriteId, item.id, item.isFavorite)}
-                                            name="star" size={35} style={styles.worldIcon}/>
-                                            :
-                                            <Icon 
-                                            style={{zIndex:2}}
-                                            onPress={() => this.setState({modalVisible:true, getWorldsChooseId:item.id})}
-                                            name="star-outlined" size={35} style={styles.worldIcon}/>
-                                        }
                                         <NetmarbleM style={{textAlign:"center"}}>{item.name}</NetmarbleM>
-                                        <Image
-                                            style={{
-                                                width: parseInt(Dimensions.get('window').width / 100 * 72), 
-                                                height: parseInt(Dimensions.get('window').width / 100 * 50),
-                                                borderRadius:5,
-                                                marginTop:"5%",
-                                                marginBottom:"5%"
-                                            }}
-                                            source={VRChatImage(item.thumbnailImageUrl)}
-                                        />
+                                        <View>
+                                            {
+                                                item.isFavorite == true ?
+                                                <TouchableOpacity
+                                                style={styles.worldIcon}
+                                                onPress={this.favoriteWorld.bind(this, 0, item.favoriteId, item.id, item.isFavorite)}>
+                                                    <Image
+                                                    source={require('../css/imgs/favorite_star.png')}
+                                                    style={{width:30,height:30}}/>
+                                                </TouchableOpacity>
+                                                :
+                                                <TouchableOpacity
+                                                style={styles.worldIcon}
+                                                onPress={() => this.setState({modalVisible:true, getWorldsChooseId:item.id})}>
+                                                    <Image
+                                                    source={require('../css/imgs/unfavorite_star.png')}
+                                                    style={{width:30,height:30}}/>
+                                                </TouchableOpacity>
+                                            }
+                                            <Image
+                                                style={{
+                                                    width: parseInt(Dimensions.get('window').width / 100 * 72), 
+                                                    height: parseInt(Dimensions.get('window').width / 100 * 50),
+                                                    borderRadius:5,
+                                                    marginTop:"5%",
+                                                    marginBottom:"5%"
+                                                }}
+                                                source={VRChatImage(item.thumbnailImageUrl)}
+                                            />
+                                        </View>
                                     </View>
                                 </View>
                                 <View>
@@ -455,15 +463,19 @@ export default class FavoriteSc extends Component {
                                 <View style={{alignItems:"flex-end"}}>
                                     {
                                         item.isFavorite == true ?
-                                        <Icon 
-                                        style={{zIndex:2}}
-                                        onPress={this.favoriteWorld.bind(this, 0, item.favoriteId, item.id, item.isFavorite)}
-                                        name="star" size={35} style={styles.worldIcon}/>
+                                        <TouchableOpacity
+                                        onPress={this.favoriteWorld.bind(this, 0, item.favoriteId, item.id, item.isFavorite)}>
+                                            <Image
+                                            source={require('../css/imgs/favorite_star.png')}
+                                            style={{width:30,height:30}}/>
+                                        </TouchableOpacity>
                                         :
-                                        <Icon 
-                                        style={{zIndex:2}}
-                                        onPress={() => this.setState({modalVisible:true, getWorldsChooseId:item.id})}
-                                        name="star-outlined" size={35} style={styles.worldIcon}/>
+                                        <TouchableOpacity
+                                        onPress={() => this.setState({modalVisible:true, getWorldsChooseId:item.id})}>
+                                            <Image
+                                            source={require('../css/imgs/unfavorite_star.png')}
+                                            style={{width:30,height:30}}/>
+                                        </TouchableOpacity>
                                     }
                                 </View>
                                 <View style={{flexDirection:"row"}}>
@@ -719,17 +731,17 @@ export default class FavoriteSc extends Component {
                     onBackButtonPress={()=>this.setState({modalVisible:false})}
                     onBackdropPress={()=>this.setState({modalVisible:false})}>
                         {this.state.modalVisible == true ?
-                            <View style={{backgroundColor:"#fff"}}>
+                        <View style={{backgroundColor:"#fff",borderRadius:10}}>
                             <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 0, null, this.state.getWorldsChooseId, false)} ><NetmarbleL style={{color:"#000"}}>Group 1</NetmarbleL></Button>
                             <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 1, null, this.state.getWorldsChooseId, false)} ><NetmarbleL style={{color:"#000"}}>Group 2</NetmarbleL></Button>
                             <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 2, null, this.state.getWorldsChooseId, false)} ><NetmarbleL style={{color:"#000"}}>Group 3</NetmarbleL></Button>
                             <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 3, null, this.state.getWorldsChooseId, false)} ><NetmarbleL style={{color:"#000"}}>Group 4</NetmarbleL></Button>
                             <View style={{alignItems:"center"}}>
-                            <Button 
-                            onPress={()=>this.setState({modalVisible:false})}
-                            style={[styles.requestButton,{width:"20%",height:40,margin:10,justifyContent:"center"}]}>
-                                <NetmarbleL>취소</NetmarbleL>
-                            </Button>
+                                <Button 
+                                onPress={()=>this.setState({modalVisible:false})}
+                                style={[styles.requestButton,{width:"20%",height:40,margin:10,justifyContent:"center"}]}>
+                                    <NetmarbleL>취소</NetmarbleL>
+                                </Button>
                             </View>
                         </View>
                         :

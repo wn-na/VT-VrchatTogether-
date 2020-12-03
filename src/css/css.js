@@ -105,7 +105,7 @@ export default StyleSheet.create({
         paddingRight:5
     },
     menu: {
-        flex:3
+        flex:3.5
     },
     textView: {
         alignItems:"center",
@@ -190,8 +190,8 @@ export default StyleSheet.create({
     worldIcon: {
         position:"absolute",
         color: "#FFBB00",
-        top:"20%",
         right:"2%",
+        top:"10%",
         zIndex:2
     },
     friendList: {

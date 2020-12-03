@@ -7,15 +7,18 @@ import {
     Image,
     TouchableOpacity,
     ScrollView,
+    RefreshControl,
     View,
     TextInput,
     Dimensions,
     Alert,
     ActivityIndicator,
+    ToastAndroid
 } from "react-native"
 import Icon from "react-native-vector-icons/Entypo"
 import { Actions } from 'react-native-router-flux'
 import Carousel from 'react-native-snap-carousel'
+import Modal from 'react-native-modal';
 import {MapTags, updateFavoriteMap, FavoriteWorld, drawModal} from '../utils/MapUtils'
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 import styles from '../css/css'
@@ -28,6 +31,7 @@ export default class MapListSc extends Component {
             refreshing:false,
             refreshTime:false,
             refreshButton:false,
+            modalVisible:true,
             mapList: [],
             index: 0,
             mapCount: 10,
@@ -36,7 +40,9 @@ export default class MapListSc extends Component {
             display : false,
             toggleModal : (t = null) => this.setState({display : t ? t : !this.state.display}),
             update : false,
-            updateFunction : () => this.setState({update : !this.state.update})
+            updateFunction : () => this.setState({update : !this.state.update}),
+            // 업데이트용 tmp 변수
+            tmp : () => this.setState({tmp:null})
         };
     }
 
@@ -113,24 +119,85 @@ export default class MapListSc extends Component {
                         mapList: isSameTag ? [...prevState.mapList, ...responseJson] : responseJson,
                         search: '',
                         tag: tagName,
-                        index : idx
+                        index : idx,
+                        modalVisible: false
                     }
                 });
             }
         })
     }
 
-    reset() {
+    reset(){
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+            this.state.modalVisible = true;
 
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+
+            Promise.all([this.searchTagMap()])
+            .then(() => {
+                this.setState({
+                    modalVisible : false
+                });
+            });
+
+            this.setState({
+                refreshing:false,
+                search:null
+            });
+        }
+        else
+        {
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
     }
 
     resetButton() {
+        if(this.state.refreshTime == false)
+        {
+            this.state.refreshTime = true;
+            this.state.modalVisible = true;
+            this.state.refreshButton = true;
 
+            setTimeout(() => {
+                this.state.refreshTime = false;
+            }, 5000);
+
+            Promise.all([this.searchTagMap()])
+            .then(() => {
+                setTimeout(() => {
+                    this.setState({
+                        refreshButton : false
+                    });
+                }, 1000);
+                this.setState({
+                    modalVisible : false
+                });
+            });
+
+            this.setState({
+                refreshing:false,
+                search:null
+            });
+        }
+        else
+        {
+            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+        }
     }
 
     render() {
         return (
-            <View style={{flex:1}}>
+            <ScrollView
+            refreshControl={
+                <RefreshControl
+                    onRefresh={this.reset.bind(this)}
+                    refreshing={this.state.refreshing}
+                />
+            }>
                 <View style={styles.logo}>
                     <Icon
 					onPress={()=>Actions.pop()}
@@ -174,7 +241,7 @@ export default class MapListSc extends Component {
                     </ScrollView>
                 </View>
 
-                <View style={{marginTop:"10%",alignItems:"center",flex:1}}>
+                <View style={{marginTop:"10%",alignItems:"center",height:"100%"}}>
                     <Carousel
                         layout={'default'}
                         ref={(c) => { this._carousel = c; }} 
@@ -196,22 +263,31 @@ export default class MapListSc extends Component {
                                     <View style={{flexDirection:"row",justifyContent:"center"}}>
                                         <View>
                                             <NetmarbleM style={{textAlign:"center"}}>{item.name}</NetmarbleM>
-                                            <Icon 
-                                                onPress={() => updateFavoriteMap(this.state, item, FavoriteWorld.get(item.id))}
-                                                name={(FavoriteWorld.get(item.id) ? "star" : "star-outlined")}
-                                                size={40} 
+                                            <View>
+                                                <TouchableOpacity
                                                 style={styles.worldIcon}
-                                            />
-                                            <Image
-                                                style={{
-                                                    width: parseInt(Dimensions.get('window').width / 100 * 72), 
-                                                    height: parseInt(Dimensions.get('window').width / 100 * 50),
-                                                    borderRadius:5,
-                                                    marginTop:"5%",
-                                                    marginBottom:"5%"
-                                                }}
-                                                source={VRChatImage(item.thumbnailImageUrl)}
-                                            />
+                                                onPress={() => 
+                                                updateFavoriteMap(this.state, item, FavoriteWorld.get(item.id))}>
+                                                    <Image
+                                                    source={
+                                                        FavoriteWorld.get(item.id) ?
+                                                        require('../css/imgs/favorite_star.png')
+                                                        :
+                                                        require('../css/imgs/unfavorite_star.png')
+                                                    }
+                                                    style={{width:30,height:30}}/>
+                                                </TouchableOpacity>
+                                                <Image
+                                                    style={{
+                                                        width: parseInt(Dimensions.get('window').width / 100 * 72), 
+                                                        height: parseInt(Dimensions.get('window').width / 100 * 50),
+                                                        borderRadius:5,
+                                                        marginTop:"5%",
+                                                        marginBottom:"5%"
+                                                    }}
+                                                    source={VRChatImage(item.thumbnailImageUrl)}
+                                                />
+                                            </View>
                                         </View>
                                     </View>
                                     <View>
@@ -227,7 +303,11 @@ export default class MapListSc extends Component {
                     />
                 </View>
                 {drawModal(this.state)}
-            </View>
+                <Modal
+                isVisible={this.state.modalVisible}>
+                    <ActivityIndicator size={100}/>
+                </Modal>
+            </ScrollView>
         );
     }
 }

@@ -242,15 +242,19 @@ export default class AvatarListSc extends Component {
 							<View style={{position:"absolute",top:"-10%",left:"60%"}}>
 								{
 								item.isFavorite == true ?
-								<Icon 
-								style={{zIndex:2}}
-								onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
-								name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+								<TouchableOpacity
+								onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+									<Image
+									source={require('../css/imgs/favorite_star.png')}
+									style={{width:30,height:30}}/>
+								</TouchableOpacity>
 								:
-								<Icon 
-								style={{zIndex:2}}
-								onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
-								name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+								<TouchableOpacity
+								onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+									<Image
+									source={require('../css/imgs/unfavorite_star.png')}
+									style={{width:30,height:30}}/>
+								</TouchableOpacity>
 								}
 							</View>
 						</View>
@@ -283,15 +287,19 @@ export default class AvatarListSc extends Component {
 							<View style={{position:"absolute",top:"-10%",left:"60%"}}>
 								{
 								item.isFavorite == true ?
-								<Icon 
-								style={{zIndex:2}}
-								onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
-								name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+								<TouchableOpacity
+								onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+									<Image
+									source={require('../css/imgs/favorite_star.png')}
+									style={{width:30,height:30}}/>
+								</TouchableOpacity>
 								:
-								<Icon 
-								style={{zIndex:2}}
-								onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
-								name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+								<TouchableOpacity
+								onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+									<Image
+									source={require('../css/imgs/unfavorite_star.png')}
+									style={{width:30,height:30}}/>
+								</TouchableOpacity>
 								}
 							</View>
 						</View>
@@ -375,10 +383,6 @@ export default class AvatarListSc extends Component {
 					}
 				</View>
 				<ScrollView
-				onScroll={({nativeEvent}) => {
-					console.log(nativeEvent);
-				  }}
-				scrollEventThrottle={400}
 				refreshControl={
 					<RefreshControl
 						onRefresh={this.reset.bind(this)}
