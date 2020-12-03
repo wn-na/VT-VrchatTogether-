@@ -41,7 +41,8 @@ export default class MainSc extends Component {
             alertCount:0,
             refreshTime:false,
             exitApp:false,
-            modalVisible:true
+            modalVisible:true,
+            infoModal:false
         };
     }
 
@@ -162,12 +163,18 @@ export default class MainSc extends Component {
                                         source={VRChatImage(this.state.getUserInfo.currentAvatarThumbnailImageUrl)}
                                     />
                                 </View>
-                                <TouchableOpacity
-                                style={{position:"absolute",right:"0%",zIndex:1}}
-                                onPress={this.logout.bind(this)}>
-                                    <Icon
-                                    size={25} name={"log-out"} style={{color:"#2b3956"}}/>
-                                </TouchableOpacity>
+                                <View style={{position:"absolute",right:"0%",zIndex:1,flexDirection:"row"}}>
+                                    <TouchableOpacity
+                                    onPress={()=>this.setState({infoModal:true})}>
+                                        <Icon
+                                        size={25} name={"light-bulb"} style={{color:"#c4c4c4",marginRight:10}}/>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                    onPress={this.logout.bind(this)}>
+                                        <Icon
+                                        size={25} name={"log-out"} style={{color:"#2b3956"}}/>
+                                    </TouchableOpacity>
+                                </View>
                                 <NetmarbleL style={styles.myInfoText}>
                                     {this.state.getUserInfo.displayName}{"  "}
                                     {this.state.getUserInfo.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
@@ -314,6 +321,33 @@ export default class MainSc extends Component {
                     <Modal
                     isVisible={this.state.modalVisible}>
                         <ActivityIndicator size={100}/>
+                    </Modal>
+                    <Modal
+                    onBackButtonPress={()=>this.setState({infoModal:false})}
+                    onBackdropPress={()=>this.setState({infoModal:false})}
+                    isVisible={this.state.infoModal}>
+                        <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
+                            <View style={{alignItems:"center"}}>
+                                <NetmarbleL style={{textAlign:"center"}}>
+                                    총괄 : Aboa{"\n"}
+                                    개발자 : [ leth, 늦잠 ]{"\n"}
+                                    디자이너 : [ 세르뀨, 은혜 ]{"\n"}
+                                    테스터 : [ Excite, きゆ, 옌딩 ]{"\n"}{"\n"}
+
+                                    <Image 
+                                    style={{width:30,height:30}}
+                                    source={require('../css/imgs/discord.png')}/>
+                                    {"  "}Aboa#9076{"\n"}
+                                </NetmarbleL>
+                                <View style={{flexDirection:"row"}}>
+                                    <Button 
+                                    onPress={()=>this.setState({infoModal:false})}
+                                    style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
+                                        <NetmarbleL>확인</NetmarbleL>
+                                    </Button>
+                                </View>
+                            </View>
+                        </View>
                     </Modal>
                 </ImageBackground>
             </ScrollView>

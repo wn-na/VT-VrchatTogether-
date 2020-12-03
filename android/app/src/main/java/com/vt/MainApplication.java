@@ -1,4 +1,4 @@
-package com.vrc;
+package com.vt;
 
 import android.app.Application;
 
