@@ -37,7 +37,7 @@ export default StyleSheet.create({
     },
     loginTextBox: {
         borderBottomWidth:1,
-        borderBottomColor:"#000",
+        borderBottomColor:"#888c8b",
         width:"80%",
         flexDirection:"row",
     },

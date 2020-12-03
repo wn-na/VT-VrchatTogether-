@@ -11,8 +11,10 @@ import {
     AsyncStorage,
     Linking,
     BackHandler,
+    ImageBackground,
+    Animated,
     Image,
-    ScrollView
+    ActivityIndicator
 } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { Actions } from 'react-native-router-flux';
@@ -31,7 +33,10 @@ export default class LoginSc extends Component {
             id: "",
             pw: "",
             loginCheck: true,
-            isPermit: true
+            loginFail: null,
+            isPermit: false,
+            aniPosition: new Animated.ValueXY({x:0,y:0}),
+            loadingText:"로딩중..."
         };
     }
 
@@ -41,13 +46,11 @@ export default class LoginSc extends Component {
                 id:value
             });
         });
-        
         AsyncStorage.getItem("permit_check",(err, value)=>{
-            // this.setState({
-            //     isPermit:value == "check" ? false : true
-            // });
+            this.setState({
+                isPermit:value == "check" ? false : true
+            });
         });
-        
         this.loginCheck();
     }
 
@@ -55,6 +58,46 @@ export default class LoginSc extends Component {
     }
 
     componentDidMount() {
+    }
+
+    shakeAni() {
+        Animated.sequence([
+            Animated.timing(
+                this.state.aniPosition,{
+                    toValue : {x:7, y:0},
+                    duration: 50,
+                    useNativeDriver: true
+                }
+            ),
+            Animated.timing(
+                this.state.aniPosition,{
+                    toValue : {x:-7, y:0},
+                    duration: 50,
+                    useNativeDriver: true
+                }
+            ),
+            Animated.timing(
+                this.state.aniPosition,{
+                    toValue : {x:7, y:0},
+                    duration: 50,
+                    useNativeDriver: true
+                }
+            ),
+            Animated.timing(
+                this.state.aniPosition,{
+                    toValue : {x:-7, y:0},
+                    duration: 50,
+                    useNativeDriver: true
+                }
+            ),
+            Animated.timing(
+                this.state.aniPosition,{
+                    toValue : {x:0, y:0},
+                    duration: 50,
+                    useNativeDriver: true
+                }
+            )
+        ]).start();
     }
 
     permit() {
@@ -65,17 +108,20 @@ export default class LoginSc extends Component {
         });
     }
 
-    loginCheck = () =>
+    loginCheck = async() =>
     {
-        fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
+        await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
         .then((response) => response.json())
         .then((responseJson) => {
             if(!responseJson.error)
             {
                 this.setState({
-                    loginCheck:true
+                    loginCheck:true,
+                    loadingText: "잠시후 메인화면으로 이동합니다."
                 });
-                Actions.mainSc();
+                setTimeout(()=>{
+                    Actions.mainSc();
+                },1000);
             }
             else if(responseJson.error)
             {
@@ -86,26 +132,30 @@ export default class LoginSc extends Component {
         });
     }
 
-    login = () =>
+    login = async() =>
     {
         // utf8 문자 감지 후 base64 변환
         const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
 
-        fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGetAuth(user))
+        await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGetAuth(user))
         .then(response => response.json())
         .then(responseJson => {
             if(!responseJson.error)
             {
                 AsyncStorage.setItem("storage_id", this.state.id);
-                Actions.replace("mainSc");
+                setTimeout(()=>{
+                    Actions.mainSc();
+                },1000);
+                this.setState({
+                    loginFail: true
+                });
             }
             else
             {
-                Alert.alert(
-                    "오류",
-                    "아이디 혹은 비밀번호가 일치하지 않습니다.",
-                    [{text: "확인"}]
-                );
+                this.setState({
+                    loginFail: false
+                });
+                this.shakeAni();
             }
         });
     }
@@ -113,105 +163,106 @@ export default class LoginSc extends Component {
     render() {
         return (
             this.state.loginCheck == false ?
-            <ScrollView style={{flexGrow:1}}>
-                <View style={styles.loginLogo}>
-                    <Image
-                    style={{width:450,height:450}}
-                    source={require('../css/imgs/logo.png')}/>
-                </View>
-                <View style={styles.loginBox}>
-                    <View style={styles.loginTextBox}>
-                        <Icon name="user" size={30} style={{marginTop:5}}/>
-                        <TextInput 
-                        placeholder="이메일을 입력해주세요."
-                        value={this.state.id}
-                        onChangeText={(text)=>this.setState({id:text})}
-                        onSubmitEditing={() => { this.secondTextInput.focus(); }}
-                        style={{marginLeft:"5%",width:"95%",fontFamily:"NetmarbleL"}}/>
-                    </View>
-                    <View style={styles.loginTextBox}>
-                        <Icon name="lock" size={30} style={{marginTop:5}}/>
-                        <TextInput 
-                        ref={(input) => { this.secondTextInput = input; }}
-                        placeholder="비밀번호을 입력해주세요."
-                        value={this.state.pw}
-                        onChangeText={(text)=>this.setState({pw:text})}
-                        onSubmitEditing={this.login.bind(this)}
-                        secureTextEntry
-                        style={{marginLeft:"5%",width:"95%",fontFamily:"NetmarbleL"}}/>
-                    </View>
-                    <View style={{flexDirection:"row",width:"80%"}}>
-                        <Button
-                        onPress={this.login.bind(this)}
-                        style={[styles.requestButton,{width:"100%",marginTop:40}]}>
-                        <NetmarbleL>로그인</NetmarbleL>
-                        </Button>
-                    </View>
-                    <View style={{flexDirection:"row",width:"80%"}}>
-                        <Button
-                        onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
-                        style={[styles.requestButton,{width:"100%",marginTop:30}]}>
-                        <NetmarbleL>회원가입</NetmarbleL>
-                        </Button>
-                    </View>
-                </View>
-                <Modal
-                isVisible={this.state.isPermit}>
-                    <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
-                        <View style={{alignItems:"center"}}>
-                            <NetmarbleB style={{fontSize:30}}>
-                                안내
-                            </NetmarbleB>
-                            <NetmarbleL style={{textAlign:"center"}}>
-                                VT는 <NetmarbleB>비공식 앱</NetmarbleB>입니다.{"\n"}
-                                앱을 악용할 경우 Vrchat 계정을 정지 당할 수 있습니다.
-                                그에 따른 책임은 사용자에게 있으며, 해당 앱을 사용하는 것은
-                                이 부분의 동의하는 것으로 간주합니다.{"\n"}
-                            </NetmarbleL>
-                            <NetmarbleB>
-                                동의 하시겠습니까?
-                            </NetmarbleB>
-                            <View style={{flexDirection:"row"}}>
-                                <Button 
-                                onPress={this.permit.bind(this)}
-                                style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
-                                    <NetmarbleL>동의</NetmarbleL>
-                                </Button>
-                                <Button 
-                                onPress={()=>BackHandler.exitApp()}
-                                style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
-                                    <NetmarbleL>비동의</NetmarbleL>
-                                </Button>
-                            </View>
+            <View style={{flex:1}}>
+                <ImageBackground
+                style={{width:"100%",height:"100%"}}
+                source={require('../css/imgs/login_background.png')}>
+                    <View style={styles.loginBox}>
+                        <View style={{height:100, justifyContent:"center"}}>
+                            {
+                                this.state.loginFail == true ?
+                                <View>
+                                    <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
+                                        <Icon name={"check-circle"} size={80} style={{color:"#279cff"}} />
+                                    </Animated.View>
+                                    <NetmarbleL style={{color:"#279cff",fontSize:14,textAlign:"center"}}>로그인 성공</NetmarbleL>
+                                </View>
+                                : this.state.loginFail == false &&
+                                <View>
+                                    <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
+                                        <Icon name={"x-circle"} size={80} style={{color:"#fc9090"}} />
+                                    </Animated.View>
+                                    <NetmarbleL style={{color:"#fc9090",fontSize:14,textAlign:"center"}}>아이디 혹은 비밀번호가 일치하지 않습니다.</NetmarbleL>
+                                </View>
+                            }
+                        </View>
+                        <NetmarbleB style={{color:"#279cff",fontSize:35}}>
+                            Login
+                        </NetmarbleB>
+                        <View style={styles.loginTextBox}>
+                            <TextInput 
+                            placeholder="이메일을 입력해주세요."
+                            value={this.state.id}
+                            onChangeText={(text)=>this.setState({id:text})}
+                            onSubmitEditing={() => { this.secondTextInput.focus(); }}
+                            style={{marginRight:"0%",width:"90%",fontFamily:"NetmarbleL"}}/>
+                            <Icon name="user" size={25} style={{marginTop:15,color:"#888c8b"}}/>
+                        </View>
+                        <View style={[styles.loginTextBox,{marginTop:20}]}>
+                            <TextInput 
+                            ref={(input) => { this.secondTextInput = input; }}
+                            placeholder="비밀번호을 입력해주세요."
+                            value={this.state.pw}
+                            onChangeText={(text)=>this.setState({pw:text})}
+                            onSubmitEditing={this.login.bind(this)}
+                            secureTextEntry
+                            style={{marginRight:"0%",width:"90%",fontFamily:"NetmarbleL"}}/>
+                            <Icon name="lock" size={25} style={{marginTop:15,color:"#888c8b"}}/>
+                        </View>
+                        <View style={{flexDirection:"row",justifyContent:"space-around",marginTop:"10%",width:"80%"}}>
+                            <Button
+                            onPress={this.login.bind(this)}
+                            style={[styles.requestButton,{width:"48%",borderWidth:0,backgroundColor:"#279cff"}]}>
+                            <NetmarbleB style={{color:"white"}}>로그인</NetmarbleB>
+                            </Button>
+                            <Button
+                            onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
+                            style={[styles.requestButton,{width:"48%",borderWidth:0,elevation:0}]}>
+                            <NetmarbleB style={{color:"black"}}>회원가입</NetmarbleB>
+                            </Button>
                         </View>
                     </View>
-                </Modal>
-            </ScrollView>
+                    <Modal
+                    isVisible={this.state.isPermit}>
+                        <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
+                            <View style={{alignItems:"center"}}>
+                                <NetmarbleB style={{fontSize:30}}>
+                                    안내
+                                </NetmarbleB>
+                                <NetmarbleL style={{textAlign:"center"}}>
+                                    VT는 <NetmarbleB>비공식 앱</NetmarbleB>입니다.{"\n"}
+                                    앱을 악용할 경우 Vrchat 계정을 정지 당할 수 있습니다.
+                                    그에 따른 책임은 사용자에게 있으며, 해당 앱을 사용하는 것은
+                                    이 부분의 동의하는 것으로 간주합니다.{"\n"}
+                                </NetmarbleL>
+                                <NetmarbleB>
+                                    동의 하시겠습니까?
+                                </NetmarbleB>
+                                <View style={{flexDirection:"row"}}>
+                                    <Button 
+                                    onPress={this.permit.bind(this)}
+                                    style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
+                                        <NetmarbleL>동의</NetmarbleL>
+                                    </Button>
+                                    <Button 
+                                    onPress={()=>BackHandler.exitApp()}
+                                    style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
+                                        <NetmarbleL>비동의</NetmarbleL>
+                                    </Button>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
+                </ImageBackground>
+            </View>
             :
-            <View>
-
+            <View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
+                <Image
+                style={{flex:0.5,width:"90%",height:"90%",resizeMode:"contain"}}
+                source={require('../css/imgs/logo.png')}></Image>
+                <ActivityIndicator size={100}/>
+                <NetmarbleL>{this.state.loadingText}</NetmarbleL>
             </View>
         );
     }
 }
-
-// const styles = StyleSheet.create({
-//     logo: {
-//         flex: 2,
-//         alignItems: 'center',
-//         justifyContent: 'center',
-//     },
-//     login: {
-//         flex: 2,
-//         alignItems: 'center',
-//         justifyContent: 'center',
-//     },
-//     textView:{
-//         borderBottomWidth:1,
-//         borderBottomColor:"#000",
-//         width:"80%",
-//         flexDirection:"row",
-//         alignItems: 'flex-start',
-//         justifyContent: 'flex-start'
-//     }
-// });
