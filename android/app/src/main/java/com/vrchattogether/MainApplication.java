@@ -1,4 +1,4 @@
-package com.vt;
+package com.vrchattogether;
 
 import android.app.Application;
 
