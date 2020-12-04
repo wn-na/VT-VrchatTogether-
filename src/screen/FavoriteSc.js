@@ -68,12 +68,44 @@ export default class FavoriteSc extends Component {
     }
 
     async getAvatar(){
+        let data = [];
+        let offset = 0;
+
 		let fetc = await fetch(`https://api.vrchat.cloud/api/1/avatars/favorites?sort=_updated_at&order=descending`, VRChatAPIGet)
 		.then(response => response.json());
 		
 		for(let i=0;i<fetc.length;i++)
         {
             fetc[i].isFavorite = true;
+        }
+        
+        // 즐겨찾기검사
+        for(let i=0;i<4;i++){
+            await fetch(`https://api.vrchat.cloud/api/1/favorites?type=avatar&n=100&offset=${offset}`, VRChatAPIGet)
+            .then(res => res.json())
+            .then(json => {
+                data = data.concat(json);
+
+                offset+=100;
+            });
+        }
+
+        for(let i=0;i<fetc.length;i++)
+        {
+            fetc[i].isFavorite = true;
+        }
+
+        for(let i=0;i<fetc.length;i++)
+        {
+            fetc[i].favoriteId = null;
+
+            for(let j=0;j<data.length;j++)
+            {
+                if(fetc[i].id == data[j].favoriteId)
+                {
+                    fetc[i].favoriteId = data[j].favoriteId;
+                }
+            }
         }
 
         this.setState({
@@ -121,11 +153,13 @@ export default class FavoriteSc extends Component {
         for(let i=0;i<fetc.length;i++)
         {
             fetc[i].group = null;
+            fetc[i].favoriteId = null;
 
             for(let j=0;j<data.length;j++)
             {
                 if(fetc[i].id == data[j].favoriteId)
                 {
+                    fetc[i].favoriteId = data[j].favoriteId;
                     fetc[i].group = data[j].tags[0];
                 }
             }
@@ -311,18 +345,24 @@ export default class FavoriteSc extends Component {
                                 {item.authorName}{"\n"}
                                 {item.updated_at.substring(0,10)}
                             </NetmarbleL>
-                            <View style={{position:"absolute",top:"-10%",left:"60%"}}>
+                            <View style={{position:"absolute",top:"-10%",left:"68%"}}>
                                 {
-                                item.isFavorite == true ?
-                                <Icon 
-                                style={{zIndex:2}}
-                                onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
-                                name="star" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
-                                :
-                                <Icon 
-                                style={{zIndex:2}}
-                                onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}
-                                name="star-outlined" size={30} style={{color:"#FFBB00",marginBottom:5}}/>
+                                    item.isFavorite == true ?
+                                    <TouchableOpacity
+                                    style={styles.worldIcon}
+                                    onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+                                        <Image
+                                        source={require('../css/imgs/favorite_star.png')}
+                                        style={{width:30,height:30}}/>
+                                    </TouchableOpacity>
+                                    :
+                                    <TouchableOpacity
+                                    style={styles.worldIcon}
+                                    onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+                                        <Image
+                                        source={require('../css/imgs/unfavorite_star.png')}
+                                        style={{width:30,height:30}}/>
+                                    </TouchableOpacity>
                                 }
                             </View>
                         </View>
