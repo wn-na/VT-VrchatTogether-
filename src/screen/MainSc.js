@@ -268,7 +268,7 @@ export default class MainSc extends Component {
                         <Row>
                             <Col style={{alignItems:"flex-end"}}>
                                 <Button
-                                onPress={Actions.currentScene == "mainSc" && Actions.favoriteSc}
+                                onPress={Actions.currentScene == "mainSc" && Actions.favoriteSc({userId:this.state.getUserInfo.id})}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
@@ -306,7 +306,7 @@ export default class MainSc extends Component {
                             </Col>
                             <Col>
                                 <Button
-                                onPress={Actions.currentScene == "mainSc" && Actions.mapListSc}
+                                onPress={Actions.currentScene == "mainSc" && Actions.mapListSc({userId:this.state.getUserInfo.id})}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 

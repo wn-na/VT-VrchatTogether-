@@ -257,8 +257,13 @@ export default class MapListSc extends Component {
                         itemWidth={parseInt(Dimensions.get('window').width / 100 * 80)}
                         renderItem={({item}) => 
                             <TouchableOpacity
-                            style={styles.worldInfo}
-                            onPress={() => Actions.currentScene == "mapListSc" && Actions.userDetail({userId:item.authorId, isFriend:false})}>
+                                style={styles.worldInfo}
+                                onPress={() => {
+                                    if(Actions.currentScene == "mapListSc" && item.authorId != this.props.userId)
+                                    {
+                                        Actions.userDetail({userId:item.authorId, isFriend:false})
+                                    }
+                                }}>
                                 <View>
                                     <View style={{flexDirection:"row",justifyContent:"center"}}>
                                         <View>

@@ -330,44 +330,49 @@ export default class FavoriteSc extends Component {
 				extraData={this.state}
 				renderItem={({item}) =>
                     <TouchableOpacity
-                    onPress={()=> Actions.currentScene == "favoriteSc" ? Actions.userDetail({userId:item.authorId, isFriend:false}) : {}}
-                    style={styles.avatarList}>
-                    <View style={styles.avatarListView}>
-                        <View>
-                            <Image
-                                style={{width: 100, height: 100, borderRadius:20}} 
-                                source={VRChatImage(item.thumbnailImageUrl)}
-                            />
-                        </View>
-                        <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
-                            <NetmarbleL style={{lineHeight:30}}>
-                                {item.name}{"\n"}
-                                {item.authorName}{"\n"}
-                                {item.updated_at.substring(0,10)}
-                            </NetmarbleL>
-                            <View style={{position:"absolute",top:"-10%",left:"68%"}}>
-                                {
-                                    item.isFavorite == true ?
-                                    <TouchableOpacity
-                                    style={styles.worldIcon}
-                                    onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
-                                        <Image
-                                        source={require('../css/imgs/favorite_star.png')}
-                                        style={{width:30,height:30}}/>
-                                    </TouchableOpacity>
-                                    :
-                                    <TouchableOpacity
-                                    style={styles.worldIcon}
-                                    onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
-                                        <Image
-                                        source={require('../css/imgs/unfavorite_star.png')}
-                                        style={{width:30,height:30}}/>
-                                    </TouchableOpacity>
-                                }
+                        onPress={() => {
+                            if(Actions.currentScene == "favoriteSc" && item.authorId != this.props.userId)
+                            {
+                                Actions.userDetail({userId:item.authorId, isFriend:false})
+                            }
+                        }}
+                        style={styles.avatarList}>
+                        <View style={styles.avatarListView}>
+                            <View>
+                                <Image
+                                    style={{width: 100, height: 100, borderRadius:20}} 
+                                    source={VRChatImage(item.thumbnailImageUrl)}
+                                />
+                            </View>
+                            <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
+                                <NetmarbleL style={{lineHeight:30}}>
+                                    {item.name}{"\n"}
+                                    {item.authorName}{"\n"}
+                                    {item.updated_at.substring(0,10)}
+                                </NetmarbleL>
+                                <View style={{position:"absolute",top:"-10%",left:"68%"}}>
+                                    {
+                                        item.isFavorite == true ?
+                                        <TouchableOpacity
+                                        style={styles.worldIcon}
+                                        onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+                                            <Image
+                                            source={require('../css/imgs/favorite_star.png')}
+                                            style={{width:30,height:30}}/>
+                                        </TouchableOpacity>
+                                        :
+                                        <TouchableOpacity
+                                        style={styles.worldIcon}
+                                        onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+                                            <Image
+                                            source={require('../css/imgs/unfavorite_star.png')}
+                                            style={{width:30,height:30}}/>
+                                        </TouchableOpacity>
+                                    }
+                                </View>
                             </View>
                         </View>
-                    </View>
-                </TouchableOpacity>}
+                    </TouchableOpacity>}
 			/>
 		}
 		else if(this.state.isAvatarSearch == true)
@@ -378,7 +383,12 @@ export default class FavoriteSc extends Component {
 				extraData={this.state}
 				renderItem={({item}) =>
                     <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "favoriteSc" ? Actions.userDetail({userId:item.authorId, isFriend:false}) : {}}
+                        onPress={() => {
+                            if(Actions.currentScene == "favoriteSc" && item.authorId != this.props.userId)
+                            {
+                                Actions.userDetail({userId:item.authorId, isFriend:false})
+                            }
+                        }}
                         style={styles.avatarList}>
                         <View style={styles.avatarListView}>
                             <View>
@@ -438,7 +448,12 @@ export default class FavoriteSc extends Component {
                         item.group == this.state.selectedGroupKey &&
                         <TouchableOpacity
                             style={styles.worldInfo}
-                            onPress={() => Actions.currentScene == "favoriteSc" && Actions.userDetail({userId:item.authorId, isMap:true})}>
+                            onPress={() => {
+                                if(Actions.currentScene == "favoriteSc" && item.authorId != this.props.userId)
+                                {
+                                    Actions.userDetail({userId:item.authorId, isFriend:false})
+                                }
+                            }}>
                             <View>
                                 <View style={{flexDirection:"row",justifyContent:"center"}}>
                                     <View>
@@ -498,7 +513,13 @@ export default class FavoriteSc extends Component {
                     sliderWidth={parseInt(Dimensions.get('window').width / 100 * 94)}
                     itemWidth={parseInt(Dimensions.get('window').width / 100 * 70)}
                     renderItem={({item}) => 
-                        <TouchableOpacity onPress={() => Actions.currentScene == "favoriteSc" && Actions.userDetail({userId:item.authorId, isMap:true})}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                if(Actions.currentScene == "favoriteSc" && item.authorId != this.props.userId)
+                                {
+                                    Actions.userDetail({userId:item.authorId, isFriend:false})
+                                }
+                            }}>
                             <View style={{borderWidth:1,padding:"5%"}}>
                                 <View style={{alignItems:"flex-end"}}>
                                     {
