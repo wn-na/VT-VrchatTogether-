@@ -24,6 +24,7 @@ import Carousel from 'react-native-snap-carousel';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleM,NetmarbleL} from '../utils/CssUtils';
+import {translate} from '../translate/TranslateUtils';
 
 export default class MakeDetail extends Component {
     constructor(props) {
@@ -162,7 +163,7 @@ export default class MakeDetail extends Component {
         {
             return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
                 <View>
-                    <NetmarbleL>아바타내역이 존재하지 않습니다.</NetmarbleL>
+                    <NetmarbleL>{translate('msg_avatar_list_not_found')}</NetmarbleL>
                 </View>
             </View>
         }
@@ -216,7 +217,7 @@ export default class MakeDetail extends Component {
         {
             return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
                 <View>
-                    <NetmarbleL>월드내역이 존재하지 않습니다.</NetmarbleL>
+                    <NetmarbleL>{translate('msg_world_list_not_found')}</NetmarbleL>
                 </View>
             </View>
         }
@@ -270,9 +271,9 @@ export default class MakeDetail extends Component {
                             </View>
                             <View>
                                 <NetmarbleL style={{lineHeight:30}}>
-                                    제작자 : {item.authorName}{"\n"}
-                                    전체 : {item.occupants}명{"\n"}
-                                    업데이트 날짜 : {item.updated_at.substring(0, 10)}{"\n"}
+                                    {translate('creator')} : {item.authorName}{"\n"}
+                                    {translate('all')} : {item.occupants}{translate('people_count')}{"\n"}
+                                    {translate('update_date')} : {item.updated_at.substring(0, 10)}{"\n"}
                                 </NetmarbleL> 
                             </View>
                         </View>
@@ -303,11 +304,11 @@ export default class MakeDetail extends Component {
                         }
                     }
 
-                    ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_add_success'), ToastAndroid.SHORT);
                 }
                 else
                 {
-                    ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
                 }
             });
         }
@@ -327,11 +328,11 @@ export default class MakeDetail extends Component {
                         }
                     }
 
-                    ToastAndroid.show("삭제 완료되었습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_delete_success'), ToastAndroid.SHORT);
                 }
                 else
                 {
-                    ToastAndroid.show("오류가 발생하였습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
                 }
             });
         }
@@ -378,11 +379,11 @@ export default class MakeDetail extends Component {
                         }
                     }
 
-                    ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_add_success'), ToastAndroid.SHORT);
                 }
                 else
                 {
-                    ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
                 }
 
                 this.setState({
@@ -406,11 +407,11 @@ export default class MakeDetail extends Component {
                         }
                     }
 
-                    ToastAndroid.show("삭제 완료되었습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_delete_success'), ToastAndroid.SHORT);
                 }
                 else
                 {
-                    ToastAndroid.show("오류가 발생하였습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
                 }
             });
         }
@@ -450,9 +451,9 @@ export default class MakeDetail extends Component {
         if(this.state.search == null || this.state.search == "")
         {
             Alert.alert(
-                '오류',
-                '검색어를 입력해주세요.',
-                [{text: "확인"}]
+                translate('error'),
+                translate('msg_search_key_not_found'),
+                [{text: translate('ok')}]
             );
         }
         else
@@ -471,9 +472,9 @@ export default class MakeDetail extends Component {
             if(serachCheck.length == 0)
             {
                 Alert.alert(
-                    '오류',
-                    '검색결과가 존재하지 않습니다.',
-                    [{text: "확인"}]
+                    translate('error'),
+                    translate('msg_no_search_results'),
+                    [{text: translate('ok')}]
                 );
             }
             else
@@ -561,7 +562,7 @@ export default class MakeDetail extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -636,7 +637,7 @@ export default class MakeDetail extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -647,7 +648,7 @@ export default class MakeDetail extends Component {
                     <Icon
 					onPress={()=>Actions.pop()}
 					name="chevron-left" size={25} style={{color:"white"}}/>
-                    <NetmarbleM style={{color:"white"}}>제작정보</NetmarbleM>
+                    <NetmarbleM style={{color:"white"}}>{translate('make_info')}</NetmarbleM>
                     {this.state.refreshButton == false ?
                     <Icon
                     onPress={this.resetButton.bind(this)}
@@ -684,8 +685,8 @@ export default class MakeDetail extends Component {
                                 selectedValue = {this.state.option}
                                 onValueChange= {this.filter}
                             >
-                                <Picker.Item label = "아바타" value = "avatar" />
-                                <Picker.Item label = "월드" value = "world" />
+                                <Picker.Item label = {translate('avatar')} value = "avatar" />
+                                <Picker.Item label = {translate('world')} value = "world" />
                             </Picker>
                         </View>
                     </View>
@@ -697,15 +698,15 @@ export default class MakeDetail extends Component {
                     onBackdropPress={()=>this.setState({modalVisible:false})}>
                         {this.state.modalVisible == true ? 
                         <View style={{backgroundColor:"#fff",borderRadius:10}}>
-                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 0, null, this.state.getWorldsChooseId, false)}><NetmarbleL>Group 1</NetmarbleL></Button>
-                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 1, null, this.state.getWorldsChooseId, false)}><NetmarbleL>Group 2</NetmarbleL></Button>
-                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 2, null, this.state.getWorldsChooseId, false)}><NetmarbleL>Group 3</NetmarbleL></Button>
-                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 3, null, this.state.getWorldsChooseId, false)}><NetmarbleL>Group 4</NetmarbleL></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 0, null, this.state.getWorldsChooseId, false)}><NetmarbleL>{translate('group1')}</NetmarbleL></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 1, null, this.state.getWorldsChooseId, false)}><NetmarbleL>{translate('group2')}</NetmarbleL></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 2, null, this.state.getWorldsChooseId, false)}><NetmarbleL>{translate('group3')}</NetmarbleL></Button>
+                            <Button style={styles.groupButton} onPress={this.favoriteWorld.bind(this, 3, null, this.state.getWorldsChooseId, false)}><NetmarbleL>{translate('group4')}</NetmarbleL></Button>
                             <View style={{alignItems:"center"}}>
                                 <Button 
                                 onPress={()=>this.setState({modalVisible:false})}
                                 style={[styles.requestButton,{width:"20%",height:40,margin:10,justifyContent:"center"}]}>
-                                    <NetmarbleL>취소</NetmarbleL>
+                                    <NetmarbleL>{translate('cancel')}</NetmarbleL>
                                 </Button>
                             </View>
                         </View>

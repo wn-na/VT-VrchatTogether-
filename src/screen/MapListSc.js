@@ -23,6 +23,7 @@ import {MapTags, updateFavoriteMap, FavoriteWorld, drawModal} from '../utils/Map
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 import styles from '../css/css'
 import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
+import {translate} from '../translate/TranslateUtils';
 
 export default class MapListSc extends Component {
     constructor(props) {
@@ -81,9 +82,9 @@ export default class MapListSc extends Component {
         if(this.state.search == null || this.state.search == "")
         {
             Alert.alert(
-                '오류',
-                '검색어를 입력해주세요.',
-                [{text: "확인", onPress: () => null}]
+                translate('error'),
+                translate('msg_search_key_not_found'),
+                [{text: translate('ok'), onPress: () => null}]
             )
         }
         else
@@ -92,9 +93,9 @@ export default class MapListSc extends Component {
                     if(this.state.mapCount == 0)
                     {
                         Alert.alert(
-                            '오류',
-                            '검색결과가 존재하지 않습니다.',
-                            [{text: "확인", onPress: () => null}]
+                            translate('error'),
+                            translate('msg_no_search_results'),
+                            [{text: translate('ok'), onPress: () => null}]
                         );
                     }
                     else
@@ -151,7 +152,7 @@ export default class MapListSc extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -185,7 +186,7 @@ export default class MapListSc extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -202,7 +203,7 @@ export default class MapListSc extends Component {
                     <Icon
 					onPress={()=>Actions.pop()}
 					name="chevron-left" size={25} style={{color:"white"}}/>
-                    <NetmarbleM style={{color:"white"}}>맵 목록</NetmarbleM>
+                    <NetmarbleM style={{color:"white"}}>{translate('world_list')}</NetmarbleM>
                     {this.state.refreshButton == false ?
                     <Icon
                     onPress={this.resetButton.bind(this)}
@@ -218,7 +219,7 @@ export default class MapListSc extends Component {
                             value={this.state.search}
                             onChangeText={(text) => this.setState({search:text})}
                             onSubmitEditing={this.searchMap}
-                            placeholder={"맵 검색"}
+                            placeholder={translate('search_map')}
                             style={{width:"90%",height:50,fontFamily:"NetmarbleL"}}/>
                         <Icon 
                             onPress={() => this.searchMap}
@@ -297,9 +298,9 @@ export default class MapListSc extends Component {
                                     </View>
                                     <View>
                                         <NetmarbleL style={{lineHeight:30}}>
-                                            제작자 : {item.authorName}{"\n"}
-                                            전체 : {item.occupants}명{"\n"}
-                                            업데이트 날짜 : {item.updated_at.substring(0, 10)}{"\n"}
+                                            {translate('creator')} : {item.authorName}{"\n"}
+                                            {translate('all')} : {item.occupants}{translate('people_count')}{"\n"}
+                                            {translate('update_date')} : {item.updated_at.substring(0, 10)}{"\n"}
                                         </NetmarbleL> 
                                     </View>
                                 </View>

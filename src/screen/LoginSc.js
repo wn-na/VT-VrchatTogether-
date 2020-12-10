@@ -24,6 +24,7 @@ import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleB} from '../utils/CssUtils';
+import {translate, getLanguage} from '../translate/TranslateUtils';
 
 export default class LoginSc extends Component {
     constructor(props) {
@@ -36,8 +37,9 @@ export default class LoginSc extends Component {
             loginFail: null,
             isPermit: false,
             aniPosition: new Animated.ValueXY({x:0,y:0}),
-            loadingText:"로딩중..."
+            loadingText: translate('loading')
         };
+        getLanguage()
     }
 
     UNSAFE_componentWillMount() {
@@ -117,7 +119,7 @@ export default class LoginSc extends Component {
             {
                 this.setState({
                     loginCheck:true,
-                    loadingText: "잠시후 메인화면으로 이동합니다."
+                    loadingText: translate('msg_redirect_main')
                 });
                 setTimeout(()=>{
                     Actions.mainSc();
@@ -175,23 +177,23 @@ export default class LoginSc extends Component {
                                     <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
                                         <Icon name={"check-circle"} size={80} style={{color:"#279cff"}} />
                                     </Animated.View>
-                                    <NetmarbleL style={{color:"#279cff",fontSize:14,textAlign:"center"}}>로그인 성공</NetmarbleL>
+                                    <NetmarbleL style={{color:"#279cff",fontSize:14,textAlign:"center"}}>{translate('login_success')}</NetmarbleL>
                                 </View>
                                 : this.state.loginFail == false &&
                                 <View>
                                     <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
                                         <Icon name={"x-circle"} size={80} style={{color:"#fc9090"}} />
                                     </Animated.View>
-                                    <NetmarbleL style={{color:"#fc9090",fontSize:14,textAlign:"center"}}>아이디 혹은 비밀번호가 일치하지 않습니다.</NetmarbleL>
+                                    <NetmarbleL style={{color:"#fc9090",fontSize:14,textAlign:"center"}}>{translate('login_fail')}</NetmarbleL>
                                 </View>
                             }
                         </View>
                         <NetmarbleB style={{color:"#279cff",fontSize:35}}>
-                            Login
+                            {translate('login')}
                         </NetmarbleB>
                         <View style={styles.loginTextBox}>
                             <TextInput 
-                            placeholder="이메일을 입력해주세요."
+                            placeholder={translate('email_placeholder')}
                             value={this.state.id}
                             onChangeText={(text)=>this.setState({id:text})}
                             onSubmitEditing={() => { this.secondTextInput.focus(); }}
@@ -201,7 +203,7 @@ export default class LoginSc extends Component {
                         <View style={[styles.loginTextBox,{marginTop:20}]}>
                             <TextInput 
                             ref={(input) => { this.secondTextInput = input; }}
-                            placeholder="비밀번호을 입력해주세요."
+                            placeholder={translate('password_placeholder')}
                             value={this.state.pw}
                             onChangeText={(text)=>this.setState({pw:text})}
                             onSubmitEditing={this.login.bind(this)}
@@ -213,12 +215,12 @@ export default class LoginSc extends Component {
                             <Button
                             onPress={this.login.bind(this)}
                             style={[styles.requestButton,{width:"48%",borderWidth:0,backgroundColor:"#279cff"}]}>
-                            <NetmarbleB style={{color:"white"}}>로그인</NetmarbleB>
+                            <NetmarbleB style={{color:"white"}}>{translate('login')}</NetmarbleB>
                             </Button>
                             <Button
                             onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
                             style={[styles.requestButton,{width:"48%",borderWidth:0,elevation:0}]}>
-                            <NetmarbleB style={{color:"black"}}>회원가입</NetmarbleB>
+                            <NetmarbleB style={{color:"black"}}>{translate('register')}</NetmarbleB>
                             </Button>
                         </View>
                     </View>
@@ -227,27 +229,25 @@ export default class LoginSc extends Component {
                         <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
                             <View style={{alignItems:"center"}}>
                                 <NetmarbleB style={{fontSize:30}}>
-                                    안내
+                                {translate('information')}
                                 </NetmarbleB>
                                 <NetmarbleL style={{textAlign:"center"}}>
-                                    VT는 <NetmarbleB>비공식 앱</NetmarbleB>입니다.{"\n"}
-                                    앱을 악용할 경우 Vrchat 계정을 정지 당할 수 있습니다.
-                                    그에 따른 책임은 사용자에게 있으며, 해당 앱을 사용하는 것은
-                                    이 부분의 동의하는 것으로 간주합니다.{"\n"}
+                                    {translate('msg_agreement_first')}<NetmarbleB>{translate('msg_agreement_unoffice')}</NetmarbleB>{translate('msg_agreement_second')}{'\n'}
+                                    {translate('msg_agreement')}
                                 </NetmarbleL>
                                 <NetmarbleB>
-                                    동의 하시겠습니까?
+                                    {translate('msg_agree_yn')}
                                 </NetmarbleB>
                                 <View style={{flexDirection:"row"}}>
                                     <Button 
                                     onPress={this.permit.bind(this)}
                                     style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
-                                        <NetmarbleL>동의</NetmarbleL>
+                                        <NetmarbleL>{translate('agree')}</NetmarbleL>
                                     </Button>
                                     <Button 
                                     onPress={()=>BackHandler.exitApp()}
                                     style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
-                                        <NetmarbleL>비동의</NetmarbleL>
+                                        <NetmarbleL>{translate('disagree')}</NetmarbleL>
                                     </Button>
                                 </View>
                             </View>

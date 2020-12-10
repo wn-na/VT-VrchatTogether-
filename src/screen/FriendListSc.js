@@ -24,6 +24,7 @@ import { Col, Row } from "react-native-easy-grid";
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
+import {translate} from '../translate/TranslateUtils';
 
 export default class FriendListSc extends Component {
     constructor(props) {
@@ -157,9 +158,9 @@ export default class FriendListSc extends Component {
         if(this.state.search == null || this.state.search == "")
         {
             Alert.alert(
-                '오류',
-                '검색어를 입력해주세요.',
-                [{text: "확인"}]
+                translate('error'),
+                translate('msg_search_key_not_found'),
+                [{text: translate('ok')}]
             );
         }
         else
@@ -172,9 +173,9 @@ export default class FriendListSc extends Component {
             if(serachCheck.length == 0)
             {
                 Alert.alert(
-                    '오류',
-                    '검색결과가 존재하지 않습니다.',
-                    [{text: "확인"}]
+                    translate('error'),
+                    translate('msg_no_search_results'),
+                    [{text: translate('ok')}]
                 );
             }
             else
@@ -279,7 +280,7 @@ export default class FriendListSc extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -315,7 +316,7 @@ export default class FriendListSc extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -336,7 +337,7 @@ export default class FriendListSc extends Component {
                         <Icon
                         onPress={()=>Actions.pop()}
                         name="chevron-left" size={25} style={{color:"white"}}/>
-                        <NetmarbleM style={{color:"white"}}>친구목록</NetmarbleM>
+                        <NetmarbleM style={{color:"white"}}>{translate('friend_list')}</NetmarbleM>
                         {this.state.refreshButton == false ?
                         <Icon
                         onPress={this.resetButton.bind(this)}
@@ -351,20 +352,20 @@ export default class FriendListSc extends Component {
                             <Row>
                                 <Col>
                                     <NetmarbleL style={styles.friendsCount}>
-                                        전체{"\n"}
-                                        {this.state.allCount+"명"}
+                                        {translate('all')}{"\n"}
+                                        {this.state.allCount+translate('people_count')}
                                     </NetmarbleL>
                                 </Col>
                                 <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
                                     <NetmarbleL style={styles.friendsCount}>
-                                        온라인{"\n"}
-                                        {this.state.onCount+"명"}
+                                        {translate('online')}{"\n"}
+                                        {this.state.onCount+translate('people_count')}
                                     </NetmarbleL>
                                 </Col>
                                 <Col>
                                     <NetmarbleL style={styles.friendsCount}>
-                                        오프라인{"\n"}
-                                        {this.state.offCount+"명"}
+                                        {translate('offline')}{"\n"}
+                                        {this.state.offCount+translate('people_count')}
                                     </NetmarbleL>
                                 </Col>
                             </Row>
@@ -376,7 +377,7 @@ export default class FriendListSc extends Component {
                                 value={this.state.search}
                                 onChangeText={(text) => this.setState({search:text})}
                                 onSubmitEditing={this.search}
-                                placeholder={"이름 검색"}
+                                placeholder={translate('name_search')}
                                 style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
                             <Icon 
                                 onPress={this.search}
@@ -389,9 +390,9 @@ export default class FriendListSc extends Component {
                                 selectedValue = {this.state.option}
                                 onValueChange= {this.filter}
                             >
-                                <Picker.Item label = "모두보기" value = "all" />
-                                <Picker.Item label = "온라인" value = "on" />
-                                <Picker.Item label = "오프라인" value = "off" />
+                                <Picker.Item label = {translate('show_all')} value = "all" />
+                                <Picker.Item label = {translate('online')} value = "on" />
+                                <Picker.Item label = {translate('offline')} value = "off" />
                             </Picker>
                         </View>
                     </View>

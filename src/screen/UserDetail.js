@@ -20,6 +20,7 @@ import {UserGrade,UserGradeName} from '../utils/UserUtils';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPutBody, VRChatAPIPost, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleM,NetmarbleL,NetmarbleB,GodoR} from '../utils/CssUtils';
+import { translate } from "../translate/TranslateUtils";
 
 export default class UserDetail extends Component {
     constructor(props) {
@@ -135,14 +136,14 @@ export default class UserDetail extends Component {
                         isFavorite:true,
                         favoriteId:json.id
                     });
-                    ToastAndroid.show("등록이 완료되었습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_enroll_success'), ToastAndroid.SHORT);
                 }
                 else
                 {
                     this.setState({
                         modalVisible:false
                     });
-                    ToastAndroid.show("오류가 발생하였습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
                 }
             });
         }
@@ -154,7 +155,7 @@ export default class UserDetail extends Component {
                 this.setState({
                     isFavorite:false
                 })
-                ToastAndroid.show("삭제가 완료되었습니다.", ToastAndroid.SHORT);
+                ToastAndroid.show(translate('msg_delete_success'), ToastAndroid.SHORT);
             });
         }
     }
@@ -163,49 +164,49 @@ export default class UserDetail extends Component {
         if(type == true)
         {
             Alert.alert(
-                "안내",
-                "친구삭제 하시겠습니까?",
+                translate('information'),
+                translate('msg_delete_friend'),
                 [
-                    {text: "확인", onPress: () => {
+                    {text: translate('ok'), onPress: () => {
                         fetch(`https://api.vrchat.cloud/api/1/auth/user/friends/${id}`, VRChatAPIDelete)
                         .then((response) => response.json())
                         .then((json) => {
                             if(json.success.status_code == "200")
                             {
                                 this.state.getUserInfo.isFriend = false;
-                                ToastAndroid.show("삭제가 완료되었습니다.", ToastAndroid.SHORT);
+                                ToastAndroid.show(translate('msg_delete_success'), ToastAndroid.SHORT);
                             }
                             else
                             {
-                                ToastAndroid.show("삭제에 실패하였습니다.", ToastAndroid.SHORT);
+                                ToastAndroid.show(translate('msg_delete_fail'), ToastAndroid.SHORT);
                             }
                         });
                     }},
-                    {text: "취소"}
+                    {text: translate('cancel')}
                 ]
             );
         }
         else
         {
             Alert.alert(
-                "안내",
-                "친구신청을 보내시겠습니까?",
+                translate('information'),
+                translate('msg_send_friendrequest'),
                 [
-                    {text: "확인", onPress: () => {
+                    {text: translate('ok'), onPress: () => {
                         fetch(`https://api.vrchat.cloud/api/1/user/${id}/friendRequest`, VRChatAPIPost)
                         .then((response) => response.json())
                         .then((json) => {
                             if(json.name == "RateLimitError")
                             {
-                                ToastAndroid.show("알수없는 오류가 발생하였습니다.", ToastAndroid.SHORT);    
+                                ToastAndroid.show(translate('msg_unknown_error'), ToastAndroid.SHORT);    
                             }
                             else
                             {
-                                ToastAndroid.show("신청이 완료되었습니다.", ToastAndroid.SHORT);
+                                ToastAndroid.show(translate('msg_send_friendrequest_success'), ToastAndroid.SHORT);
                             }
                         });
                     }},
-                    {text: "취소"}
+                    {text: translate('cancel')}
                 ]
             );
         }
@@ -229,44 +230,44 @@ export default class UserDetail extends Component {
         if(this.state.isBlocked == false)
         {
             Alert.alert(
-                "안내",
+                translate('information'),
                 "블락하시겠습니까?",
                 [
-                    {text: "확인", onPress: () => {
+                    {text: translate('ok'), onPress: () => {
                         fetch(`https://api.vrchat.cloud/api/1/auth/user/blocks`, VRChatAPIPostBody({
                             "blocked":this.props.userId
                         }))
                         .then((response) => response.json())
                         .then(() => {
-                            ToastAndroid.show("처리가 완료되었습니다.", ToastAndroid.SHORT);
+                            ToastAndroid.show(translate('msg_success_process'), ToastAndroid.SHORT);
                             this.setState({
                                 isBlocked:true
                             })
                         });
                     }},
-                    {text: "취소"}
+                    {text: translate('cancel')}
                 ]
             );
         }
         else if(this.state.isBlocked == true)
         {
             Alert.alert(
-                "안내",
+                translate('information'),
                 "블락을 해제하시겠습니까?",
                 [
-                    {text: "확인", onPress: () => {
+                    {text: translate('ok'), onPress: () => {
                         fetch(`https://api.vrchat.cloud/api/1/auth/user/unblocks`, VRChatAPIPutBody({
                             "blocked":this.props.userId
                         }))
                         .then((response) => response.json())
                         .then((json) => {
-                            ToastAndroid.show("처리가 완료되었습니다.", ToastAndroid.SHORT);
+                            ToastAndroid.show(translate('msg_success_process'), ToastAndroid.SHORT);
                             this.setState({
                                 isBlocked:false
                             })
                         });
                     }},
-                    {text: "취소"}
+                    {text: translate('cancel')}
                 ]
             );
         }
@@ -285,7 +286,7 @@ export default class UserDetail extends Component {
                     name="chevron-left" size={25}
                     style={{color:"white",position:"absolute",left:15,top:10}}/>
                     <NetmarbleB style={{color:"white"}}>
-                        {this.props.isFriend == true ? "친구정보" : this.props.isFriend == false ? "제작자정보" : "유저정보"}
+                        {this.props.isFriend == true ? translate('friend_info') : this.props.isFriend == false ? translate('maker_info') : translate('user_info')}
                     </NetmarbleB>
                 </View>
                 {this.state.getUserInfo != null ? 
@@ -336,12 +337,12 @@ export default class UserDetail extends Component {
                                 onPress={this.friendRequest.bind(this,this.state.getUserInfo.id,this.state.getUserInfo.isFriend)}
                                 style={[{marginRight:15,width:"100%"},styles.requestButton]}
                             >
-                                <NetmarbleL>{this.state.getUserInfo.isFriend == true ? "친구삭제" : "친구신청"}</NetmarbleL>
+                                <NetmarbleL>{this.state.getUserInfo.isFriend == true ? translate('delete_friend') : translate('request_friend')}</NetmarbleL>
                             </Button>
                         </View>
                         {this.state.getUserWInfo != null ?
                             <View style={{marginTop:"2%"}}>
-                                <NetmarbleL style={{marginLeft:"5%",fontSize:20}}>현재 월드</NetmarbleL>
+                                <NetmarbleL style={{marginLeft:"5%",fontSize:20}}>{translate('now_world')}</NetmarbleL>
                                 <View style={styles.worldInfoDetail}>
                                     <View style={{
                                         position:"absolute",
@@ -377,11 +378,11 @@ export default class UserDetail extends Component {
                                         />
                                     </View>
                                     <NetmarbleL style={{lineHeight:25}}>
-                                        제작자 : {this.state.getUserWInfo.authorName}{"\n"}
-                                        접속중인 월드 인원 : {this.state.indiInfo.length != 0 ? this.state.indiInfo[0][1]+"/"+this.state.getUserWInfo.capacity : 
+                                        {translate('creator')} : {this.state.getUserWInfo.authorName}{"\n"}
+                                        {translate('online_world_user')} : {this.state.indiInfo.length != 0 ? this.state.indiInfo[0][1]+"/"+this.state.getUserWInfo.capacity : 
                                         this.state.getUserWInfo.capacity+"/"+this.state.getUserWInfo.capacity}{"\n"}
-                                        전체 : {this.state.getUserWInfo.occupants+" 명"}{"\n"}
-                                        업데이트 날짜 : {this.state.getUserWInfo.updated_at.substring(0,10)}
+                                        {translate('all')} : {this.state.getUserWInfo.occupants+" " + translate('people_count')}{"\n"}
+                                        {translate('update_date')} : {this.state.getUserWInfo.updated_at.substring(0,10)}
                                         {this.state.getUserWInfo.description != "" && this.state.getUserWInfo.description != null &&
                                         "\n"+"\n"+this.state.getUserWInfo.description}
                                     </NetmarbleL>
@@ -401,7 +402,7 @@ export default class UserDetail extends Component {
                                             <Button 
                                             onPress={()=>this.setState({modalVisible:false})}
                                             style={[styles.requestButton,{width:"20%",height:40,margin:10,justifyContent:"center"}]}>
-                                                <NetmarbleL>취소</NetmarbleL>
+                                                <NetmarbleL>{translate('cancel')}</NetmarbleL>
                                             </Button>
                                         </View>
                                     </View>

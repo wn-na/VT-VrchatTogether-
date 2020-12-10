@@ -21,6 +21,7 @@ import Modal from 'react-native-modal';
 import {VRChatAPIGet,VRChatAPIDelete,VRChatAPIPut} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
+import {translate} from '../translate/TranslateUtils';
 
 export default class AlertSc extends Component {
     constructor(props) {
@@ -60,10 +61,10 @@ export default class AlertSc extends Component {
         if(type == true)
         {
             Alert.alert(
-                "안내",
-                "친구신청을 수락하시겠습니까?",
+                translate('information'),
+                translate('msg_friendrequest'),
                 [
-                    {text: "확인", onPress: () => {
+                    {text: translate('ok'), onPress: () => {
                         fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications/${notiId}/accept`, VRChatAPIPut)
                         .then((response) => response.json())
                         .then((json) => {
@@ -73,35 +74,35 @@ export default class AlertSc extends Component {
                                     getAlerts: this.state.getAlerts.filter(v => v.id !== notiId)
                                 });
 
-                                ToastAndroid.show("수락이 완료되었습니다.", ToastAndroid.SHORT);
+                                ToastAndroid.show(translate('msg_success_friend_request'), ToastAndroid.SHORT);
                             }
                             else
                             {
-                                ToastAndroid.show("수락에 실패하였습니다.", ToastAndroid.SHORT);
+                                ToastAndroid.show(translate('msg_fail_friend_request'), ToastAndroid.SHORT);
                             }
                         });
                     }},
-                    {text: "취소"}
+                    {text: translate('cancel')}
                 ]
             );
         }
         else
         {
             Alert.alert(
-                "안내",
-                "친구신청을 거절하시겠습니까?",
+                translate('information'),
+                translate('msg_friendrequest_deny'),
                 [
-                    {text: "확인", onPress: () => {
+                    {text: translate('ok'), onPress: () => {
                         fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications/${notiId}/accept`, VRChatAPIDelete)
                         .then((response) => response.json())
                         .then(() => {
                             this.setState({
                                 getAlerts: this.state.getAlerts.filter(v => v.id !== notiId)
                             });
-                            ToastAndroid.show("거절이 완료되었습니다.", ToastAndroid.SHORT);
+                            ToastAndroid.show(translate('msg_deny_friend_request'), ToastAndroid.SHORT);
                         });
                     }},
-                    {text: "취소"}
+                    {text: translate('cancel')}
                 ]
             );
         }
@@ -113,9 +114,9 @@ export default class AlertSc extends Component {
         if(this.state.search == null || this.state.search == "")
         {
             Alert.alert(
-                '오류',
-                '검색어를 입력해주세요.',
-                [{text: "확인"}]
+                translate('error'),
+                translate('msg_search_key_not_found'),
+                [{text: translate('ok')}]
             );
         }
         else
@@ -131,9 +132,9 @@ export default class AlertSc extends Component {
             if(serachCheck.length == 0)
             {
                 Alert.alert(
-                    '오류',
-                    '검색결과가 존재하지 않습니다.',
-                    [{text: "확인"}]
+                    translate('error'),
+                    translate('msg_no_search_results'),
+                    [{text: translate('ok')}]
                 );
             }
         }
@@ -163,7 +164,7 @@ export default class AlertSc extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -197,7 +198,7 @@ export default class AlertSc extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -208,7 +209,7 @@ export default class AlertSc extends Component {
                     <Icon
 					onPress={()=>Actions.pop()}
 					name="chevron-left" size={25} style={{color:"white"}}/>
-                    <NetmarbleM style={{color:"white"}}>알림</NetmarbleM>
+                    <NetmarbleM style={{color:"white"}}>{translate('notice')}</NetmarbleM>
                     {this.state.refreshButton == false ?
                     <Icon
                     onPress={this.resetButton.bind(this)}
@@ -232,7 +233,7 @@ export default class AlertSc extends Component {
 								value={this.state.search}
 								onChangeText={(text) => this.setState({search:text})}
 								onSubmitEditing={this.search}
-								placeholder={"이름 검색"}
+								placeholder={translate('name_search')}
 								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
 							<Icon 
 								onPress={this.search}
@@ -258,12 +259,12 @@ export default class AlertSc extends Component {
                                     <Button 
                                     onPress={this.friendRequest.bind(this,item.id,true)}
                                     style={[{width:"48%"},styles.requestButton]}>
-                                        <NetmarbleL>수락</NetmarbleL>
+                                        <NetmarbleL>{translate('accept')}</NetmarbleL>
                                     </Button>
                                     <Button 
                                     onPress={this.friendRequest.bind(this,item.id,false)}
                                     style={[{width:"48%"},styles.requestButton]}>
-                                        <NetmarbleL>거절</NetmarbleL>
+                                        <NetmarbleL>{translate('reject')}</NetmarbleL>
                                     </Button>
                                 </View>
                             </TouchableOpacity>

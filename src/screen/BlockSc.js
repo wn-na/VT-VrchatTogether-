@@ -23,6 +23,7 @@ import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
 import styles from '../css/css';
 import {NetmarbleL, NetmarbleM} from '../utils/CssUtils';
+import {translate} from '../translate/TranslateUtils';
 
 export default class BlockSc extends Component {
     constructor(props) {
@@ -86,9 +87,9 @@ export default class BlockSc extends Component {
         if(this.state.search == null || this.state.search == "")
         {
             Alert.alert(
-                '오류',
-                '검색어를 입력해주세요.',
-                [{text: "확인"}]
+                translate('error'),
+                translate('msg_search_key_not_found'),
+                [{text: translate('ok')}]
             );
         }
         else
@@ -111,9 +112,9 @@ export default class BlockSc extends Component {
             if(serachCheck.length == 0)
             {
                 Alert.alert(
-                    '오류',
-                    '검색결과가 존재하지 않습니다.',
-                    [{text: "확인"}]
+                    translate('error'),
+                    translate('msg_no_search_results'),
+                    [{text: translate('ok')}]
                 );
             }
         }
@@ -198,7 +199,7 @@ export default class BlockSc extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -234,7 +235,7 @@ export default class BlockSc extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -245,7 +246,7 @@ export default class BlockSc extends Component {
                     <Icon
 					onPress={()=>Actions.pop()}
 					name="chevron-left" size={25} style={{color:"white"}}/>
-                    <NetmarbleM style={{color:"white"}}>블락관리</NetmarbleM>
+                    <NetmarbleM style={{color:"white"}}>{translate('block_manage')}</NetmarbleM>
                     {this.state.refreshButton == false ?
                     <Icon
                     onPress={this.resetButton.bind(this)}
@@ -269,7 +270,7 @@ export default class BlockSc extends Component {
 								value={this.state.search}
 								onChangeText={(text) => this.setState({search:text})}
 								onSubmitEditing={this.search}
-								placeholder={"이름 검색"}
+								placeholder={translate('name_search')}
 								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
 							<Icon 
 								onPress={this.search}
@@ -278,15 +279,15 @@ export default class BlockSc extends Component {
 					</View>
                     <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%",height:70}}>
                         <NetmarbleL style={{textAlignVertical:"center"}}>
-                            {this.state.option == "block" ? this.state.getBlock.length : this.state.getAgainst.length}  명
+                {this.state.option == "block" ? this.state.getBlock.length : this.state.getAgainst.length} {translate('people_count')}
                         </NetmarbleL>
                         <View style={[styles.selectView,{width:"45%"}]}>
                             <Picker 
                                 selectedValue = {this.state.option}
                                 onValueChange= {this.filter}
                             >
-                                <Picker.Item label = "내가 블락한" value = "block" />
-                                <Picker.Item label = "나를 블락한" value = "against" />
+                                <Picker.Item label = {translate('msg_block')} value = "block" />
+                                <Picker.Item label = {translate('msg_against')} value = "against" />
                             </Picker>
                         </View>
                     </View>

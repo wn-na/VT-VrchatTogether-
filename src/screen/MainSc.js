@@ -24,6 +24,7 @@ import {VRChatAPIGet, VRChatImage, VRChatAPIPut} from '../utils/ApiUtils';
 import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
 import styles from '../css/css';
 import {NetmarbleM,NetmarbleB,NetmarbleL} from '../utils/CssUtils';
+import {translate} from '../translate/TranslateUtils';
 
 export default class MainSc extends Component {
     constructor(props) {
@@ -65,8 +66,8 @@ export default class MainSc extends Component {
     logout = () =>
     {
         Alert.alert(
-            "안내",
-            "로그아웃 하시겠습니까?",
+            translate('information'),
+            translate('msg_logout'),
             [
                 {text: "확인", onPress: () => {
                     fetch(`https://api.vrchat.cloud/api/1/logout`, VRChatAPIPut)
@@ -75,7 +76,7 @@ export default class MainSc extends Component {
                         Actions.replace("loginSc");
                     });
                 }},
-                {text: "취소"}
+                {text: translate('cancel')}
             ]
         );
     }
@@ -132,7 +133,7 @@ export default class MainSc extends Component {
         }
         else
         {
-            ToastAndroid.show("새로고침은 5초에 한번 가능합니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_refresh_time'), ToastAndroid.SHORT);
         }
     }
 
@@ -188,8 +189,8 @@ export default class MainSc extends Component {
                                             <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"all"})}>
                                                 <NetmarbleL 
                                                 style={styles.friendsCount}>
-                                                    전체{"\n"}
-                                                    {this.state.allCount+"명"}
+                                                    {`${translate('all')}\n`}
+                                                    {`${this.state.allCount}${translate('people_count')}\n`}
                                                 </NetmarbleL>
                                             </TouchableOpacity>
                                         </Col>
@@ -197,8 +198,8 @@ export default class MainSc extends Component {
                                             <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"on"})}>
                                                 <NetmarbleL 
                                                 style={styles.friendsCount}>
-                                                    온라인{"\n"}
-                                                    {this.state.onCount+"명"}
+                                                    {`${translate('online')}\n`}
+                                                    {`${this.state.onCount}${translate('people_count')}\n`}
                                                 </NetmarbleL>
                                             </TouchableOpacity>
                                         </Col>
@@ -206,8 +207,8 @@ export default class MainSc extends Component {
                                             <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"off"})}>
                                                 <NetmarbleL 
                                                 style={styles.friendsCount}>
-                                                    오프라인{"\n"}
-                                                    {this.state.offCount+"명"}
+                                                    {`${translate('offline')}\n`}
+                                                    {`${this.state.offCount}${translate('people_count')}\n`}
                                                 </NetmarbleL>
                                             </TouchableOpacity>
                                         </Col>
@@ -220,13 +221,13 @@ export default class MainSc extends Component {
                         <Row>
                             <Col style={{alignItems:"flex-end"}}>
                                 <Button
-                                onPress={Actions.currentScene == "mainSc" && Actions.alertSc}
+                                onPress={() => Actions.currentScene == "mainSc" && Actions.alertSc}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/alert_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText}>알림</NetmarbleM>
+                                        <NetmarbleM style={styles.infoButtonText}>{translate('notice')}</NetmarbleM>
                                         {this.state.alertCount != 0 && 
                                             <View style={{
                                                 position:"absolute",
@@ -260,7 +261,7 @@ export default class MainSc extends Component {
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/friend_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText}>친구목록</NetmarbleM>
+                                        <NetmarbleM style={styles.infoButtonText}>{translate('friend_list')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -268,25 +269,25 @@ export default class MainSc extends Component {
                         <Row>
                             <Col style={{alignItems:"flex-end"}}>
                                 <Button
-                                onPress={Actions.currentScene == "mainSc" && Actions.favoriteSc({userId:this.state.getUserInfo.id})}
+                                onPress={() => Actions.currentScene == "mainSc" && Actions.favoriteSc({userId:this.state.getUserInfo.id})}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/favorite_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText}>즐겨찾기 관리</NetmarbleM>
+                                        <NetmarbleM style={styles.infoButtonText}>{translate('favorite_manage')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
                             <Col>
                                 <Button
-                                onPress={Actions.currentScene == "mainSc" && Actions.avatarListSc}
+                                onPress={() => Actions.currentScene == "mainSc" && Actions.avatarListSc}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/avatar_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText}>아바타 목록</NetmarbleM>
+                                        <NetmarbleM style={styles.infoButtonText}>{translate('avatar_list')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -294,25 +295,25 @@ export default class MainSc extends Component {
                         <Row>
                             <Col style={{alignItems:"flex-end"}}>
                                 <Button
-                                onPress={Actions.currentScene == "mainSc" && Actions.blockSc}
+                                onPress={() => Actions.currentScene == "mainSc" && Actions.blockSc}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/block_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText}>블락 관리</NetmarbleM>
+                                        <NetmarbleM style={styles.infoButtonText}>{translate('block_manage')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
                             <Col>
                                 <Button
-                                onPress={Actions.currentScene == "mainSc" && Actions.mapListSc({userId:this.state.getUserInfo.id})}
+                                onPress={() => Actions.currentScene == "mainSc" && Actions.mapListSc({userId:this.state.getUserInfo.id})}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/world_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText}>맵 목록</NetmarbleM>
+                                        <NetmarbleM style={styles.infoButtonText}>{translate('world_list')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -343,7 +344,7 @@ export default class MainSc extends Component {
                                     <Button 
                                     onPress={()=>this.setState({infoModal:false})}
                                     style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
-                                        <NetmarbleL>확인</NetmarbleL>
+                                        <NetmarbleL>{translate('ok')}</NetmarbleL>
                                     </Button>
                                 </View>
                             </View>

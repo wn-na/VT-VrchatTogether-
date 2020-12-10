@@ -47,6 +47,7 @@ import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleM,NetmarbleL} from '../utils/CssUtils';
+import {translate} from '../translate/TranslateUtils';
 
 export default class AvatarListSc extends Component {
 	constructor(props) {
@@ -178,11 +179,11 @@ export default class AvatarListSc extends Component {
                         }
                     }
 
-                    ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_add_success'), ToastAndroid.SHORT);
 				}
                 else
                 {
-                    ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
                 }
             });
         }
@@ -202,11 +203,11 @@ export default class AvatarListSc extends Component {
                         }
                     }
 
-                    ToastAndroid.show("삭제 완료되었습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_delete_success'), ToastAndroid.SHORT);
                 }
                 else
                 {
-                    ToastAndroid.show("오류가 발생하였습니다.", ToastAndroid.SHORT);
+                    ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
                 }
             });
         }
@@ -315,9 +316,9 @@ export default class AvatarListSc extends Component {
         if(this.state.search == null || this.state.search == "")
         {
             Alert.alert(
-                '오류',
-                '검색어를 입력해주세요.',
-                [{text: "확인"}]
+				translate('error'),
+				translate('msg_search_key_not_found'),
+                [{text: translate('ok')}]
             );
         }
         else
@@ -329,9 +330,9 @@ export default class AvatarListSc extends Component {
             if(serachCheck.length == 0)
             {
                 Alert.alert(
-                    '오류',
-                    '검색결과가 존재하지 않습니다.',
-                    [{text: "확인"}]
+                    translate('error'),
+					translate('msg_no_search_results'),
+                    [{text: translate('ok')}]
                 );
             }
             else
@@ -372,7 +373,7 @@ export default class AvatarListSc extends Component {
 					<Icon
 					onPress={()=>Actions.pop()}
 					name="chevron-left" size={25} style={{color:"white"}}/>
-					<NetmarbleM style={{color:"white"}}>아바타목록</NetmarbleM>
+					<NetmarbleM style={{color:"white"}}>{translate('avatar_list')}</NetmarbleM>
 					{this.state.refreshButton == false ?
 					<Icon
 					onPress={this.reset.bind(this)}
@@ -395,7 +396,7 @@ export default class AvatarListSc extends Component {
 								value={this.state.search}
 								onChangeText={(text) => this.setState({search:text})}
 								onSubmitEditing={this.search}
-								placeholder={"이름 검색"}
+								placeholder={translate('name_search')}
 								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
 							<Icon 
 								onPress={this.search}
@@ -417,7 +418,7 @@ export default class AvatarListSc extends Component {
 								alignItems:"center",
 								backgroundColor: "#5a82dc"
 							},styles.requestButton]}>
-								<NetmarbleL style={styles}>더보기</NetmarbleL>
+								<NetmarbleL style={styles}>{translate('more')}</NetmarbleL>
 							</Button>
 						</View>
 					:null}
