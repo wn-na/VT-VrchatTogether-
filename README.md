@@ -1,7 +1,7 @@
 # VT(Vrchat Together)
 This application is using React Native
 
-VT is uses unofficial VRChat API
+VT is uses unofficial VRChat API<br/>
 Abusing the unofficial can lead to your Vrchat account being ban.
 # Screenshots
 <div style="display:flex;flex-direction:row;">
