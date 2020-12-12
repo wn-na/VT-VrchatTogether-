@@ -4,7 +4,7 @@ export default {
     cancel : 'Cancel',
     msg_refresh_time : 'You can refresh once every 5 seconds.',
     all_user : 'All',
-    people_count : ' people',
+    people_count : '',
     online : 'Online',
     offline : 'Offline',
     notice : 'Notice',

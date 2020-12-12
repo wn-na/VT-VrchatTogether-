@@ -1,8 +1,10 @@
 import {AsyncStorage} from "react-native";
 import ko from './lang/ko.js'
 import en from './lang/en.js'
+import jp from './lang/jp.js'
+import { exp } from "react-native-reanimated";
 
-let languagepack = {ko, en}
+let languagepack = {ko, en, jp}
 
 const defaultLanguage = {language : 'ko'}
 let language = defaultLanguage.language
@@ -30,6 +32,12 @@ export function setLanguage(lang){
         language = defaultLanguage.language
     }
     AsyncStorage.setItem("setting_language", language)
+}
+
+export function userLang(lang){
+    AsyncStorage.setItem("user_lang", lang);
+    setLanguage(lang);
+    getLanguage();
 }
 
 export function translate(key) {

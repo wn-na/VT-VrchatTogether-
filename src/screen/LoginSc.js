@@ -24,19 +24,36 @@ import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleB} from '../utils/CssUtils';
-import {translate, getLanguage, setLanguage} from '../translate/TranslateUtils';
+import {translate, getLanguage, setLanguage, userLang} from '../translate/TranslateUtils';
 
 export default class LoginSc extends Component {
     constructor(props) {
         super(props);
-        getLanguage()
-
+        AsyncStorage.getItem("user_lang",(err, value)=>{
+            if(value != null)
+            {
+                getLanguage();
+                setLanguage(value);
+                this.loginCheck();
+                this.setState({
+                    langCheck: false,
+                });
+            }
+            else
+            {
+                this.setState({
+                    langCheck: true
+                });
+                getLanguage();
+            }
+        });
         this.state = {
             id: "",
             pw: "",
             loginCheck: true,
             loginFail: null,
             isPermit: false,
+            langCheck: true,
             aniPosition: new Animated.ValueXY({x:0,y:0}),
             loadingText: translate('loading')
         };
@@ -53,7 +70,6 @@ export default class LoginSc extends Component {
                 isPermit:value == "check" ? false : true
             });
         });
-        this.loginCheck();
     }
 
     componentWillUnmount() {
@@ -106,7 +122,8 @@ export default class LoginSc extends Component {
         AsyncStorage.setItem("permit_check", "check");
         
         this.setState({
-            isPermit: false
+            isPermit: false,
+            langCheck: true,
         });
     }
 
@@ -162,9 +179,45 @@ export default class LoginSc extends Component {
         });
     }
     
+    langSelect(lang) {
+        userLang(lang);
+        this.setState({
+            langCheck: false
+        });
+
+        this.loginCheck();
+    }
+
     render() {
         return (
-            this.state.loginCheck == false ?
+            this.state.langCheck == true ?
+            <Modal
+            isVisible={this.state.langCheck}>
+                <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
+                    <View style={{alignItems:"center"}}>
+                        <View style={{flexDirection:"row",justifyContent:"space-around",width:"100%"}}>
+                            <Button
+                            onPress={this.langSelect.bind(this,'kr')}
+                            style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
+                            <NetmarbleB style={{color:"white"}}>한국어</NetmarbleB>
+                            </Button>
+                            <Button
+                            onPress={this.langSelect.bind(this,'en')}
+                            style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
+                            <NetmarbleB style={{color:"white"}}>English</NetmarbleB>
+                            </Button>
+                            <Button
+                            onPress={this.langSelect.bind(this,'jp')}
+                            style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
+                            <NetmarbleB style={{color:"white"}}>日本語</NetmarbleB>
+                            </Button>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+            :
+            this.state.loginCheck == false
+            ?
             <View style={{flex:1}}>
                 <ImageBackground
                 style={{width:"100%",height:"100%"}}
