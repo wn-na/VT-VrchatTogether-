@@ -352,7 +352,7 @@ export default class FriendListSc extends Component {
                             <Row>
                                 <Col>
                                     <NetmarbleL style={styles.friendsCount}>
-                                        {translate('all')}{"\n"}
+                                        {translate('all_user')}{"\n"}
                                         {this.state.allCount+translate('people_count')}
                                     </NetmarbleL>
                                 </Col>

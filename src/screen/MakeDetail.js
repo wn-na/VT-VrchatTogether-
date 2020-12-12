@@ -672,7 +672,7 @@ export default class MakeDetail extends Component {
 								value={this.state.search}
 								onChangeText={(text) => this.setState({search:text})}
 								onSubmitEditing={this.search}
-								placeholder={"검색"}
+								placeholder={translate('search')}
 								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
 							<Icon 
 								onPress={this.search}

@@ -24,11 +24,12 @@ import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleB} from '../utils/CssUtils';
-import {translate, getLanguage} from '../translate/TranslateUtils';
+import {translate, getLanguage, setLanguage} from '../translate/TranslateUtils';
 
 export default class LoginSc extends Component {
     constructor(props) {
         super(props);
+        getLanguage()
 
         this.state = {
             id: "",
@@ -39,7 +40,6 @@ export default class LoginSc extends Component {
             aniPosition: new Animated.ValueXY({x:0,y:0}),
             loadingText: translate('loading')
         };
-        getLanguage()
     }
 
     UNSAFE_componentWillMount() {

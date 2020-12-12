@@ -231,7 +231,7 @@ export default class UserDetail extends Component {
         {
             Alert.alert(
                 translate('information'),
-                "블락하시겠습니까?",
+                translate('msg_block_user'),
                 [
                     {text: translate('ok'), onPress: () => {
                         fetch(`https://api.vrchat.cloud/api/1/auth/user/blocks`, VRChatAPIPostBody({
@@ -253,7 +253,7 @@ export default class UserDetail extends Component {
         {
             Alert.alert(
                 translate('information'),
-                "블락을 해제하시겠습니까?",
+                translate('msg_release_block_user'),
                 [
                     {text: translate('ok'), onPress: () => {
                         fetch(`https://api.vrchat.cloud/api/1/auth/user/unblocks`, VRChatAPIPutBody({

@@ -69,7 +69,7 @@ export default class MainSc extends Component {
             translate('information'),
             translate('msg_logout'),
             [
-                {text: "확인", onPress: () => {
+                {text: translate('ok'), onPress: () => {
                     fetch(`https://api.vrchat.cloud/api/1/logout`, VRChatAPIPut)
                     .then((response) => response.json())
                     .then(() => {
@@ -189,7 +189,7 @@ export default class MainSc extends Component {
                                             <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"all"})}>
                                                 <NetmarbleL 
                                                 style={styles.friendsCount}>
-                                                    {`${translate('all')}\n`}
+                                                    {`${translate('all_user')}\n`}
                                                     {`${this.state.allCount}${translate('people_count')}\n`}
                                                 </NetmarbleL>
                                             </TouchableOpacity>
@@ -330,10 +330,10 @@ export default class MainSc extends Component {
                         <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
                             <View style={{alignItems:"center"}}>
                                 <NetmarbleL style={{textAlign:"center"}}>
-                                    총괄 : Aboa{"\n"}
-                                    개발자 : [ leth, 늦잠 ]{"\n"}
-                                    디자이너 : [ 세르뀨, 은혜 ]{"\n"}
-                                    테스터 : [ Excite, きゆ, 옌딩 ]{"\n"}{"\n"}
+                                    {translate('pm')} : Aboa{"\n"}
+                                    {translate('developer')} : [ leth, 늦잠 ]{"\n"}
+                                    {translate('designer')} : [ 세르뀨, 은혜 ]{"\n"}
+                                    {translate('tester')} : [ Excite, きゆ, 옌딩 ]{"\n"}{"\n"}
 
                                     <Image 
                                     style={{width:30,height:30}}
