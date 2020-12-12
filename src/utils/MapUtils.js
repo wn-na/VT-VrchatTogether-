@@ -46,6 +46,7 @@ import { Actions } from 'react-native-router-flux';
 import {VRChatAPIDelete, VRChatAPIGet, VRChatAPIPostBody, VRChatAPIPut, VRChatImage} from '../utils/ApiUtils'
 import styles from '../css/css';
 import {NetmarbleL} from '../utils/CssUtils';
+import {translate} from '../translate/TranslateUtils'
 
 export let FavoriteWorld = new Map();
 export let FavoriteWorldTag = new Map();
@@ -94,11 +95,11 @@ addFavoriteWorld = (state, item, tags) => {
     then(responseJson => {
         if(!responseJson.error) {
             FavoriteWorld.set(responseJson.favoriteId, {...item, favoriteId : responseJson.id})
-            ToastAndroid.show("추가 완료되었습니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_add_success'), ToastAndroid.SHORT);
         }
         else
         {
-            ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
         }
         state.toggleModal()
     })
@@ -111,11 +112,11 @@ deleteFavoiriteWorld = (state, item) => {
         if(!responseJson.error) {
             FavoriteWorld.delete(item.id);
             state.tmp();
-            ToastAndroid.show("삭제 완료되었습니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_delete_success'), ToastAndroid.SHORT);
         }
         else
         {
-            ToastAndroid.show("오류가 발생했습니다.", ToastAndroid.SHORT);
+            ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
         }
     });
 }
@@ -134,7 +135,7 @@ drawWorldTagList = (state, item) => {
             key={FavoriteWorldTag.get(element)}
             onPress={() => this.addFavoriteWorld(state, item, element)}
             style={[styles.groupButton,{width:"90%"}]}>
-            <NetmarbleL style={{color:"#000"}}>Group {String(idx + 1)}</NetmarbleL>
+            <NetmarbleL style={{color:"#000"}}>{element}</NetmarbleL>
         </Button>
     )
 }
@@ -152,7 +153,7 @@ export function drawModal(state) {
                         <Button
                         style={[styles.requestButton,{width:"80%",height:40,margin:10,justifyContent:"center"}]}
                         onPress={()=>state.toggleModal()}>
-                            <NetmarbleL>취소</NetmarbleL>
+                            <NetmarbleL>{translate('cancel')}</NetmarbleL>
                         </Button>
                     </View>
                 </View>
@@ -179,11 +180,11 @@ DrawMap = (state, item) =>
             </View>
         </View>   
         <View style={{marginLeft:"3%"}}>
-            <Text>맵 이름 : {item.name}</Text>
-            <Text>맵 정보 : {item.releaseStatus}</Text>
-            {item.publicOccupants !== undefined ? <Text>접속중인 월드 인원수 : {item.publicOccupants}</Text> : null}
-            <Text>맵 전체 인원수 : {item.occupants}</Text>
-            <Text>마지막 업데이트 날짜 : {Moment(item.updated_at).format('LLLL')}</Text> 
+            <Text>{translate('map_name')} : {item.name}</Text>
+            <Text>{translate('map_info')} : {item.releaseStatus}</Text>
+            {item.publicOccupants !== undefined ? <Text>{translate('map_user')} : {item.publicOccupants}</Text> : null}
+            <Text>{translate('map_all_user')} : {item.occupants}</Text>
+            <Text>{translate('map_last_update')} : {Moment(item.updated_at).format('LLLL')}</Text> 
         </View>
     </View>)
 

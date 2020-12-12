@@ -80,5 +80,10 @@ export default {
     pm : '총괄',
     developer : '개발자',
     designer : '디자이너',
-    tester : '테스터'
+    tester : '테스터',
+    map_name : '맵 이름',
+    map_info : '맵 정보',
+    map_user : '접속중인 월드 인원수',
+    map_all_user : '맵 전체 인원수',
+    map_last_update : '마지막 업데이트 날짜'
 }

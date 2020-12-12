@@ -80,5 +80,10 @@ export default {
     pm : "Project Manager",
     developer : 'Developer',
     designer : 'Designer',
-    tester : 'Tester'
+    tester : 'Tester',
+    map_name : 'World Name',
+    map_info : 'World Info',
+    map_user : 'Connected user',
+    map_all_user : 'World Population',
+    map_last_update : 'Last Update'
 }
