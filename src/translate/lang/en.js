@@ -85,5 +85,11 @@ export default {
     map_info : 'World Info',
     map_user : 'Connected user',
     map_all_user : 'World Population',
-    map_last_update : 'Last Update'
+    map_last_update : 'Last Update',
+    option : 'option',
+    fake_image : 'Use Alternate Image',
+    high_image : 'Using high-resolution Image',
+    lang_option : 'language setting',
+    homepage : 'homepage',
+    logout : 'logout',
 }

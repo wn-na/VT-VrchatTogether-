@@ -268,5 +268,32 @@ export default StyleSheet.create({
         paddingRight:"2%",
         marginLeft:"2%",
         marginRight:"2%"
+    },
+    userOption: {
+        flex:1,
+        padding:20,
+        margin:10,
+        borderBottomWidth:3,
+        borderColor:"#dcdcdc"
+    },
+    userOptionBox: {
+        flexDirection:"row",
+        marginTop:20
+    },
+    setting: {
+        flex:5,
+        padding:20
+    },
+    settingMenu: {
+        flexDirection:"row",
+        alignItems:"center",
+        marginTop:10,
+        marginBottom:10
+    },
+    settingMenuImage: {
+        marginRight: 5,
+        width:40,
+        height:40,
+        resizeMode:"contain"
     }
 });

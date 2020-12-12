@@ -14,6 +14,8 @@ import BlockSc from './src/screen/BlockSc';
 
 import MakeDetail from './src/screen/MakeDetail';
 
+import Option from './src/screen/Option';
+
 console.disableYellowBox = true;
 export default  class App extends Component {
     
@@ -61,6 +63,7 @@ export default  class App extends Component {
                 <Scene key="blockSc" hideNavBar={true} component={BlockSc} />
                 <Scene key="mapListSc" hideNavBar={true} component={MapListSc} />
                 <Scene key="makeDetail" hideNavBar={true} component={MakeDetail} />
+                <Scene key="option" hideNavBar={true} component={Option} />
             </Scene>
         </Router>
     }

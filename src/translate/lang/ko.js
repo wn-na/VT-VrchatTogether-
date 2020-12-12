@@ -85,5 +85,11 @@ export default {
     map_info : '맵 정보',
     map_user : '접속중인 월드 인원수',
     map_all_user : '맵 전체 인원수',
-    map_last_update : '마지막 업데이트 날짜'
+    map_last_update : '마지막 업데이트 날짜',
+    option : '옵션',
+    fake_image : '대체 이미지 사용',
+    high_image : '고해상도 이미지 사용',
+    lang_option : '언어 설정',
+    homepage : '홈페이지',
+    logout : '로그아웃',
 }

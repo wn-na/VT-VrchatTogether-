@@ -62,25 +62,6 @@ export default class MainSc extends Component {
     componentDidMount() {
     }
 
-    // 로그아웃 처리
-    logout = () =>
-    {
-        Alert.alert(
-            translate('information'),
-            translate('msg_logout'),
-            [
-                {text: translate('ok'), onPress: () => {
-                    fetch(`https://api.vrchat.cloud/api/1/logout`, VRChatAPIPut)
-                    .then((response) => response.json())
-                    .then(() => {
-                        Actions.replace("loginSc");
-                    });
-                }},
-                {text: translate('cancel')}
-            ]
-        );
-    }
-
     // 자기정보 가져옴
     async getUserInfo ()
     {
@@ -152,7 +133,7 @@ export default class MainSc extends Component {
                 <ImageBackground
                 style={{width:"100%",height:"100%"}}
                 source={require("../css/imgs/main_background.png")}>
-                    <View style={{flex:2,zIndex:2}}>
+                    <View style={{flex:2}}>
                         <View style={styles.myInfo}>
                             <View style={{flexDirection:"row"}}>
                                 <View style={{marginTop:-20}}>
@@ -166,14 +147,10 @@ export default class MainSc extends Component {
                                 </View>
                                 <View style={{position:"absolute",right:"0%",zIndex:1,flexDirection:"row"}}>
                                     <TouchableOpacity
-                                    onPress={()=>this.setState({infoModal:true})}>
-                                        <Icon
-                                        size={25} name={"light-bulb"} style={{color:"#c4c4c4",marginRight:10}}/>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                    onPress={this.logout.bind(this)}>
-                                        <Icon
-                                        size={25} name={"log-out"} style={{color:"#2b3956"}}/>
+                                    onPress={()=> Actions.currentScene == "mainSc" && Actions.option()}>
+                                        <Image 
+                                        style={{width:30,height:30}}
+                                        source={require('../css/imgs/option.png')}/>
                                     </TouchableOpacity>
                                 </View>
                                 <NetmarbleL style={styles.myInfoText}>

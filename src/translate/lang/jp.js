@@ -85,5 +85,11 @@ export default {
     map_info : 'マップ情報',
     map_user : '接続中のワールド人数',
     map_all_user : 'マップ全人数',
-    map_last_update : '最後のアップデート日'
+    map_last_update : '最後のアップデート日',
+    option : 'オプション',
+    fake_image : '代替イメージ使用',
+    high_image : '高解像度イメージ使用',
+    lang_option : '言語設定',
+    homepage : 'ホームページ',
+    logout : 'ログアウト',
 }
