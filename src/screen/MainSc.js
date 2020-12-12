@@ -221,7 +221,7 @@ export default class MainSc extends Component {
                         <Row>
                             <Col style={{alignItems:"flex-end"}}>
                                 <Button
-                                onPress={() => Actions.currentScene == "mainSc" && Actions.alertSc}
+                                onPress={() => Actions.currentScene == "mainSc" && Actions.alertSc()}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
@@ -281,7 +281,7 @@ export default class MainSc extends Component {
                             </Col>
                             <Col>
                                 <Button
-                                onPress={() => Actions.currentScene == "mainSc" && Actions.avatarListSc}
+                                onPress={() => Actions.currentScene == "mainSc" && Actions.avatarListSc()}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
@@ -295,7 +295,7 @@ export default class MainSc extends Component {
                         <Row>
                             <Col style={{alignItems:"flex-end"}}>
                                 <Button
-                                onPress={() => Actions.currentScene == "mainSc" && Actions.blockSc}
+                                onPress={() => Actions.currentScene == "mainSc" && Actions.blockSc()}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
                                         <Image 
