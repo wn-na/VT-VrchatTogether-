@@ -13,7 +13,8 @@ import {
     Dimensions,
     Alert,
     ActivityIndicator,
-    ToastAndroid
+    ToastAndroid,
+    AsyncStorage
 } from "react-native"
 import Icon from "react-native-vector-icons/Entypo"
 import { Actions } from 'react-native-router-flux'
@@ -43,7 +44,9 @@ export default class MapListSc extends Component {
             update : false,
             updateFunction : () => this.setState({update : !this.state.update}),
             // 업데이트용 tmp 변수
-            tmp : () => this.setState({tmp:null})
+            tmp : () => this.setState({tmp:null}),
+            fake_image: "none",
+            high_image: "none",
         };
     }
 
@@ -70,7 +73,17 @@ export default class MapListSc extends Component {
 
 
     UNSAFE_componentWillMount() {
-        this.searchTagMap()
+        this.searchTagMap();
+        AsyncStorage.getItem("user_high_image",(err,value)=>{
+            this.setState({
+                high_image: value
+            });
+        });
+        AsyncStorage.getItem("user_fake_image",(err,value)=>{
+            this.setState({
+                fake_image: value
+            });
+        });
     }
 
     componentWillUnmount() {
@@ -289,9 +302,20 @@ export default class MapListSc extends Component {
                                                         height: parseInt(Dimensions.get('window').width / 100 * 50),
                                                         borderRadius:5,
                                                         marginTop:"5%",
-                                                        marginBottom:"5%"
+                                                        marginBottom:"5%",
+                                                        resizeMode:"contain"
                                                     }}
-                                                    source={VRChatImage(item.thumbnailImageUrl)}
+                                                    source={
+                                                        this.state.high_image == "check"
+                                                        ?
+                                                        VRChatImage(item.imageUrl)
+                                                        :
+                                                        this.state.fake_image == "check"
+                                                        ?
+                                                        require("../css/imgs/data_safe.png")
+                                                        :
+                                                        VRChatImage(item.thumbnailImageUrl)
+                                                    }
                                                 />
                                             </View>
                                         </View>

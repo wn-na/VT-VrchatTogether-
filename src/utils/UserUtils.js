@@ -1,3 +1,5 @@
+import {AsyncStorage} from 'react-native'
+
 export const UserTagColor = {
     'system_legend': '#f8bc3a',
     'system_trust_legend': '#be64a5',

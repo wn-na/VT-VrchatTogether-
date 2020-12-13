@@ -43,7 +43,7 @@ export default class MainSc extends Component {
             refreshTime:false,
             exitApp:false,
             modalVisible:true,
-            infoModal:false
+            langChcek : false,
         };
     }
 
@@ -60,6 +60,15 @@ export default class MainSc extends Component {
     }
 
     componentDidMount() {
+    }
+
+    changeLang() {
+        this.setState({
+            lang: !this.state.lang
+        });
+        return this.setState({
+            lang: !this.state.lang
+        });
     }
 
     // 자기정보 가져옴
@@ -147,7 +156,7 @@ export default class MainSc extends Component {
                                 </View>
                                 <View style={{position:"absolute",right:"0%",zIndex:1,flexDirection:"row"}}>
                                     <TouchableOpacity
-                                    onPress={()=> Actions.currentScene == "mainSc" && Actions.option()}>
+                                    onPress={()=> Actions.currentScene == "mainSc" && Actions.option({changeLang:this.changeLang.bind(this)})}>
                                         <Image 
                                         style={{width:30,height:30}}
                                         source={require('../css/imgs/option.png')}/>
@@ -299,33 +308,6 @@ export default class MainSc extends Component {
                     <Modal
                     isVisible={this.state.modalVisible}>
                         <ActivityIndicator size={100}/>
-                    </Modal>
-                    <Modal
-                    onBackButtonPress={()=>this.setState({infoModal:false})}
-                    onBackdropPress={()=>this.setState({infoModal:false})}
-                    isVisible={this.state.infoModal}>
-                        <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
-                            <View style={{alignItems:"center"}}>
-                                <NetmarbleL style={{textAlign:"center"}}>
-                                    {translate('pm')} : Aboa{"\n"}
-                                    {translate('developer')} : [ leth, 늦잠 ]{"\n"}
-                                    {translate('designer')} : [ 세르뀨, 은혜 ]{"\n"}
-                                    {translate('tester')} : [ Excite, きゆ, 옌딩 ]{"\n"}{"\n"}
-
-                                    <Image 
-                                    style={{width:30,height:30}}
-                                    source={require('../css/imgs/discord.png')}/>
-                                    {"  "}Aboa#9076{"\n"}
-                                </NetmarbleL>
-                                <View style={{flexDirection:"row"}}>
-                                    <Button 
-                                    onPress={()=>this.setState({infoModal:false})}
-                                    style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
-                                        <NetmarbleL>{translate('ok')}</NetmarbleL>
-                                    </Button>
-                                </View>
-                            </View>
-                        </View>
                     </Modal>
                 </ImageBackground>
             </ScrollView>

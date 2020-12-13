@@ -15,7 +15,8 @@ import {
     TouchableOpacity,
     RefreshControl,
     ToastAndroid,
-    ActivityIndicator
+    ActivityIndicator,
+    AsyncStorage
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import Modal from 'react-native-modal';
@@ -43,6 +44,8 @@ export default class MakeDetail extends Component {
             option:"avatar",
             modalVisible:false,
             modalLoading:true,
+            fake_image: "none",
+            high_image: "none",
         };
     }
 
@@ -94,6 +97,16 @@ export default class MakeDetail extends Component {
             this.setState({
                 modalLoading: false
             })
+        });
+        AsyncStorage.getItem("user_high_image",(err,value)=>{
+            this.setState({
+                high_image: value
+            });
+        });
+        AsyncStorage.getItem("user_fake_image",(err,value)=>{
+            this.setState({
+                fake_image: value
+            });
         });
     }
 
@@ -178,9 +191,18 @@ export default class MakeDetail extends Component {
                 <View style={styles.avatarListView}>
                     <View>
                         <Image
-                            style={{width: 100, height: 100, borderRadius:20}} 
-                            source={VRChatImage(item.thumbnailImageUrl)}
-                        />
+                        style={{width: 100, height: 100, borderRadius:20}} 
+                        source={
+                            this.state.high_image == "check"
+                            ?
+                            VRChatImage(item.imageUrl)
+                            :
+                            this.state.fake_image == "check"
+                            ?
+                            require("../css/imgs/data_safe.png")
+                            :
+                            VRChatImage(item.thumbnailImageUrl)
+                        }/>
                     </View>
                     <View style={{width:"100%",marginLeft:"3%"}}>
                         <NetmarbleL style={{width:"70%",lineHeight:30}}>
@@ -257,15 +279,25 @@ export default class MakeDetail extends Component {
                                             </TouchableOpacity>
                                         }
                                         <Image
-                                            style={{
-                                                width: parseInt(Dimensions.get('window').width / 100 * 72), 
-                                                height: parseInt(Dimensions.get('window').width / 100 * 50),
-                                                borderRadius:5,
-                                                marginTop:"5%",
-                                                marginBottom:"5%"
-                                            }}
-                                            source={VRChatImage(item.thumbnailImageUrl)}
-                                        />
+                                        style={{
+                                            width: parseInt(Dimensions.get('window').width / 100 * 72), 
+                                            height: parseInt(Dimensions.get('window').width / 100 * 50),
+                                            borderRadius:5,
+                                            marginTop:"5%",
+                                            marginBottom:"5%",
+                                            resizeMode:"contain"
+                                        }}
+                                        source={
+                                            this.state.high_image == "check"
+                                            ?
+                                            VRChatImage(item.imageUrl)
+                                            :
+                                            this.state.fake_image == "check"
+                                            ?
+                                            require("../css/imgs/data_safe.png")
+                                            :
+                                            VRChatImage(item.thumbnailImageUrl)
+                                        }/>
                                     </View>
                                 </View>
                             </View>

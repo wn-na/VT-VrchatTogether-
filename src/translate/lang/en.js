@@ -77,6 +77,7 @@ export default {
     online_world_user : 'Online Connected User',
     msg_block_user : 'Would you like to block this user?',
     msg_release_block_user : 'Would you like to unblock this user?',
+    dev_info : 'Creator',
     pm : "Project Manager",
     developer : 'Developer',
     designer : 'Designer',

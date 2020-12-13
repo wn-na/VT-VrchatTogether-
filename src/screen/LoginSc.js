@@ -30,6 +30,7 @@ export default class LoginSc extends Component {
     constructor(props) {
         super(props);
         AsyncStorage.getItem("user_lang",(err, value)=>{
+            console.log(value);
             if(value != null)
             {
                 getLanguage();
@@ -123,7 +124,7 @@ export default class LoginSc extends Component {
         
         this.setState({
             isPermit: false,
-            langCheck: true,
+            langCheck: false,
         });
     }
 
@@ -195,21 +196,21 @@ export default class LoginSc extends Component {
             isVisible={this.state.langCheck}>
                 <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
                     <View style={{alignItems:"center"}}>
-                        <View style={{flexDirection:"row",justifyContent:"space-around",width:"100%"}}>
+                        <View style={{flexDirection:"column",width:"100%"}}>
                             <Button
                             onPress={this.langSelect.bind(this,'kr')}
                             style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
-                            <NetmarbleB style={{color:"white"}}>한국어</NetmarbleB>
+                                <NetmarbleB style={{color:"white"}}>한국어</NetmarbleB>
                             </Button>
                             <Button
                             onPress={this.langSelect.bind(this,'en')}
-                            style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
-                            <NetmarbleB style={{color:"white"}}>English</NetmarbleB>
+                            style={[styles.requestButton,{marginTop:10,marginBottom:10,borderWidth:0,backgroundColor:"#279cff"}]}>
+                                <NetmarbleB style={{color:"white"}}>English</NetmarbleB>
                             </Button>
                             <Button
                             onPress={this.langSelect.bind(this,'jp')}
                             style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
-                            <NetmarbleB style={{color:"white"}}>日本語</NetmarbleB>
+                                <NetmarbleB style={{color:"white"}}>日本語</NetmarbleB>
                             </Button>
                         </View>
                     </View>
@@ -294,12 +295,12 @@ export default class LoginSc extends Component {
                                 <View style={{flexDirection:"row"}}>
                                     <Button 
                                     onPress={this.permit.bind(this)}
-                                    style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
+                                    style={[styles.requestButton,{width:"40%",height:40,margin:10,justifyContent:"center"}]}>
                                         <NetmarbleL>{translate('agree')}</NetmarbleL>
                                     </Button>
                                     <Button 
                                     onPress={()=>BackHandler.exitApp()}
-                                    style={[styles.requestButton,{width:"30%",height:40,margin:10,justifyContent:"center"}]}>
+                                    style={[styles.requestButton,{width:"40%",height:40,margin:10,justifyContent:"center"}]}>
                                         <NetmarbleL>{translate('disagree')}</NetmarbleL>
                                     </Button>
                                 </View>

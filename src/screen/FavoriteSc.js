@@ -26,6 +26,7 @@ import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
+import AsyncStorage from "@react-native-community/async-storage";
 
 export default class FavoriteSc extends Component {
     constructor(props) {
@@ -49,7 +50,9 @@ export default class FavoriteSc extends Component {
             getWorldsChooseId: null,
             getWorldsGroup: [],
             selectedGroupKey: null,
-            listIndex: 0
+            listIndex: 0,
+            fake_image: "none",
+            high_image: "none",
         };
     }
 
@@ -58,6 +61,16 @@ export default class FavoriteSc extends Component {
         .then(() => {
             this.setState({
                 modalLoding: false
+            });
+        });
+        AsyncStorage.getItem("user_high_image",(err,value)=>{
+            this.setState({
+                high_image: value
+            });
+        });
+        AsyncStorage.getItem("user_fake_image",(err,value)=>{
+            this.setState({
+                fake_image: value
             });
         });
     }
@@ -108,7 +121,7 @@ export default class FavoriteSc extends Component {
                 }
             }
         }
-
+        console.log(fetc)
         this.setState({
 			getAvatars:fetc,
 			modalVisible: false
@@ -341,9 +354,18 @@ export default class FavoriteSc extends Component {
                         <View style={styles.avatarListView}>
                             <View>
                                 <Image
-                                    style={{width: 100, height: 100, borderRadius:20}} 
-                                    source={VRChatImage(item.thumbnailImageUrl)}
-                                />
+                                style={{width: 100, height: 100, borderRadius:10}}
+                                source={
+                                    this.state.high_image == "check"
+                                    ?
+                                    VRChatImage(item.imageUrl)
+                                    :
+                                    this.state.fake_image == "check"
+                                    ?
+                                    require("../css/imgs/data_safe.png")
+                                    :
+                                    VRChatImage(item.thumbnailImageUrl)
+                                }/>
                             </View>
                             <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
                                 <NetmarbleL style={{lineHeight:30}}>
@@ -394,9 +416,18 @@ export default class FavoriteSc extends Component {
                         <View style={styles.avatarListView}>
                             <View>
                                 <Image
-                                    style={{width: 100, height: 100, borderRadius:20}} 
-                                    source={VRChatImage(item.thumbnailImageUrl)}
-                                />
+                                style={{width: 100, height: 100, borderRadius:10}}
+                                source={
+                                    this.state.high_image == "check"
+                                    ?
+                                    VRChatImage(item.imageUrl)
+                                    :
+                                    this.state.fake_image == "check"
+                                    ?
+                                    require("../css/imgs/data_safe.png")
+                                    :
+                                    VRChatImage(item.thumbnailImageUrl)
+                                }/>
                             </View>
                             <View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
                                 <NetmarbleL style={{lineHeight:30}}>
@@ -479,15 +510,24 @@ export default class FavoriteSc extends Component {
                                                 </TouchableOpacity>
                                             }
                                             <Image
-                                                style={{
-                                                    width: parseInt(Dimensions.get('window').width / 100 * 72), 
-                                                    height: parseInt(Dimensions.get('window').width / 100 * 50),
-                                                    borderRadius:5,
-                                                    marginTop:"5%",
-                                                    marginBottom:"5%"
-                                                }}
-                                                source={VRChatImage(item.thumbnailImageUrl)}
-                                            />
+                                            style={{
+                                                width: parseInt(Dimensions.get('window').width / 100 * 72), 
+                                                height: parseInt(Dimensions.get('window').width / 100 * 50),
+                                                borderRadius:5,
+                                                marginTop:"5%",
+                                                marginBottom:"5%"
+                                            }}
+                                            source={
+                                                this.state.high_image == "check"
+                                                ?
+                                                VRChatImage(item.imageUrl)
+                                                :
+                                                this.state.fake_image == "check"
+                                                ?
+                                                require("../css/imgs/data_safe.png")
+                                                :
+                                                VRChatImage(item.thumbnailImageUrl)
+                                            }/>
                                         </View>
                                     </View>
                                 </View>
@@ -543,10 +583,22 @@ export default class FavoriteSc extends Component {
                                 <View style={{flexDirection:"row"}}>
                                     <View>
                                         <Image
-                                            style={{width: parseInt(Dimensions.get('window').width / 100 * 62), 
+                                            style={{
+                                                width: parseInt(Dimensions.get('window').width / 100 * 62), 
                                                 height: parseInt(Dimensions.get('window').width / 100 * 40),
-                                                borderRadius:5}}
-                                            source={VRChatImage(item.thumbnailImageUrl)}
+                                                borderRadius:5
+                                            }}
+                                            source={
+                                                this.state.high_image == "check"
+                                                ?
+                                                VRChatImage(item.imageUrl)
+                                                :
+                                                this.state.fake_image == "check"
+                                                ?
+                                                require("../css/imgs/data_safe.png")
+                                                :
+                                                VRChatImage(item.thumbnailImageUrl)
+                                            }
                                         />
                                     </View>
                                 </View>   

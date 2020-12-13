@@ -25,6 +25,10 @@ export default StyleSheet.create({
         fontFamily:"GodoL",
         color:"#2b3956"
     },
+    Komako: {
+        fontFamily:"komaco",
+        color:"#2b3956"
+    },
     loginLogo: {
         flex: 2,
         alignItems: 'center',
@@ -291,9 +295,9 @@ export default StyleSheet.create({
         marginBottom:10
     },
     settingMenuImage: {
-        marginRight: 5,
-        width:40,
-        height:40,
+        marginRight: 15,
+        width:25,
+        height:25,
         resizeMode:"contain"
     }
 });

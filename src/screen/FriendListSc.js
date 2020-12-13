@@ -25,6 +25,7 @@ import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
+import AsyncStorage from "@react-native-community/async-storage";
 
 export default class FriendListSc extends Component {
     constructor(props) {
@@ -44,12 +45,24 @@ export default class FriendListSc extends Component {
             isSearch: false,
             onCount:0,
             offCount:0,
-            allCount:0
+            allCount:0,
+            fake_image: "none",
+            high_image: "none",
         };
     }
 
     UNSAFE_componentWillMount() {
         this.getFriend();
+        AsyncStorage.getItem("user_high_image",(err,value)=>{
+            this.setState({
+                high_image: value
+            });
+        });
+        AsyncStorage.getItem("user_fake_image",(err,value)=>{
+            this.setState({
+                fake_image: value
+            });
+        });
     }
 
     componentWillUnmount() {
@@ -209,9 +222,18 @@ export default class FriendListSc extends Component {
                                     {UserGradeName(item.tags)}
                                 </NetmarbleL>
                                 <Image
-                                    style={{width: 100, height: 100, borderRadius:10}}
-                                    source={VRChatImage(item.currentAvatarThumbnailImageUrl)}
-                                />
+                                style={{width: 100, height: 100, borderRadius:10}}
+                                source={
+                                    this.state.high_image == "check"
+                                    ?
+                                    VRChatImage(item.currentAvatarImageUrl)
+                                    :
+                                    this.state.fake_image == "check"
+                                    ?
+                                    require("../css/imgs/data_safe.png")
+                                    :
+                                    VRChatImage(item.currentAvatarThumbnailImageUrl)
+                                }/>
                             </View>
                             <NetmarbleL style={styles.friendInfoText}>
                                 {item.displayName}{"  "}
@@ -238,9 +260,18 @@ export default class FriendListSc extends Component {
                                 {UserGradeName(item.tags)}
                             </NetmarbleL>
                             <Image
-                                style={{width: 100, height: 100, borderRadius:10}}
-                                source={VRChatImage(item.currentAvatarThumbnailImageUrl)}
-                            />
+                            style={{width: 100, height: 100, borderRadius:10}}
+                            source={
+                                this.state.high_image == "check"
+                                ?
+                                VRChatImage(item.currentAvatarImageUrl)
+                                :
+                                this.state.fake_image == "check"
+                                ?
+                                require("../css/imgs/data_safe.png")
+                                :
+                                VRChatImage(item.currentAvatarThumbnailImageUrl)
+                            }/>
                         </View>
                         <NetmarbleL style={styles.friendInfoText}>
                             {item.displayName}{"  "}

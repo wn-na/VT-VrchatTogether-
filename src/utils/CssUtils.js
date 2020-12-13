@@ -8,3 +8,5 @@ export const NetmarbleB = props => <Text onPress={props.onPress} style={[styles.
 
 export const GodoR = props => <Text onPress={props.onPress} style={[styles.GodoR,props.style]}>{props.children}</Text>
 export const GodoL = props => <Text onPress={props.onPress} style={[styles.GodoL,props.style]}>{props.children}</Text>
+
+export const Komako = props => <Text onPress={props.onPress} style={[styles.Komako,props.style]}>{props.children}</Text>

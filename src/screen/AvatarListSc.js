@@ -61,12 +61,24 @@ export default class AvatarListSc extends Component {
 			getAvatars: [],
 			getAvatarFilter: [],
 			avatarOffset: 10,
-			isSearch:false
+			isSearch:false,
+            fake_image: "none",
+            high_image: "none",
 		};
 	}
 
 	UNSAFE_componentWillMount() {
 		this.getAvatar();
+		AsyncStorage.getItem("user_high_image",(err,value)=>{
+            this.setState({
+                high_image: value
+            });
+        });
+        AsyncStorage.getItem("user_fake_image",(err,value)=>{
+            this.setState({
+                fake_image: value
+            });
+        });
 	}
 
 	componentWillUnmount() {
@@ -230,9 +242,18 @@ export default class AvatarListSc extends Component {
 					<View style={styles.avatarListView}>
 						<View>
 							<Image
-								style={{width: 100, height: 100, borderRadius:20}} 
-								source={VRChatImage(item.thumbnailImageUrl)}
-							/>
+							style={{width: 100, height: 100, borderRadius:20}} 
+							source={
+								this.state.high_image == "check"
+								?
+								VRChatImage(item.imageUrl)
+								:
+								this.state.fake_image == "check"
+								?
+								require("../css/imgs/data_safe.png")
+								:
+								VRChatImage(item.thumbnailImageUrl)
+							}/>
 						</View>
 						<View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
 							<NetmarbleL style={{width:"70%",lineHeight:30}}>
@@ -275,9 +296,18 @@ export default class AvatarListSc extends Component {
 					<View style={styles.avatarListView}>
 						<View>
 							<Image
-								style={{width: 100, height: 100, borderRadius:20}} 
-								source={VRChatImage(item.thumbnailImageUrl)}
-							/>
+							style={{width: 100, height: 100, borderRadius:20}} 
+							source={
+								this.state.high_image == "check"
+								?
+								VRChatImage(item.imageUrl)
+								:
+								this.state.fake_image == "check"
+								?
+								require("../css/imgs/data_safe.png")
+								:
+								VRChatImage(item.thumbnailImageUrl)
+							}/>
 						</View>
 						<View style={{width:"100%",marginLeft:"3%"}}>
 							<NetmarbleL style={{width:"70%",lineHeight:30}}>
