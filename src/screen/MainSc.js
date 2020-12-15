@@ -48,12 +48,15 @@ export default class MainSc extends Component {
     }
 
     UNSAFE_componentWillMount() {
-        Promise.all([this.getUserInfo(),this.getAlerts(),getFavoriteMap(),getFavoriteWorldTag()])
+        Promise.all([this.getUserInfo(),this.getAlerts()])
         .then(() => {
             this.setState({
                 modalVisible:false
             });
         });
+
+        getFavoriteMap();
+        getFavoriteWorldTag();
     }
 
     componentWillUnmount() {
@@ -85,12 +88,12 @@ export default class MainSc extends Component {
         })
     }
 
-    getAlerts() {
-        fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications`, VRChatAPIGet)
+    async getAlerts() {
+        await fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications?type=friendRequest`, VRChatAPIGet)
         .then(responses => responses.json())
         .then(json => {
             this.setState({
-                alertCount:json.filter((v) => v.type.indexOf("friendRequest") !== -1).length
+                alertCount:json
             })
         })
     }
@@ -107,15 +110,15 @@ export default class MainSc extends Component {
                 this.state.refreshTime = false;
             }, 5000);
             
-            getFavoriteMap();
-            getFavoriteWorldTag();
-
             Promise.all([this.getUserInfo(),this.getAlerts()])
             .then(() => {
                 this.setState({
                     modalVisible:false
                 });
             });
+
+            getFavoriteMap();
+            getFavoriteWorldTag();
 
             this.setState({
                 refreshing:false

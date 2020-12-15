@@ -63,6 +63,25 @@ export default class FriendListSc extends Component {
                 fake_image: value
             });
         });
+
+        if(this.state.option == "all")
+        {
+            this.setState({
+                getFriend: this.state.getFriendAll
+            });
+        }
+        else if(this.state.option == "on")
+        {
+            this.setState({
+                getFriend: this.state.getFriendOn
+            });
+        }
+        else if(this.state.option == "off")
+        {
+            this.setState({
+                getFriend: this.state.getFriendOff
+            });
+        }
     }
 
     componentWillUnmount() {
@@ -101,7 +120,7 @@ export default class FriendListSc extends Component {
             getFriendOff:[],
         })
 
-        for(let i=0;i<10;i++)
+        for(let i=0;i<30;i++)
         {
             promiseOn = Promise.all([this.getFriendOn(offSet)])
             .then((result) => {
@@ -118,7 +137,7 @@ export default class FriendListSc extends Component {
 
         promiseOn.done(() => {
             offSet = 0;
-            for(let i=0;i<10;i++)
+            for(let i=0;i<30;i++)
             {
                 promiseOff = Promise.all([this.getFriendOff(offSet)])
                 .then((result) => {
