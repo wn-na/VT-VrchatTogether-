@@ -21,6 +21,12 @@ import { Actions } from 'react-native-router-flux';
 import utf8 from "utf8";
 import base64 from 'base-64';
 import Modal from 'react-native-modal';
+import {
+    getUserInfo,
+    getAlerts,
+    getFriends
+} from './../utils/UserUtils';
+import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
 import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleB} from '../utils/CssUtils';
@@ -30,7 +36,6 @@ export default class LoginSc extends Component {
     constructor(props) {
         super(props);
         AsyncStorage.getItem("user_lang",(err, value)=>{
-            console.log(value);
             if(value != null)
             {
                 getLanguage();
@@ -56,7 +61,9 @@ export default class LoginSc extends Component {
             isPermit: false,
             langCheck: true,
             aniPosition: new Animated.ValueXY({x:0,y:0}),
-            loadingText: translate('loading')
+            loadingText: translate('loading'),
+            update: false,
+            updateFunction: () => this.setState({update:!this.state.update}),
         };
     }
 
@@ -128,8 +135,7 @@ export default class LoginSc extends Component {
         });
     }
 
-    loginCheck = async() =>
-    {
+    loginCheck = async() => {
         await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
         .then((response) => response.json())
         .then((responseJson) => {
@@ -139,9 +145,6 @@ export default class LoginSc extends Component {
                     loginCheck:true,
                     loadingText: translate('msg_redirect_main')
                 });
-                setTimeout(()=>{
-                    Actions.mainSc();
-                },1000);
             }
             else if(responseJson.error)
             {
@@ -150,10 +153,16 @@ export default class LoginSc extends Component {
                 });
             }
         });
+
+        if(this.state.loginCheck == true)
+        {
+            await getUserInfo(this.state);
+            let promise = Promise.all([getAlerts(this.state),  getFavoriteMap(), getFavoriteWorldTag()])
+            promise.done(() => Actions.mainSc())
+        }
     }
 
-    login = async() =>
-    {
+    login = async() => {
         // utf8 문자 감지 후 base64 변환
         const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
 
@@ -163,9 +172,6 @@ export default class LoginSc extends Component {
             if(!responseJson.error)
             {
                 AsyncStorage.setItem("storage_id", this.state.id);
-                setTimeout(()=>{
-                    Actions.mainSc();
-                },1000);
                 this.setState({
                     loginFail: true
                 });
@@ -178,6 +184,13 @@ export default class LoginSc extends Component {
                 this.shakeAni();
             }
         });
+
+        if(this.state.loginFail == true)
+        {
+            await getUserInfo(this.state);
+            Promise.all([getAlerts(this.state), getFriends(this.state), getFavoriteMap(), getFavoriteWorldTag()])
+            .then(() => Actions.mainSc());
+        }
     }
     
     langSelect(lang) {

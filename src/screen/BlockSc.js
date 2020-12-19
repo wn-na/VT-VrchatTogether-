@@ -126,8 +126,7 @@ export default class BlockSc extends Component {
         });
     }
 
-    flist(){
-
+    flist() {
         if(this.state.option == "block")
         {
             return <FlatList
@@ -174,7 +173,7 @@ export default class BlockSc extends Component {
         }
     }
 
-    reset(){
+    reset() {
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;
@@ -203,7 +202,7 @@ export default class BlockSc extends Component {
         }
     }
 
-    resetButton(){
+    resetButton() {
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;

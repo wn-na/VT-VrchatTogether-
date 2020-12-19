@@ -29,8 +29,6 @@ import {translate} from '../translate/TranslateUtils';
 
 export default class MakeDetail extends Component {
     constructor(props) {
-        console.info("MakeDetail => constructor");
-
         super(props);
 
         this.state = {
@@ -399,7 +397,6 @@ export default class MakeDetail extends Component {
             }))
             .then((response) => response.json())
             .then((json) => {
-                console.log(json)
                 if(!json.error)
                 {
                     for(let i=0;i<this.state.getWorlds.length;i++)

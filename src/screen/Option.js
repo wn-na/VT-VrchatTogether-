@@ -35,8 +35,6 @@ export default class Option extends Component {
             fakeImage: false,
             highImage: false,
             langCheck: false,
-            // 업데이트용 tmp 변수
-            tmp : () => this.setState({tmp:null}),
         };
     }
 
@@ -66,8 +64,7 @@ export default class Option extends Component {
     }
 
     // 로그아웃 처리
-    logout = () =>
-    {
+    logout = () => {
         Alert.alert(
             translate('information'),
             translate('msg_logout'),
@@ -129,12 +126,12 @@ export default class Option extends Component {
     }
 
     langSelect(lang) {
-        userLang(lang,this.state);
+        userLang(lang);
         setLanguage(lang)
         this.setState({
             langCheck: false
         });
-        this.props.changeLang();
+        this.props.changeUpdate();
     }
     
     render() {

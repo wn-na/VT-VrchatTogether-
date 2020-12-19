@@ -19,7 +19,14 @@ import {
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
-import {UserGrade, UserGradeName} from './../utils/UserUtils';
+import {
+    UserGrade,
+    UserGradeName,
+    getFriends,
+    friends,
+    friendOn,
+    friendOff,
+} from './../utils/UserUtils';
 import { Col, Row } from "react-native-easy-grid";
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils';
 import styles from '../css/css';
@@ -35,24 +42,18 @@ export default class FriendListSc extends Component {
             refreshing:false,
             refreshTime:false,
             option:this.props.option,
-            getFriend:[],
-            getFilterFriend:[],
-            getFriendAll:[],
-            getFriendOn:[],
-            getFriendOff:[],
-            modalVisible:true,
+            modalVisible:false,
             refreshButton:false,
-            isSearch: false,
-            onCount:0,
-            offCount:0,
-            allCount:0,
             fake_image: "none",
             high_image: "none",
+            friends: [],
+            update: false,
+            search: null,
+            updateFunction: () => this.setState({update:!this.state.update}),
         };
     }
 
-    UNSAFE_componentWillMount() {
-        this.getFriend();
+    async UNSAFE_componentWillMount() {
         AsyncStorage.getItem("user_high_image",(err,value)=>{
             this.setState({
                 high_image: value
@@ -63,101 +64,16 @@ export default class FriendListSc extends Component {
                 fake_image: value
             });
         });
-
-        if(this.state.option == "all")
-        {
-            this.setState({
-                getFriend: this.state.getFriendAll
-            });
-        }
-        else if(this.state.option == "on")
-        {
-            this.setState({
-                getFriend: this.state.getFriendOn
-            });
-        }
-        else if(this.state.option == "off")
-        {
-            this.setState({
-                getFriend: this.state.getFriendOff
-            });
-        }
+        await getFriends(this.state);
+        this.setState({
+            friends: friends
+        });
     }
 
     componentWillUnmount() {
     }
 
     componentDidMount() {
-    }
-
-    async getFriendOn(offSet)
-    {
-        const responseOn = await fetch(`https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset=${offSet}`, VRChatAPIGet);
-        return new Promise((resolve, reject) =>
-        resolve(responseOn.json()));
-    }
-
-    async getFriendOff(offSet)
-    {
-        const responseOff = await fetch(`https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset=${offSet}`, VRChatAPIGet);
-        return new Promise((resolve, reject) =>
-        resolve(responseOff.json()));
-    }
-
-    getFriend()
-    {
-        let offSet = 0;
-        let onCount  = 0;
-        let offCount = 0;
-        
-        let promiseOn;
-        let promiseOff;
-
-        this.setState({
-            getFriend:[],
-            getFriendAll:[],
-            getFriendOn:[],
-            getFriendOff:[],
-        })
-
-        for(let i=0;i<30;i++)
-        {
-            promiseOn = Promise.all([this.getFriendOn(offSet)])
-            .then((result) => {
-                this.setState({
-                    getFriendOn     : this.state.getFriendOn.concat(result[0]),
-                    getFriend       : this.state.getFriend.concat(result[0]),
-                    getFriendAll       : this.state.getFriendAll.concat(result[0]),
-                    onCount         : onCount += result[0].length
-                });
-            });
-
-            offSet+=100;
-        }
-
-        promiseOn.done(() => {
-            offSet = 0;
-            for(let i=0;i<30;i++)
-            {
-                promiseOff = Promise.all([this.getFriendOff(offSet)])
-                .then((result) => {
-                    this.setState({
-                        getFriendOff    : this.state.getFriendOff.concat(result[0]),
-                        getFriend       : this.state.getFriend.concat(result[0]),
-                        getFriendAll       : this.state.getFriendAll.concat(result[0]),
-                        offCount        : offCount += result[0].length
-                    });
-                });
-                
-                offSet+=100;
-            }
-
-            promiseOff.done(() => {
-                this.setState({
-                    modalVisible:false
-                });
-            })
-        });
     }
 
     filter = value => {
@@ -167,27 +83,27 @@ export default class FriendListSc extends Component {
         if(value == "all")
         {
             this.setState({
-                getFriend: this.state.getFriendAll
+                friends: friends
             });
         }
         else if(value == "on")
         {
             this.setState({
-                getFriend: this.state.getFriendOn
+                friends: friendOn
             });
         }
         else if(value == "off")
         {
             this.setState({
-                getFriend: this.state.getFriendOff
+                friends: friendOff
             });
         }
     }
 
-    search=()=>{
+    search = () => {
         let serachCheck;
 
-        if(this.state.search == null || this.state.search == "")
+        if(this.state.search == null)
         {
             Alert.alert(
                 translate('error'),
@@ -197,9 +113,9 @@ export default class FriendListSc extends Component {
         }
         else
         {
-            if(this.state.getFriend != null)
+            if(this.state.friends != null)
             {
-                serachCheck = this.state.getFriendAll.filter((v) => v.displayName.indexOf(this.state.search) !== -1);
+                serachCheck = friends.filter((v) => v.displayName.indexOf(this.state.search) !== -1);
             }
 
             if(serachCheck.length == 0)
@@ -213,8 +129,8 @@ export default class FriendListSc extends Component {
             else
             {
                 this.setState({
-                    isSearch:true,
-                    getFilterFriend:serachCheck
+                    friends:serachCheck,
+                    option: "all",
                 });
         
                 this.flist();
@@ -222,52 +138,9 @@ export default class FriendListSc extends Component {
         }
     }
 
-    flist(){
-
-        if(this.state.getFilterFriend != null && this.state.isSearch == true)
-        {
-            return <FlatList
-                data={this.state.getFilterFriend}
-                onRefresh={this.reset.bind(this)}
-                refreshing={this.state.refreshing}
-                renderItem={({item}) => 
-                    <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "friendListSc" ? Actions.userDetail({userId:item.id, isFriend:true}) : {}}
-                        style={[{backgroundColor:UserGrade(item.tags)},styles.friendList]}
-                    >
-                        <View style={styles.friendListView}>
-                            <View style={{marginTop:-17}}>
-                                <NetmarbleL style={{textAlign:"center",color:UserGrade(item.tags)}}>
-                                    {UserGradeName(item.tags)}
-                                </NetmarbleL>
-                                <Image
-                                style={{width: 100, height: 100, borderRadius:10}}
-                                source={
-                                    this.state.high_image == "check"
-                                    ?
-                                    VRChatImage(item.currentAvatarImageUrl)
-                                    :
-                                    this.state.fake_image == "check"
-                                    ?
-                                    require("../css/imgs/data_safe.png")
-                                    :
-                                    VRChatImage(item.currentAvatarThumbnailImageUrl)
-                                }/>
-                            </View>
-                            <NetmarbleL style={styles.friendInfoText}>
-                                {item.displayName}{"  "}
-                                {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
-                                {item.statusDescription != "" && item.statusDescription+"\n"}
-                                {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}
-                            </NetmarbleL>
-                        </View>
-                    </TouchableOpacity>
-                }
-            />
-        }
-
+    flist() {
         return <FlatList
-            data={this.state.getFriend}
+            data={this.state.friends}
             renderItem={({item}) => 
                 <TouchableOpacity
                     onPress={()=> Actions.currentScene == "friendListSc" ? Actions.userDetail({userId:item.id, isFriend:true}) : {}}
@@ -304,26 +177,30 @@ export default class FriendListSc extends Component {
         />
     }
     
-    reset(){
+    reset() {
         if(this.state.refreshTime == false)
         {
-            this.state.refreshTime = true;
-            this.state.modalVisible = true;
+            this.setState({
+                refreshTime: true,
+                modalVisible: true
+            });
 
             setTimeout(() => {
-                this.state.refreshTime = false;
+                this.setState({
+                    refreshTime: false
+                });
             }, 5000);
 
-            Promise.all([this.getFriend()])
+            Promise.all([getFriends(this.state)])
             .then(() => {
                 this.setState({
+                    friends : friends,
                     modalVisible : false
                 });
             });
 
             this.setState({
                 refreshing:false,
-                isSearch:false,
                 option:"all",
                 search:null
             });
@@ -334,21 +211,25 @@ export default class FriendListSc extends Component {
         }
     }
 
-    resetButton(){
+    resetButton() {
         if(this.state.refreshTime == false)
         {
-            this.state.refreshTime = true;
-            this.state.refreshButton = true;
-            this.state.modalVisible = true;
-
+            this.setState({
+                refreshTime: true,
+                refreshButton: true,
+                modalVisible: true
+            });
             setTimeout(() => {
-                this.state.refreshTime = false;
+                this.setState({
+                    refreshTime: false
+                });
             }, 5000);
 
-            Promise.all([this.getFriend()])
+            Promise.all([getFriends(this.state)])
             .then(() => {
                 this.setState({
-                    modalVisible: false
+                    modalVisible: false,
+                    friends : friends,
                 });
                 setTimeout(() => {
                     this.setState({
@@ -359,7 +240,6 @@ export default class FriendListSc extends Component {
 
             this.setState({
                 refreshing:false,
-                isSearch:"1",
                 option:"all",
                 search:null
             });
@@ -371,8 +251,6 @@ export default class FriendListSc extends Component {
     }
 
     render() {
-        this.state.allCount = this.state.onCount + this.state.offCount;
-
         return (
             <View style={{flex:1}}>
                 <ScrollView 
@@ -394,7 +272,7 @@ export default class FriendListSc extends Component {
                         name="cycle" size={20} style={{color:"white"}}
                         />
                         :
-                        <ActivityIndicator size={20} color="white"/>
+                        <ActivityIndicator size={20} color="white" style={{width:20,height:20}}/>
                         }
                     </View>
                     <View style={{justifyContent:"center",marginTop:-50,margin:"5%",padding:"2%",backgroundColor:"white",elevation:15,borderRadius:10}}>
@@ -403,19 +281,19 @@ export default class FriendListSc extends Component {
                                 <Col>
                                     <NetmarbleL style={styles.friendsCount}>
                                         {translate('all_user')}{"\n"}
-                                        {this.state.allCount+translate('people_count')}
+                                        {this.props.allCount+translate('people_count')}
                                     </NetmarbleL>
                                 </Col>
                                 <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
                                     <NetmarbleL style={styles.friendsCount}>
                                         {translate('online')}{"\n"}
-                                        {this.state.onCount+translate('people_count')}
+                                        {this.props.onCount+translate('people_count')}
                                     </NetmarbleL>
                                 </Col>
                                 <Col>
                                     <NetmarbleL style={styles.friendsCount}>
                                         {translate('offline')}{"\n"}
-                                        {this.state.offCount+translate('people_count')}
+                                        {this.props.offCount+translate('people_count')}
                                     </NetmarbleL>
                                 </Col>
                             </Row>

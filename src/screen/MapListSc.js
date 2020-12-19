@@ -141,7 +141,7 @@ export default class MapListSc extends Component {
         })
     }
 
-    reset(){
+    reset() {
         if(this.state.refreshTime == false)
         {
             this.state.refreshTime = true;

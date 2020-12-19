@@ -87,7 +87,7 @@ export default class AvatarListSc extends Component {
 	componentDidMount() {
 	}
 
-	async getAvatar(){
+	async getAvatar() {
 		let favoriteOffset = 0;
 		let data = [];
 
@@ -340,7 +340,7 @@ export default class AvatarListSc extends Component {
 		}
 	}
 
-	search=()=>{
+	search = () => {
         let serachCheck;
 
         if(this.state.search == null || this.state.search == "")

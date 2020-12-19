@@ -15,10 +15,14 @@ import {
     ActivityIndicator,
     Alert
 } from "react-native";
+import {
+    getAlerts,
+    alerts,
+    friendRequest
+} from './../utils/UserUtils';
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
-import {VRChatAPIGet,VRChatAPIDelete,VRChatAPIPut} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
@@ -28,16 +32,19 @@ export default class AlertSc extends Component {
         super(props);
 
         this.state = {
-            getAlerts:[],
             refreshing:false,
             refreshTime:false,
             refreshButton:false,
-            modalVisible:true
+            modalVisible:false,
+            update: false,
+            updateFunction: () => this.setState({update:null}),
         };
     }
 
     UNSAFE_componentWillMount() {
-        this.getAlerts();
+        this.setState({
+            alerts: alerts
+        });
     }
 
     componentWillUnmount() {
@@ -46,66 +53,9 @@ export default class AlertSc extends Component {
     componentDidMount() {
     }
 
-    async getAlerts() {
-        await fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications`, VRChatAPIGet)
-        .then(responses => responses.json())
-        .then(json => {
-            this.setState({
-                getAlerts:json.filter((v) => v.type.indexOf("friendRequest") !== -1),
-                modalVisible:false
-            });
-        });
-    }
-
-    friendRequest(notiId,type) {
-        if(type == true)
-        {
-            Alert.alert(
-                translate('information'),
-                translate('msg_friendrequest'),
-                [
-                    {text: translate('ok'), onPress: () => {
-                        fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications/${notiId}/accept`, VRChatAPIPut)
-                        .then((response) => response.json())
-                        .then((json) => {
-                            if(json.success.status_code == "200")
-                            {
-                                this.setState({
-                                    getAlerts: this.state.getAlerts.filter(v => v.id !== notiId)
-                                });
-
-                                ToastAndroid.show(translate('msg_success_friend_request'), ToastAndroid.SHORT);
-                            }
-                            else
-                            {
-                                ToastAndroid.show(translate('msg_fail_friend_request'), ToastAndroid.SHORT);
-                            }
-                        });
-                    }},
-                    {text: translate('cancel')}
-                ]
-            );
-        }
-        else
-        {
-            Alert.alert(
-                translate('information'),
-                translate('msg_friendrequest_deny'),
-                [
-                    {text: translate('ok'), onPress: () => {
-                        fetch(`https://api.vrchat.cloud/api/1/auth/user/notifications/${notiId}/accept`, VRChatAPIDelete)
-                        .then((response) => response.json())
-                        .then(() => {
-                            this.setState({
-                                getAlerts: this.state.getAlerts.filter(v => v.id !== notiId)
-                            });
-                            ToastAndroid.show(translate('msg_deny_friend_request'), ToastAndroid.SHORT);
-                        });
-                    }},
-                    {text: translate('cancel')}
-                ]
-            );
-        }
+    alertSend(state, id, type) {
+        friendRequest(state, id, type);
+        this.props.updateFunction();
     }
 
     search = () => {
@@ -121,12 +71,9 @@ export default class AlertSc extends Component {
         }
         else
         {
-            if(this.state.getAlerts != null)
+            if(this.state.alerts != null)
             {
-                serachCheck = this.state.getAlerts.filter((v) => v.senderUsername.indexOf(this.state.search) !== -1) 
-                this.setState({
-                    getAlerts:serachCheck
-                })
+                alerts = alerts.filter((v) => v.senderUsername.indexOf(this.state.search) !== -1) 
             }
 
             if(serachCheck.length == 0)
@@ -136,6 +83,12 @@ export default class AlertSc extends Component {
                     translate('msg_no_search_results'),
                     [{text: translate('ok')}]
                 );
+            }
+            else
+            {
+                this.setState({
+                    alerts: serachCheck
+                });
             }
         }
     }
@@ -150,7 +103,7 @@ export default class AlertSc extends Component {
                 this.state.refreshTime = false;
             }, 5000);
 
-            Promise.all([this.getAlerts()])
+            Promise.all([getAlerts(this.state)])
             .then(() => {
                 this.setState({
                     modalVisible : false
@@ -171,15 +124,18 @@ export default class AlertSc extends Component {
     resetButton() {
         if(this.state.refreshTime == false)
         {
-            this.state.refreshTime = true;
-            this.state.refreshButton = true;
-            this.state.modalVisible = true;
-
+            this.setState({
+                refreshTime: true,
+                refreshButton: true,
+                modalVisible: true
+            });
             setTimeout(() => {
-                this.state.refreshTime = false;
+                this.setState({
+                    refreshTime: false,
+                });
             }, 5000);
 
-            Promise.all([this.getAlerts()])
+            Promise.all([getAlerts(this.state)])
             .then(() => {
                 setTimeout(() => {
                     this.setState({
@@ -241,7 +197,7 @@ export default class AlertSc extends Component {
 						</View>
 					</View>
                     <FlatList
-                        data={this.state.getAlerts}
+                        data={alerts}
                         renderItem={({item}) => 
                             <TouchableOpacity
                                 onPress={()=> Actions.currentScene == "alertSc" ? Actions.userDetail({userId:item.senderUserId, notiId:item.id, option:"against"}) : {}}
@@ -257,12 +213,12 @@ export default class AlertSc extends Component {
                                 </View>
                                 <View style={{justifyContent:"space-around",flexDirection:"row",marginTop:"10%"}}>
                                     <Button 
-                                    onPress={this.friendRequest.bind(this,item.id,true)}
+                                    onPress={()=> this.alertSend(this.state, item.id, true)}
                                     style={[{width:"48%"},styles.requestButton]}>
                                         <NetmarbleL>{translate('accept')}</NetmarbleL>
                                     </Button>
                                     <Button 
-                                    onPress={this.friendRequest.bind(this,item.id,false)}
+                                    onPress={()=> this.alertSend(this.state, item.id, false)}
                                     style={[{width:"48%"},styles.requestButton]}>
                                         <NetmarbleL>{translate('reject')}</NetmarbleL>
                                     </Button>

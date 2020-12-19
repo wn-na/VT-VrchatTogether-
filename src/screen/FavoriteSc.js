@@ -121,7 +121,6 @@ export default class FavoriteSc extends Component {
                 }
             }
         }
-        console.log(fetc)
         this.setState({
 			getAvatars:fetc,
 			modalVisible: false
