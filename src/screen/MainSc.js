@@ -126,7 +126,7 @@ export default class MainSc extends Component {
                                 </View>
                                 <View style={{position:"absolute",right:"0%",zIndex:1,flexDirection:"row"}}>
                                     <TouchableOpacity
-                                    onPress={()=> Actions.currentScene == "mainSc" && Actions.option({changeLang:this.changeLang.bind(this)})}>
+                                    onPress={()=> Actions.currentScene == "mainSc" && Actions.option({changeUpdate:this.changeUpdate.bind(this)})}>
                                         <Image 
                                         style={{width:30,height:30}}
                                         source={require('../css/imgs/option.png')}/>

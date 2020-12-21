@@ -73,6 +73,8 @@ export default class Option extends Component {
                     fetch(`https://api.vrchat.cloud/api/1/logout`, VRChatAPIPut)
                     .then((response) => response.json())
                     .then(() => {
+                        AsyncStorage.removeItem("storage_id");
+                        AsyncStorage.removeItem("storage_pw");
                         Actions.replace("loginSc");
                     });
                 }},

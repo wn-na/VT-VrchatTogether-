@@ -40,7 +40,7 @@ export default class LoginSc extends Component {
             {
                 getLanguage();
                 setLanguage(value);
-                this.loginCheck();
+                this.autoLogin();
                 this.setState({
                     langCheck: false,
                 });
@@ -135,29 +135,54 @@ export default class LoginSc extends Component {
         });
     }
 
-    loginCheck = async() => {
-        await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
-        .then((response) => response.json())
-        .then((responseJson) => {
-            if(!responseJson.error)
-            {
-                this.setState({
-                    loginCheck:true,
-                    loadingText: translate('msg_redirect_main')
-                });
-            }
-            else if(responseJson.error)
-            {
-                this.setState({
-                    loginCheck:false
-                });
-            }
+    async autoLogin() {
+        AsyncStorage.getItem("storage_pw",(err, value)=>{
+            this.setState({
+                pw:value
+            });
         });
+        if(this.state.pw != null)
+        {
+            await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
+            .then((response) => response.json())
+            .then((responseJson) => {
+                if(!responseJson.error)
+                {
+                    AsyncStorage.setItem("storage_id", this.state.id);
+                    AsyncStorage.setItem("storage_pw", this.state.pw);
+                    this.setState({
+                        loginCheck:true,
+                        loadingText: translate('msg_redirect_main')
+                    });
+                }
+                else if(responseJson.error)
+                {
+                    this.setState({
+                        loginCheck:false
+                    });
+                }
+            });
+        }
+        else
+        {
+            const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
+
+            await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGetAuth(user))
+            .then(response => response.json())
+            .then(responseJson => {
+                if(!responseJson.error)
+                {
+                    this.setState({
+                        loginFail: true
+                    });
+                }
+            });
+        }
 
         if(this.state.loginCheck == true)
         {
             await getUserInfo(this.state);
-            let promise = Promise.all([getAlerts(this.state),  getFavoriteMap(), getFavoriteWorldTag()])
+            let promise = Promise.all([getAlerts(this.state),  getFriends(this.state), getFavoriteMap(), getFavoriteWorldTag()])
             promise.done(() => Actions.mainSc())
         }
     }
@@ -172,6 +197,7 @@ export default class LoginSc extends Component {
             if(!responseJson.error)
             {
                 AsyncStorage.setItem("storage_id", this.state.id);
+                AsyncStorage.setItem("storage_pw", this.state.pw);
                 this.setState({
                     loginFail: true
                 });
@@ -199,7 +225,7 @@ export default class LoginSc extends Component {
             langCheck: false
         });
 
-        this.loginCheck();
+        this.autoLogin();
     }
 
     render() {

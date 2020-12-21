@@ -114,7 +114,7 @@ export async function getFriends(state) {
         friends = friends.concat(result[0]);
         friendOff = friendOff.concat(result[0]);
     });
-
+    
     promiseOff.done(() => {
         state.updateFunction();
     });
