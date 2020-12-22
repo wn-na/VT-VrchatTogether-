@@ -69,6 +69,9 @@ export let friends = new Array();
 export let friendOn = new Array();
 export let friendOff = new Array();
 
+export let blocks = new Array();
+export let against = new Array();
+
 export async function getUserInfo (state) {
     await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
     .then((response) => response.json())
@@ -202,4 +205,28 @@ export function friendRequest(state, notiId, type) {
             ]
         );
     }
+}
+
+export async function getBlocks (state) {
+    await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderations`, VRChatAPIGet)
+    .then((response) => response.json())
+    .then(json => {
+        json.sort((a,b) =>{
+            return a.created > b.created ? -1 : a.created > b.created ? 1 : 0;
+        });
+        blocks = json.filter((v) => v.type.indexOf("block") !== -1);
+        state.updateFunction();
+    });
+}
+
+export async function getAgainst(state) {
+    await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderated`, VRChatAPIGet)
+    .then((response) => response.json())
+    .then(json => {
+        json.sort((a,b) =>{
+            return a.created > b.created ? -1 : a.created > b.created ? 1 : 0;
+        });
+        against = json.filter((v) => v.type.indexOf("block") !== -1);
+        state.updateFunction();
+    })
 }

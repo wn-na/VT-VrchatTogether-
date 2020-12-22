@@ -24,7 +24,9 @@ import Modal from 'react-native-modal';
 import {
     getUserInfo,
     getAlerts,
-    getFriends
+    getFriends,
+    getBlocks,
+    getAgainst
 } from './../utils/UserUtils';
 import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
 import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils';
@@ -182,7 +184,14 @@ export default class LoginSc extends Component {
         if(this.state.loginCheck == true)
         {
             await getUserInfo(this.state);
-            let promise = Promise.all([getAlerts(this.state),  getFriends(this.state), getFavoriteMap(), getFavoriteWorldTag()])
+            let promise = Promise.all([
+                getAlerts(this.state),
+                getFriends(this.state),
+                getBlocks(this.state),
+                getAgainst(this.state),
+                getFavoriteMap(),
+                getFavoriteWorldTag()
+            ])
             promise.done(() => Actions.mainSc())
         }
     }
@@ -214,7 +223,14 @@ export default class LoginSc extends Component {
         if(this.state.loginFail == true)
         {
             await getUserInfo(this.state);
-            Promise.all([getAlerts(this.state), getFriends(this.state), getFavoriteMap(), getFavoriteWorldTag()])
+            Promise.all([
+                getAlerts(this.state),
+                getFriends(this.state),
+                getBlocks(this.state),
+                getAgainst(this.state),
+                getFavoriteMap(),
+                getFavoriteWorldTag()
+            ])
             .then(() => Actions.mainSc());
         }
     }

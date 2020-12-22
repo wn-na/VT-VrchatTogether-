@@ -20,7 +20,13 @@ import {
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
-import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
+import {
+    getBlocks,
+    getAgainst,
+    blocks,
+    against
+} from './../utils/UserUtils';
+import {VRChatAPIGet} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL, NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
@@ -34,19 +40,18 @@ export default class BlockSc extends Component {
             refreshTime:false,
             refreshButton:false,
             option:"block",
-            modalVisible:true,
-            getBlock:[],
-            getAgainst:[]
+            modalVisible:false,
+            update: false,
+            updateFunction: () => this.setState({update:!this.state.update}),
+            data: [],
+            search: null
         };
     }
 
     UNSAFE_componentWillMount() {
-        Promise.all([this.getBlock(),this.getAgainst()])
-        .then(() => {
-            this.setState({
-                modalVisible:false
-            })
-        })
+        this.setState({
+            data: blocks
+        });
     }
 
     componentWillUnmount() {
@@ -55,36 +60,10 @@ export default class BlockSc extends Component {
     componentDidMount() {
     }
 
-    async getBlock () {
-        await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderations`, VRChatAPIGet)
-        .then((response) => response.json())
-        .then(json => {
-            json.sort((a,b) =>{
-                return a.created > b.created ? -1 : a.created > b.created ? 1 : 0;
-            });
-            this.setState({
-                getBlock:json.filter((v) => v.type.indexOf("block") !== -1)
-            });
-        });
-    }
-
-    async getAgainst() {
-        await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderated`, VRChatAPIGet)
-        .then((response) => response.json())
-        .then(json => {
-            json.sort((a,b) =>{
-                return a.created > b.created ? -1 : a.created > b.created ? 1 : 0;
-            });
-            this.setState({
-                getAgainst:json.filter((v) => v.type.indexOf("block") !== -1)
-            });
-        })
-    }
-
     search = () => {
         let serachCheck;
 
-        if(this.state.search == null || this.state.search == "")
+        if(this.state.search == null)
         {
             Alert.alert(
                 translate('error'),
@@ -94,21 +73,20 @@ export default class BlockSc extends Component {
         }
         else
         {
-            if(this.state.option == "block" && this.state.getBlock != null)
+            if(this.state.option == "block")
             {
-                serachCheck = this.state.getBlock.filter((v) => v.targetDisplayName.indexOf(this.state.search) !== -1) 
+                serachCheck = blocks.filter((v) => v.targetDisplayName.indexOf(this.state.search) !== -1) 
                 this.setState({
-                    getBlock:serachCheck
-                })
+                    data:serachCheck
+                });
             }
-            if(this.state.option == "against" && this.state.getAgainst != null)
+            if(this.state.option == "against")
             {
-                serachCheck = this.state.getAgainst.filter((v) => v.sourceDisplayName.indexOf(this.state.search) !== -1);
+                serachCheck = against.filter((v) => v.sourceDisplayName.indexOf(this.state.search) !== -1);
                 this.setState({
-                    getAgainst:serachCheck
-                })
+                    data:serachCheck
+                });
             }
-
             if(serachCheck.length == 0)
             {
                 Alert.alert(
@@ -122,8 +100,21 @@ export default class BlockSc extends Component {
 
     filter = value => {
         this.setState({
-            option:value
+            option: value,
+            search: null
         });
+        if(value == "block")
+        {
+            this.setState({
+                data: blocks
+            });
+        }
+        else
+        {
+            this.setState({
+                data: against
+            });
+        }
     }
 
     flist() {
@@ -131,7 +122,7 @@ export default class BlockSc extends Component {
         {
             return <FlatList
                 style={styles.list}
-                data={this.state.getBlock}
+                data={this.state.data}
                 renderItem={({item}) => 
                     <TouchableOpacity
                         onPress={()=> Actions.currentScene == "blockSc" ? Actions.userDetail({userId:item.targetUserId, option:"block"}) : {}}
@@ -153,7 +144,7 @@ export default class BlockSc extends Component {
         {
             return <FlatList
                 style={styles.list}
-                data={this.state.getAgainst}
+                data={this.state.data}
                 renderItem={({item}) => 
                     <TouchableOpacity
                         onPress={()=> Actions.currentScene == "blockSc" ? Actions.userDetail({userId:item.sourceUserId, option:"against"}) : {}}
@@ -176,23 +167,26 @@ export default class BlockSc extends Component {
     reset() {
         if(this.state.refreshTime == false)
         {
-            this.state.refreshTime = true;
-            this.state.modalVisible = true;
+            this.setState({
+                refreshTime: true,
+                modalVisible: true
+            });
 
             setTimeout(() => {
-                this.state.refreshTime = false;
+                this.setState({
+                    refreshTime: false
+                });
             }, 5000);
             
-            Promise.all([this.getBlock(),this.getAgainst()])
+            Promise.all([getBlocks(this.state),getAgainst(this.state)])
             .then(() => {
                 this.setState({
-                    modalVisible : false
+                    modalVisible : false,
                 });
             });
 
             this.setState({
                 refreshing:false,
-                option:"block",
                 search:null
             });
         }
@@ -208,14 +202,20 @@ export default class BlockSc extends Component {
             this.state.refreshTime = true;
             this.state.refreshButton = true;
             this.state.modalVisible = true;
-
+            this.setState({
+                refreshTime: true,
+                refreshButton: true,
+                modalVisible: true
+            });
             setTimeout(() => {
-                this.state.refreshTime = false;
+                this.setState({
+                    refreshTime: false
+                });
             }, 5000);
 
             let promise;
 
-            promise = Promise.all([this.getBlock(),this.getAgainst()]);
+            promise = Promise.all([getBlocks(this.state),getAgainst(this.state)]);
             promise.done(() => {
                 setTimeout(() => {
                     this.setState({
@@ -223,7 +223,7 @@ export default class BlockSc extends Component {
                     });
                 }, 1000);
                 this.setState({
-                    modalVisible : false
+                    modalVisible : false,
                 });
             });
 
@@ -278,12 +278,12 @@ export default class BlockSc extends Component {
 					</View>
                     <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%",height:70}}>
                         <NetmarbleL style={{textAlignVertical:"center"}}>
-                {this.state.option == "block" ? this.state.getBlock.length : this.state.getAgainst.length} {translate('people_count')}
+                            {this.state.data.length} {translate('people_count')}
                         </NetmarbleL>
                         <View style={[styles.selectView,{width:"45%"}]}>
                             <Picker 
-                                selectedValue = {this.state.option}
-                                onValueChange= {this.filter}
+                                selectedValue={this.state.option}
+                                onValueChange={this.filter}
                             >
                                 <Picker.Item label = {translate('msg_block')} value = "block" />
                                 <Picker.Item label = {translate('msg_against')} value = "against" />
