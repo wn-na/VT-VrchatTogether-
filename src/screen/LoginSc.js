@@ -33,21 +33,10 @@ import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleB} from '../utils/CssUtils';
 import {translate, getLanguage, setLanguage, userLang} from '../translate/TranslateUtils';
-import { TouchableHighlightBase } from "react-native";
 
 export default class LoginSc extends Component {
     constructor(props) {
         super(props);
-        AsyncStorage.getItem("storage_id",(err, value)=>{
-            this.setState({
-                id:value
-            });
-        });
-        AsyncStorage.getItem("storage_pw",(err, value)=>{
-            this.setState({
-                pw:value
-            });
-        });
         AsyncStorage.getItem("user_lang",(err, value)=>{
             if(value != null)
             {
@@ -67,10 +56,10 @@ export default class LoginSc extends Component {
             }
         });
         this.state = {
-            id: null,
-            pw: null,
-            autoautoLoginCheck: true,
-            loginCheck: null,
+            id: "",
+            pw: "",
+            loginCheck: true,
+            loginFail: null,
             isPermit: false,
             langCheck: true,
             aniPosition: new Animated.ValueXY({x:0,y:0}),
@@ -81,6 +70,11 @@ export default class LoginSc extends Component {
     }
 
     UNSAFE_componentWillMount() {
+        AsyncStorage.getItem("storage_id",(err, value)=>{
+            this.setState({
+                id:value
+            });
+        });
         AsyncStorage.getItem("permit_check",(err, value)=>{
             this.setState({
                 isPermit:value == "check" ? false : true
@@ -144,12 +138,14 @@ export default class LoginSc extends Component {
     }
 
     async autoLogin() {
-        
+        AsyncStorage.getItem("storage_pw",(err, value)=>{
+            this.setState({
+                pw:value
+            });
+        });
         if(this.state.pw != null)
         {
-            const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
-
-            await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGetAuth(user))
+            await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGet)
             .then((response) => response.json())
             .then((responseJson) => {
                 if(!responseJson.error)
@@ -157,25 +153,46 @@ export default class LoginSc extends Component {
                     AsyncStorage.setItem("storage_id", this.state.id);
                     AsyncStorage.setItem("storage_pw", this.state.pw);
                     this.setState({
-                        autoLoginCheck:true,
+                        loginCheck:true,
                         loadingText: translate('msg_redirect_main')
                     });
-                    this.getData();
-                    
                 }
                 else if(responseJson.error)
                 {
                     this.setState({
-                        autoLoginCheck:false
+                        loginCheck:false
                     });
                 }
             });
         }
         else
         {
-            this.setState({
-                autoLoginCheck : false
-            })
+            const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
+
+            await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGetAuth(user))
+            .then(response => response.json())
+            .then(responseJson => {
+                if(!responseJson.error)
+                {
+                    this.setState({
+                        loginFail: true
+                    });
+                }
+            });
+        }
+
+        if(this.state.loginCheck == true)
+        {
+            await getUserInfo(this.state);
+            let promise = Promise.all([
+                getAlerts(this.state),
+                getFriends(this.state),
+                getBlocks(this.state),
+                getAgainst(this.state),
+                getFavoriteMap(),
+                getFavoriteWorldTag()
+            ])
+            promise.done(() => Actions.mainSc())
         }
     }
 
@@ -191,18 +208,31 @@ export default class LoginSc extends Component {
                 AsyncStorage.setItem("storage_id", this.state.id);
                 AsyncStorage.setItem("storage_pw", this.state.pw);
                 this.setState({
-                    loginCheck: true
+                    loginFail: true
                 });
-                this.getData();
             }
             else
             {
                 this.setState({
-                    loginCheck: false
+                    loginFail: false
                 });
                 this.shakeAni();
             }
         });
+
+        if(this.state.loginFail == true)
+        {
+            await getUserInfo(this.state);
+            Promise.all([
+                getAlerts(this.state),
+                getFriends(this.state),
+                getBlocks(this.state),
+                getAgainst(this.state),
+                getFavoriteMap(),
+                getFavoriteWorldTag()
+            ])
+            .then(() => Actions.mainSc());
+        }
     }
     
     langSelect(lang) {
@@ -214,23 +244,9 @@ export default class LoginSc extends Component {
         this.autoLogin();
     }
 
-    async getData() {
-        await getUserInfo(this.state);
-        let promise = Promise.all([
-            getAlerts(this.state),
-            getFriends(this.state),
-            getBlocks(this.state),
-            getAgainst(this.state),
-            getFavoriteMap(),
-            getFavoriteWorldTag()
-        ])
-        promise.done(() => Actions.mainSc())
-    }
-
     render() {
         return (
             this.state.langCheck == true ?
-            // language check first time
             <Modal
             isVisible={this.state.langCheck}>
                 <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
@@ -256,9 +272,8 @@ export default class LoginSc extends Component {
                 </View>
             </Modal>
             :
-            this.state.autoLoginCheck == false
+            this.state.loginCheck == false
             ?
-            // autologin == false
             <View style={{flex:1}}>
                 <ImageBackground
                 style={{width:"100%",height:"100%"}}
@@ -266,14 +281,14 @@ export default class LoginSc extends Component {
                     <View style={styles.loginBox}>
                         <View style={{height:100, justifyContent:"center"}}>
                             {
-                                this.state.loginCheck == true ?
+                                this.state.loginFail == true ?
                                 <View>
                                     <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
                                         <Icon name={"check-circle"} size={80} style={{color:"#279cff"}} />
                                     </Animated.View>
                                     <NetmarbleL style={{color:"#279cff",fontSize:14,textAlign:"center"}}>{translate('login_success')}</NetmarbleL>
                                 </View>
-                                : this.state.loginCheck == false &&
+                                : this.state.loginFail == false &&
                                 <View>
                                     <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
                                         <Icon name={"x-circle"} size={80} style={{color:"#fc9090"}} />
@@ -350,7 +365,6 @@ export default class LoginSc extends Component {
                 </ImageBackground>
             </View>
             :
-            // autologin == true show the loading progress
             <View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
                 <Image
                 style={{flex:0.5,width:"90%",height:"90%",resizeMode:"contain"}}

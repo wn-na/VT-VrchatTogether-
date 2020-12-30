@@ -112,7 +112,7 @@ export default class MainSc extends Component {
                 <ImageBackground
                 style={{width:"100%",height:"100%"}}
                 source={require("../css/imgs/main_background.png")}>
-                    <View style={{height:"35%"}}>
+                    <View style={{flex:2}}>
                         <View style={styles.myInfo}>
                             <View style={{flexDirection:"row"}}>
                                 <View style={{marginTop:-20}}>
