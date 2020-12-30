@@ -211,6 +211,7 @@ export async function getBlocks (state) {
     await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderations`, VRChatAPIGet)
     .then((response) => response.json())
     .then(json => {
+        console.log(json);
         json.sort((a,b) =>{
             return a.created > b.created ? -1 : a.created > b.created ? 1 : 0;
         });
