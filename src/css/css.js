@@ -109,7 +109,7 @@ export default StyleSheet.create({
         paddingRight:5
     },
     menu: {
-        flex:3.5
+        height:"60%"
     },
     textView: {
         alignItems:"center",
