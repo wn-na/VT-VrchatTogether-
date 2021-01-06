@@ -45,6 +45,7 @@ export default class UserDetail extends Component {
         await fetch(`https://api.vrchat.cloud/api/1/users/${this.props.userId}`, VRChatAPIGet)
         .then((response) => response.json())
         .then((json) => {
+            console.log(json)
             this.setState({
                 getUserInfo:json
             });
@@ -335,7 +336,8 @@ export default class UserDetail extends Component {
                                     <NetmarbleL style={styles.friendInfoText}>
                                         {this.state.getUserInfo.displayName}{"  "}
                                         {this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
-                                        {this.state.getUserInfo.statusDescription != "" && (
+                                        {
+                                            this.state.getUserInfo.statusDescription != "" && this.state.getUserInfo.statusDescription != null && (
                                             this.state.getUserInfo.statusDescription.length > 15 ?
                                             this.state.getUserInfo.statusDescription.substr(0,15)+"...\n" :
                                             this.state.getUserInfo.statusDescription+"\n"
