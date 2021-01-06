@@ -1,4 +1,4 @@
-import {VRChatAPIGet, VRChatAPIDelete, VRChatAPIPut} from '../utils/ApiUtils';
+import {VRChatAPIGet, VRChatAPIDelete, VRChatAPIPut, VRChatAPIPutBody} from '../utils/ApiUtils';
 import {
     ToastAndroid,
     Alert
@@ -60,7 +60,9 @@ export let userInfo = {
     tag: null,
     friends: [],
     onlineFriends: [],
-    offlineFriends: []
+    offlineFriends: [],
+    activeFriends: [],
+    statusDescription: "",
 }
 
 export let alerts = new Array();
@@ -68,6 +70,7 @@ export let alerts = new Array();
 export let friends = new Array();
 export let friendOn = new Array();
 export let friendOff = new Array();
+export let friendActive = new Array();
 
 export let blocks = new Array();
 export let against = new Array();
@@ -98,28 +101,33 @@ export async function getAlerts(state) {
 }
 
 export async function getFriends(state) {
-    let offSet = 0;
-
-    Promise.all([getFriendOn(offSet)])
+    Promise.all([getFriendOn()])
     .then((result) => {
         friends = new Array();
         friendOn = new Array();
         friendOff = new Array();
+        friendActive = new Array();
         return result;
     })
     .done((result) => {
         friends = friends.concat(result[0]);
         friendOn = friendOn.concat(result[0]);
-    });
 
-    let promiseOff = Promise.all([getFriendOff(offSet)])
-    .then((result) => {
-        friends = friends.concat(result[0]);
-        friendOff = friendOff.concat(result[0]);
-    });
-    
-    promiseOff.done(() => {
-        state.updateFunction();
+        Promise.all([getFriendActive()])
+        .then((result) => {
+            friends = friends.concat(result[0]);
+            friendActive = friendActive.concat(result[0]);
+
+            let promiseOff = Promise.all([getFriendOff()])
+            .then((result) => {
+                friends = friends.concat(result[0]);
+                friendOff = friendOff.concat(result[0]);
+            });
+            
+            promiseOff.done(() => {
+                state.updateFunction();
+            });
+        });
     });
 }
 
@@ -127,18 +135,41 @@ async function getFriendOn() {
     let offSet = 0;
     let responseOn = new Array();
 
-    for(let i=0;i<Math.ceil(userInfo.offlineFriends.length/100);i++)
+    for(let i=0;i<Math.ceil(userInfo.onlineFriends.length/100);i++)
     {
         await fetch(`https://api.vrchat.cloud/api/1/auth/user/friends?offline=false&offset=${offSet}`, VRChatAPIGet)
         .then((response) => response.json())
         .then(json => {
-            responseOn = responseOn.concat(json);
+            if(!json.error)
+            {
+                responseOn = responseOn.concat(json);
+            }
         });
         offSet += 100;
     }
 
     return new Promise((resolve, reject) =>
     resolve(responseOn));
+}
+
+async function getFriendActive() {
+    let responseActive = new Array();
+
+    for(let i=0;i<userInfo.activeFriends.length;i++)
+    {
+        await fetch(`https://api.vrchat.cloud/api/1/users/`+userInfo.activeFriends[i], VRChatAPIGet)
+        .then((response) => response.json())
+        .then(json => {
+            if(!json.error)
+            {
+                json.location = "active";
+                responseActive = responseActive.concat(json);
+            }
+        });
+    }
+
+    return new Promise((resolve, reject) =>
+    resolve(responseActive));
 }
 
 async function getFriendOff() {
@@ -150,7 +181,10 @@ async function getFriendOff() {
         await fetch(`https://api.vrchat.cloud/api/1/auth/user/friends?offline=true&offset=${offSet}`, VRChatAPIGet)
         .then((response) => response.json())
         .then(json => {
-            responseOff = responseOff.concat(json)
+            if(!json.error)
+            {
+                responseOff = responseOff.concat(json)
+            }
         });
         offSet += 100;
     }
@@ -211,10 +245,13 @@ export async function getBlocks (state) {
     await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderations`, VRChatAPIGet)
     .then((response) => response.json())
     .then(json => {
-        json.sort((a,b) =>{
-            return a.created > b.created ? -1 : a.created > b.created ? 1 : 0;
-        });
-        blocks = json.filter((v) => v.type.indexOf("block") !== -1);
+        if(!json.error)
+        {
+            json.sort((a,b) =>{
+                return a.created > b.created ? -1 : a.created > b.created ? 1 : 0;
+            });
+            blocks = json.filter((v) => v.type.indexOf("block") !== -1);
+        }
         state.updateFunction();
     });
 }
@@ -223,10 +260,40 @@ export async function getAgainst(state) {
     await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderated`, VRChatAPIGet)
     .then((response) => response.json())
     .then(json => {
-        json.sort((a,b) =>{
-            return a.created > b.created ? -1 : a.created > b.created ? 1 : 0;
-        });
-        against = json.filter((v) => v.type.indexOf("block") !== -1);
+        if(!json.error)
+        {
+            json.sort((a,b) =>{
+                return a.created > b.created ? -1 : a.created > b.created ? 1 : 0;
+            });
+            against = json.filter((v) => v.type.indexOf("block") !== -1);
+        }
+        
         state.updateFunction();
     })
+}
+
+export async function changeStatus(state,statusText) {
+    if(statusText.length > 200)
+    {
+        ToastAndroid.show(translate('msg_success_process'), ToastAndroid.SHORT);
+    }
+    else
+    {
+        await fetch(`https://api.vrchat.cloud/api/1/users/${userInfo.id}`, VRChatAPIPutBody({
+            "statusDescription":statusText
+        }))
+        .then((response) => response.json())
+        .then(json => {
+            if(!json.error)
+            {
+                getUserInfo(state);
+                ToastAndroid.show(translate('msg_success_process'), ToastAndroid.SHORT);
+            }
+            else
+            {
+                ToastAndroid.show(translate('msg_fail_process'), ToastAndroid.SHORT);
+            }
+            state.updateFunction();
+        });
+    }
 }

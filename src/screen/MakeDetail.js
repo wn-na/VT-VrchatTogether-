@@ -203,7 +203,7 @@ export default class MakeDetail extends Component {
                         }/>
                     </View>
                     <View style={{width:"100%",marginLeft:"3%"}}>
-                        <NetmarbleL style={{width:"70%",lineHeight:30}}>
+                        <NetmarbleL style={{width:"60%",lineHeight:30}}>
                             {item.name}{"\n"}
                             {item.authorName}{"\n"}
                             {item.updated_at.substring(0,10)}
@@ -256,26 +256,26 @@ export default class MakeDetail extends Component {
                         <View>
                             <View style={{flexDirection:"row",justifyContent:"center"}}>
                                 <View>
+                                    {
+                                        item.isFavorite == true ? 
+                                        <TouchableOpacity
+                                        style={styles.worldIcon}
+                                        onPress={this.favoriteWorld.bind(this, 0, item.favoriteId, item.id, item.isFavorite)}>
+                                            <Image
+                                            source={require('../css/imgs/favorite_star.png')}
+                                            style={{width:30,height:30}}/>
+                                        </TouchableOpacity>
+                                        :
+                                        <TouchableOpacity
+                                        style={styles.worldIcon}
+                                        onPress={() => this.setState({modalVisible:true, getWorldsChooseId:item.id})}>
+                                            <Image
+                                            source={require('../css/imgs/unfavorite_star.png')}
+                                            style={{width:30,height:30}}/>
+                                        </TouchableOpacity>
+                                    }
                                     <NetmarbleM style={{textAlign:"center"}}>{item.name}</NetmarbleM>
                                     <View>
-                                        {
-                                            item.isFavorite == true ? 
-                                            <TouchableOpacity
-                                            style={styles.worldIcon}
-                                            onPress={this.favoriteWorld.bind(this, 0, item.favoriteId, item.id, item.isFavorite)}>
-                                                <Image
-                                                source={require('../css/imgs/favorite_star.png')}
-                                                style={{width:30,height:30}}/>
-                                            </TouchableOpacity>
-                                            :
-                                            <TouchableOpacity
-                                            style={styles.worldIcon}
-                                            onPress={() => this.setState({modalVisible:true, getWorldsChooseId:item.id})}>
-                                                <Image
-                                                source={require('../css/imgs/unfavorite_star.png')}
-                                                style={{width:30,height:30}}/>
-                                            </TouchableOpacity>
-                                        }
                                         <Image
                                         style={{
                                             width: parseInt(Dimensions.get('window').width / 100 * 72), 

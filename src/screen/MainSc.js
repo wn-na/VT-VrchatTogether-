@@ -13,7 +13,8 @@ import {
     ToastAndroid,
     ActivityIndicator,
     ImageBackground,
-    TouchableOpacity
+    TouchableOpacity,
+    TextInput
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import {
@@ -22,7 +23,8 @@ import {
     getUserInfo,
     userInfo,
     getAlerts,
-    alerts
+    alerts,
+    changeStatus
 } from './../utils/UserUtils';
 import Modal from 'react-native-modal';
 import { Actions } from "react-native-router-flux";
@@ -30,7 +32,7 @@ import { Col, Row } from "react-native-easy-grid";
 import {VRChatImage} from '../utils/ApiUtils';
 import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
 import styles from '../css/css';
-import {NetmarbleM,NetmarbleL} from '../utils/CssUtils';
+import {NetmarbleM,NetmarbleL, NetmarbleB} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
 
 export default class MainSc extends Component {
@@ -43,8 +45,11 @@ export default class MainSc extends Component {
             refreshTime:false,
             exitApp:false,
             modalVisible: false,
+            statusModal: false,
             langChcek : false,
             update: false,
+            statusText:userInfo.statusDescription,
+            statusTextLength:userInfo.statusDescription.length,
             updateFunction: () => this.setState({update:!this.state.update}),
         };
     }
@@ -66,6 +71,20 @@ export default class MainSc extends Component {
         });
         return this.setState({
             update: !this.state.update
+        });
+    }
+
+    openChangeStatus = () => {
+        this.setState({
+            statusModal:true,
+            statusText:userInfo.statusDescription
+        });
+    }
+
+    changeStatus = async() => {
+        changeStatus(this.state,this.state.statusText);
+        this.setState({
+            statusModal:false,
         });
     }
 
@@ -112,7 +131,7 @@ export default class MainSc extends Component {
                 <ImageBackground
                 style={{width:"100%",height:"100%"}}
                 source={require("../css/imgs/main_background.png")}>
-                    <View style={{flex:2}}>
+                    <View style={{height:"35%"}}>
                         <View style={styles.myInfo}>
                             <View style={{flexDirection:"row"}}>
                                 <View style={{marginTop:-20}}>
@@ -132,26 +151,24 @@ export default class MainSc extends Component {
                                         source={require('../css/imgs/option.png')}/>
                                     </TouchableOpacity>
                                 </View>
-                                <NetmarbleL style={styles.myInfoText}>
+                                <NetmarbleL style={[styles.myInfoText,{width:"55%"}]}>
                                     {userInfo.displayName}{"  "}
                                     {userInfo.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
-                                    {userInfo.statusDescription != "" && userInfo.statusDescription+"\n"}
+                                    {userInfo.statusDescription.length > 25 ? userInfo.statusDescription.substr(0,25)+"..." : userInfo.statusDescription}
                                 </NetmarbleL>
+                                <TouchableOpacity
+                                style={{position:"absolute",top:"40%",right:"2%"}}
+                                onPress={()=>this.openChangeStatus()}>
+                                    <Icon 
+                                    style={{color:"#666"}}
+                                    name={"edit"} size={20}/>
+                                </TouchableOpacity>
                             </View>
                             <View style={{justifyContent:"center",marginTop:"5%"}}>
                                 <View style={styles.userCount}>
                                     <Row>
                                         <Col>
-                                            <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"all",allCount:userInfo.friends.length})}>
-                                                <NetmarbleL 
-                                                style={styles.friendsCount}>
-                                                    {`${translate('all_user')}\n`}
-                                                    {userInfo.friends.length}{translate('people_count')}
-                                                </NetmarbleL>
-                                            </TouchableOpacity>
-                                        </Col>
-                                        <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
-                                            <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"on",onCount:userInfo.onlineFriends.length})}>
+                                            <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"on"})}>
                                                 <NetmarbleL 
                                                 style={styles.friendsCount}>
                                                     {`${translate('online')}\n`}
@@ -159,12 +176,21 @@ export default class MainSc extends Component {
                                                 </NetmarbleL>
                                             </TouchableOpacity>
                                         </Col>
-                                        <Col>
-                                            <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"off",offCount:userInfo.offlineFriends.length})}>
+                                        <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
+                                            <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"off"})}>
                                                 <NetmarbleL 
                                                 style={styles.friendsCount}>
                                                     {`${translate('offline')}\n`}
                                                     {userInfo.offlineFriends.length}{translate('people_count')}
+                                                </NetmarbleL>
+                                            </TouchableOpacity>
+                                        </Col>
+                                        <Col>
+                                            <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"active"})}>
+                                                <NetmarbleL 
+                                                style={styles.friendsCount}>
+                                                    {`${translate('active')}\n`}
+                                                    {userInfo.activeFriends.length}{translate('people_count')}
                                                 </NetmarbleL>
                                             </TouchableOpacity>
                                         </Col>
@@ -283,6 +309,45 @@ export default class MainSc extends Component {
                     <Modal
                     isVisible={this.state.modalVisible}>
                         <ActivityIndicator size={100}/>
+                    </Modal>
+                    <Modal
+                    style={styles.modal}
+                    onBackButtonPress={()=>this.setState({statusModal:false})}
+                    onBackdropPress={()=>this.setState({statusModal:false})}
+                    isVisible={this.state.statusModal}>
+                        <View style={{backgroundColor:"#fff",padding:"2%",justifyContent:"center",alignItems:"center",borderRadius:10}}>
+                            <NetmarbleL style={{marginTop:"5%"}}>
+                                {translate('changeStatus')}
+                            </NetmarbleL>
+                            <View style={{borderBottomWidth:1,width:"90%"}}>
+                                <TextInput 
+                                autoFocus
+                                value={this.state.statusText}
+                                maxLength={200}
+                                onChangeText={(text) =>
+                                this.setState({
+                                    statusText:text,
+                                    statusTextLength:text.length
+                                })}
+                                onSubmitEditing={()=>this.changeStatus()}
+                                style={{width:"100%",fontFamily:"NetmarbleL"}}/>
+                            </View>
+                            <NetmarbleL style={{width:"90%",textAlign:"right"}}>
+                                {this.state.statusTextLength} / 200
+                            </NetmarbleL>
+                            <View style={{alignItems:"center",justifyContent:"center",flexDirection:"row"}}>
+                                <Button 
+                                onPress={()=>this.changeStatus()}
+                                style={[styles.requestButton,{width:"40%",height:40,margin:10,justifyContent:"center"}]}>
+                                    <NetmarbleL>{translate('ok')}</NetmarbleL>
+                                </Button>
+                                <Button 
+                                onPress={()=>this.setState({statusModal:false})}
+                                style={[styles.requestButton,{width:"40%",height:40,margin:10,justifyContent:"center"}]}>
+                                    <NetmarbleL>{translate('cancel')}</NetmarbleL>
+                                </Button>
+                            </View>
+                        </View>
                     </Modal>
                 </ImageBackground>
             </ScrollView>

@@ -20,15 +20,17 @@ import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {
+    userInfo,
     UserGrade,
     UserGradeName,
     getFriends,
     friends,
     friendOn,
     friendOff,
+    friendActive
 } from './../utils/UserUtils';
 import { Col, Row } from "react-native-easy-grid";
-import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils';
+import {VRChatImage} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
@@ -64,10 +66,7 @@ export default class FriendListSc extends Component {
                 fake_image: value
             });
         });
-        await getFriends(this.state);
-        this.setState({
-            friends: friends
-        });
+        this.filter(this.props.option)
     }
 
     componentWillUnmount() {
@@ -96,6 +95,12 @@ export default class FriendListSc extends Component {
         {
             this.setState({
                 friends: friendOff
+            });
+        }
+        else if(value == "active")
+        {
+            this.setState({
+                friends: friendActive
             });
         }
     }
@@ -168,8 +173,18 @@ export default class FriendListSc extends Component {
                         <NetmarbleL style={styles.friendInfoText}>
                             {item.displayName}{"  "}
                             {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
-                            {item.statusDescription != "" && item.statusDescription+"\n"}
-                            {item.location == "private" ? "private" : item.location != "private" && item.location != "offline" ? "public" : item.location == "offline" ? "offline" : null}
+                            {item.statusDescription != "" && (
+                                item.statusDescription.length > 15 ?
+                                item.statusDescription.substr(0,15)+"...\n" :
+                                item.statusDescription+"\n"
+                            )}
+                            {item.last_login.substr(0,10)+"\n"}
+                            {
+                                item.location == "private" ? "private" :
+                                item.location != "private" && item.location != "offline" && item.location != "active" ? "public" :
+                                item.location == "offline" ? "offline" :
+                                item.location == "active" && "active"
+                            }
                         </NetmarbleL>
                     </View>
                 </TouchableOpacity>
@@ -275,25 +290,25 @@ export default class FriendListSc extends Component {
                         <ActivityIndicator size={20} color="white" style={{width:20,height:20}}/>
                         }
                     </View>
-                    <View style={{justifyContent:"center",marginTop:-50,margin:"5%",padding:"2%",backgroundColor:"white",elevation:15,borderRadius:10}}>
+                    <View style={{marginTop:"-10%",margin:"5%",padding:"2%",backgroundColor:"white",elevation:15,borderRadius:10}}>
                         <View style={{width:"100%",flexDirection:"row"}}>
                             <Row>
                                 <Col>
                                     <NetmarbleL style={styles.friendsCount}>
-                                        {translate('all_user')}{"\n"}
-                                        {this.props.allCount+translate('people_count')}
+                                        {translate('online')}{"\n"}
+                                        {userInfo.onlineFriends.length+translate('people_count')}
                                     </NetmarbleL>
                                 </Col>
                                 <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
                                     <NetmarbleL style={styles.friendsCount}>
-                                        {translate('online')}{"\n"}
-                                        {this.props.onCount+translate('people_count')}
+                                        {translate('offline')}{"\n"}
+                                        {userInfo.offlineFriends.length+translate('people_count')}
                                     </NetmarbleL>
                                 </Col>
                                 <Col>
                                     <NetmarbleL style={styles.friendsCount}>
-                                        {translate('offline')}{"\n"}
-                                        {this.props.offCount+translate('people_count')}
+                                        {translate('active')}{"\n"}
+                                        {userInfo.activeFriends.length+translate('people_count')}
                                     </NetmarbleL>
                                 </Col>
                             </Row>
@@ -316,11 +331,12 @@ export default class FriendListSc extends Component {
                         <View style={styles.selectView}>
                             <Picker 
                                 selectedValue = {this.state.option}
-                                onValueChange= {this.filter}
+                                onValueChange = {this.filter}
                             >
                                 <Picker.Item label = {translate('show_all')} value = "all" />
                                 <Picker.Item label = {translate('online')} value = "on" />
                                 <Picker.Item label = {translate('offline')} value = "off" />
+                                <Picker.Item label = {translate('active')} value = "active" />
                             </Picker>
                         </View>
                     </View>

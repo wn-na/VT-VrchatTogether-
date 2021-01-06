@@ -46,7 +46,7 @@ import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
 import styles from '../css/css';
-import {NetmarbleM,NetmarbleL} from '../utils/CssUtils';
+import {NetmarbleM,NetmarbleL,NetmarbleB} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
 
 export default class AvatarListSc extends Component {
@@ -258,7 +258,9 @@ export default class AvatarListSc extends Component {
 						<View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
 							<NetmarbleL style={{width:"70%",lineHeight:30}}>
 								{item.name}{"\n"}
-								{item.authorName}{"\n"}
+								<NetmarbleB>
+                                    {item.authorName}{"\n"}
+								</NetmarbleB>
 								{item.updated_at.substring(0,10)}
 							</NetmarbleL>
 							<View style={{position:"absolute",top:"-10%",left:"60%"}}>
@@ -294,6 +296,22 @@ export default class AvatarListSc extends Component {
 					onPress={()=> Actions.currentScene == "avatarListSc" ? Actions.userDetail({userId:item.authorId, isFriend:false}) : {}}
 					style={styles.avatarList}>
 					<View style={styles.avatarListView}>
+						{
+							item.isFavorite == true ?
+							<TouchableOpacity
+							onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+								<Image
+								source={require('../css/imgs/favorite_star.png')}
+								style={{width:30,height:30}}/>
+							</TouchableOpacity>
+							:
+							<TouchableOpacity
+							onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+								<Image
+								source={require('../css/imgs/unfavorite_star.png')}
+								style={{width:30,height:30}}/>
+							</TouchableOpacity>
+						}
 						<View>
 							<Image
 							style={{width: 100, height: 100, borderRadius:20}} 
@@ -315,24 +333,6 @@ export default class AvatarListSc extends Component {
 								{item.authorName}{"\n"}
 								{item.updated_at.substring(0,10)}
 							</NetmarbleL>
-							<View style={{position:"absolute",top:"-10%",left:"60%"}}>
-								{
-								item.isFavorite == true ?
-								<TouchableOpacity
-								onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
-									<Image
-									source={require('../css/imgs/favorite_star.png')}
-									style={{width:30,height:30}}/>
-								</TouchableOpacity>
-								:
-								<TouchableOpacity
-								onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
-									<Image
-									source={require('../css/imgs/unfavorite_star.png')}
-									style={{width:30,height:30}}/>
-								</TouchableOpacity>
-								}
-							</View>
 						</View>
 					</View>
 				</TouchableOpacity>}

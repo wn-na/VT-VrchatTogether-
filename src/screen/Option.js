@@ -21,9 +21,8 @@ import {
 import Icon from "react-native-vector-icons/Entypo";
 import Modal from 'react-native-modal';
 import { Actions } from "react-native-router-flux";
-import { Col, Row } from "react-native-easy-grid";
 import styles from '../css/css';
-import {NetmarbleM,NetmarbleB,NetmarbleL,Komako} from '../utils/CssUtils';
+import {NetmarbleB,NetmarbleL,Komako} from '../utils/CssUtils';
 import {translate,userLang,getLanguage,setLanguage} from '../translate/TranslateUtils';
 import {VRChatAPIPut} from '../utils/ApiUtils';
 

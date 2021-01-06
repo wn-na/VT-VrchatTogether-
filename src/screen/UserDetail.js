@@ -49,26 +49,35 @@ export default class UserDetail extends Component {
                 getUserInfo:json
             });
 
-            fetch(`https://api.vrchat.cloud/api/1/worlds/${json.worldId}`, VRChatAPIGet)
-            .then((response) => response.json())
-            .then((json) => {
-                if(!json.error)
-                {
-                    this.setState({
-                        getUserWInfo:json
-                    });
-                }
-
-                this.isBlocked();
-
-                isFavorite = Promise.all([this.isFavorite(json.id)]);
-
-                isFavorite.done(() => {
-                    this.setState({
-                        modalLoading:false
+            if(json.location != "offline")
+            {
+                fetch(`https://api.vrchat.cloud/api/1/worlds/${json.worldId}`, VRChatAPIGet)
+                .then((response) => response.json())
+                .then((json) => {
+                    if(!json.error)
+                    {
+                        this.setState({
+                            getUserWInfo:json
+                        });
+                    }
+    
+                    this.isBlocked();
+    
+                    isFavorite = Promise.all([this.isFavorite(json.id)]);
+    
+                    isFavorite.done(() => {
+                        this.setState({
+                            modalLoading:false
+                        });
                     })
-                })
-            });
+                });
+            }
+            else
+            {
+                this.setState({
+                    modalLoading:false
+                });
+            }
         });
     }
 
@@ -326,7 +335,11 @@ export default class UserDetail extends Component {
                                     <NetmarbleL style={styles.friendInfoText}>
                                         {this.state.getUserInfo.displayName}{"  "}
                                         {this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
-                                        {this.state.getUserInfo.statusDescription != "" && this.state.getUserInfo.statusDescription+"\n"}
+                                        {this.state.getUserInfo.statusDescription != "" && (
+                                            this.state.getUserInfo.statusDescription.length > 15 ?
+                                            this.state.getUserInfo.statusDescription.substr(0,15)+"...\n" :
+                                            this.state.getUserInfo.statusDescription+"\n"
+                                        )}
                                         {this.state.getUserInfo.location == "private" ? "private" : this.state.getUserInfo.location != "private" && this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? "public" : this.state.getUserInfo.location == "offline" || this.state.getUserInfo.location == "" ? "offline" : null}
                                     </NetmarbleL>
                                 </View>

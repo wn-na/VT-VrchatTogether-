@@ -192,11 +192,17 @@ export default StyleSheet.create({
         margin:"7%"
     },
     worldIcon: {
+        color: "#FFBB00",
+        alignItems:"flex-end",
+        zIndex:2
+    },
+    avatarIcon: {
         position:"absolute",
         color: "#FFBB00",
-        right:"2%",
-        top:"10%",
-        zIndex:2
+        alignItems:"flex-end",
+        zIndex:2,
+        right:"3%",
+        top:"5%"
     },
     friendList: {
         borderWidth:1,

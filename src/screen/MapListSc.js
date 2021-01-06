@@ -281,9 +281,7 @@ export default class MapListSc extends Component {
                                 <View>
                                     <View style={{flexDirection:"row",justifyContent:"center"}}>
                                         <View>
-                                            <NetmarbleM style={{textAlign:"center"}}>{item.name}</NetmarbleM>
-                                            <View>
-                                                <TouchableOpacity
+                                            <TouchableOpacity
                                                 style={styles.worldIcon}
                                                 onPress={() => 
                                                 updateFavoriteMap(this.state, item, FavoriteWorld.get(item.id))}>
@@ -295,7 +293,9 @@ export default class MapListSc extends Component {
                                                         require('../css/imgs/unfavorite_star.png')
                                                     }
                                                     style={{width:30,height:30}}/>
-                                                </TouchableOpacity>
+                                            </TouchableOpacity>
+                                            <NetmarbleM style={{textAlign:"center"}}>{item.name}</NetmarbleM>
+                                            <View>
                                                 <Image
                                                     style={{
                                                         width: parseInt(Dimensions.get('window').width / 100 * 72), 
