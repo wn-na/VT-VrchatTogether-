@@ -45,7 +45,6 @@ export default class UserDetail extends Component {
         await fetch(`https://api.vrchat.cloud/api/1/users/${this.props.userId}`, VRChatAPIGet)
         .then((response) => response.json())
         .then((json) => {
-            console.log(json)
             this.setState({
                 getUserInfo:json
             });

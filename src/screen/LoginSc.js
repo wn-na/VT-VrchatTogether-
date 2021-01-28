@@ -213,7 +213,7 @@ export default class LoginSc extends Component {
             getFavoriteMap(),
             getFavoriteWorldTag()
         ])
-        promise.done(() => Actions.mainSc())
+        // promise.done(() => Actions.mainSc())
     }
     
     langSelect(lang) {
@@ -349,12 +349,17 @@ export default class LoginSc extends Component {
             </View>
             :
             // autologin == true show the loading progress
-            <View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
-                <Image
-                style={{flex:0.5,width:"90%",height:"90%",resizeMode:"contain"}}
-                source={require('../css/imgs/logo.png')}></Image>
-                <ActivityIndicator size={100}/>
-                <NetmarbleL>{this.state.loadingText}</NetmarbleL>
+            <View style={{flex:1,height:"100%",justifyContent:"center",alignItems:"center"}}>
+                <ImageBackground
+                style={{width:"100%",height:"100%"}}
+                source={require('../css/imgs/logo.png')}>
+                    <View style={{flex:1,justifyContent:"flex-end",alignItems:"center"}}>
+                        <View style={{marginBottom:80}}>
+                            <ActivityIndicator color="#111459" size={100}/>
+                            <NetmarbleL style={{color:"#fff"}}>{this.state.loadingText}</NetmarbleL>
+                        </View>
+                    </View>
+                </ImageBackground>
             </View>
         );
     }
