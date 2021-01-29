@@ -16,6 +16,7 @@ export default {
     ok : 'OK',
     loading : 'Loading...',
     msg_redirect_main : "We'll be on the main screen in a momentarily..",
+    msg_friend_list : 'We find your friends',
     login_success : 'Login Success',
     login_fail : 'ID or password do not match.',
     login : 'Login',

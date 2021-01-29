@@ -282,6 +282,45 @@ export default class UserDetail extends Component {
         }
     }
 
+    userState() {
+        if(this.state.getUserInfo.location == "private")
+        {
+            return "private"
+        }
+        if(this.state.getUserInfo.location == "offline" && this.state.getUserInfo.state == "offline")
+        {
+            return "offline"
+        }
+        if(this.state.getUserInfo.location == "offline" && this.state.getUserInfo.state == "active")
+        {
+            return "active"
+        }
+        if(this.state.getUserInfo.location != "" && this.state.getUserInfo.state != "offline")
+        {
+            return "public"
+        }
+    }
+
+    userStateIcon() {
+        if(this.state.getUserInfo.status == "active")
+        {
+            return <Icon style={{color:"green"}} name="controller-record"/>
+        }
+        if(this.state.getUserInfo.status == "ask me")
+        {
+            return <Icon style={{color:"#e88134"}} name="controller-record"/>
+        }
+        if(this.state.getUserInfo.status == "join me")
+        {
+            return <Icon style={{color:"#42caff"}} name="controller-record"/>
+        }
+        // don't disturb(color red)
+        else(this.state.getUserInfo.status)
+        {
+            return <Icon style={{color:"#808080"}} name="controller-record"/>
+        }
+    }
+
     render() {
         if(this.state.getUserWInfo != null)
         {
@@ -334,14 +373,14 @@ export default class UserDetail extends Component {
                                 <View style={{width:"100%",marginLeft:"3%"}}>
                                     <NetmarbleL style={styles.friendInfoText}>
                                         {this.state.getUserInfo.displayName}{"  "}
-                                        {this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
+                                        {this.userStateIcon()}{"\n"}
                                         {
                                             this.state.getUserInfo.statusDescription != "" && this.state.getUserInfo.statusDescription != null && (
                                             this.state.getUserInfo.statusDescription.length > 15 ?
                                             this.state.getUserInfo.statusDescription.substr(0,15)+"...\n" :
                                             this.state.getUserInfo.statusDescription+"\n"
                                         )}
-                                        {this.state.getUserInfo.location == "private" ? "private" : this.state.getUserInfo.location != "private" && this.state.getUserInfo.location != "offline" && this.state.getUserInfo.location != "" ? "public" : this.state.getUserInfo.location == "offline" || this.state.getUserInfo.location == "" ? "offline" : null}
+                                        {this.userState()}
                                     </NetmarbleL>
                                 </View>
                             </View>
@@ -354,6 +393,7 @@ export default class UserDetail extends Component {
                                 <NetmarbleL>{this.state.getUserInfo.isFriend == true ? translate('delete_friend') : translate('request_friend')}</NetmarbleL>
                             </Button>
                         </View>
+                        {/* now world info */}
                         {this.state.getUserWInfo != null ?
                             <View style={{marginTop:"2%"}}>
                                 <NetmarbleL style={{marginLeft:"5%",fontSize:20}}>{translate('now_world')}</NetmarbleL>

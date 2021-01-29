@@ -16,6 +16,7 @@ export default {
     ok : '확인',
     loading : '로딩중...',
     msg_redirect_main : '잠시후 메인화면으로 이동합니다.',
+    msg_friend_list : '친구들을 찾고있습니다.',
     login_success : '로그인 성공',
     login_fail : '아이디 혹은 비밀번호가 일치하지 않습니다.',
     login : '로그인',

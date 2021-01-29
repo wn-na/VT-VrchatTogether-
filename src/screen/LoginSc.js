@@ -204,16 +204,19 @@ export default class LoginSc extends Component {
     }
 
     async getData() {
-        await getUserInfo(this.state);
-        let promise = Promise.all([
+        await getUserInfo(this.state)
+        Promise.all([
             getAlerts(this.state),
-            getFriends(this.state),
             getBlocks(this.state),
             getAgainst(this.state),
             getFavoriteMap(),
             getFavoriteWorldTag()
         ])
-        // promise.done(() => Actions.mainSc())
+        this.setState({
+            loadingText: translate('msg_friend_list')
+        });
+        await getFriends(this.state)
+        .then(() => Actions.mainSc())
     }
     
     langSelect(lang) {

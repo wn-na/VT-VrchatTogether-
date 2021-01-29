@@ -24,7 +24,8 @@ import {
     userInfo,
     getAlerts,
     alerts,
-    changeStatus
+    changeStatus,
+    getFriends
 } from './../utils/UserUtils';
 import Modal from 'react-native-modal';
 import { Actions } from "react-native-router-flux";
@@ -89,7 +90,7 @@ export default class MainSc extends Component {
     }
 
     // 새로고침 시 5초 카운팅기능
-    reset = () => {
+    reset = async() => {
         if(this.state.refreshTime == false)
         {
             this.setState({
@@ -103,8 +104,9 @@ export default class MainSc extends Component {
                 });
             }, 5000);
             
-            
-            Promise.all(getUserInfo(this.state),getAlerts(this.state),getFavoriteMap(),getFavoriteWorldTag())
+            await getUserInfo(this.state)
+            await getFriends(this.state)
+            Promise.all(getAlerts(this.state),getFavoriteMap(),getFavoriteWorldTag())
             .then(()=>
                 this.setState({
                     refreshing: false,

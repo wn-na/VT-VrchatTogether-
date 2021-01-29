@@ -172,7 +172,16 @@ export default class FriendListSc extends Component {
                         </View>
                         <NetmarbleL style={styles.friendInfoText}>
                             {item.displayName}{"  "}
-                            {item.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
+                            {
+                                item.status == "active" ? 
+                                <Icon style={{color:"green"}} name="controller-record"/> :
+                                item.status == "ask me" ?
+                                <Icon style={{color:"#e88134"}} name="controller-record"/> :
+                                item.status == "join me" ?
+                                <Icon style={{color:"#42caff"}} name="controller-record"/> :
+                                <Icon style={{color:"#808080"}} name="controller-record"/>
+                            }
+                            {"\n"}
                             {item.statusDescription != "" && (
                                 item.statusDescription.length > 15 ?
                                 item.statusDescription.substr(0,15)+"...\n" :
@@ -327,7 +336,7 @@ export default class FriendListSc extends Component {
                                 name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
                         </View>
                     </View>
-                    <View style={{flexDirection:"row",justifyContent:"flex-end",marginRight:"5%",height:70}}>
+                    <View style={{alignItems:"flex-end",marginRight:"5%"}}>
                         <View style={styles.selectView}>
                             <Picker 
                                 selectedValue = {this.state.option}

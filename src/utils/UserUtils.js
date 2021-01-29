@@ -101,34 +101,52 @@ export async function getAlerts(state) {
 }
 
 export async function getFriends(state) {
-    Promise.all([getFriendOn()])
-    .then((result) => {
-        friends = new Array();
-        friendOn = new Array();
-        friendOff = new Array();
-        friendActive = new Array();
-        return result;
+    friends = new Array();
+    friendOn = new Array();
+    friendOff = new Array();
+    friendActive = new Array();
+    
+    // online friends
+    await getFriendOn()
+    .then((json)=>{
+        json.sort((a,b) => {
+            return a.last_login > b.last_login ? -1 : a.last_login > b.last_login ? 1 : 0;
+        })
+        return json;
     })
-    .done((result) => {
-        friends = friends.concat(result[0]);
-        friendOn = friendOn.concat(result[0]);
+    .then((onResult)=> {
+        friends = friends.concat(onResult)
+        friendsOn = onResult
+    })
+    // active friends
+    await getFriendActive()
+    .then((json)=>{
+        json.sort((a,b) => {
+            return a.last_login > b.last_login ? -1 : a.last_login > b.last_login ? 1 : 0;
+        })
+        return json;
+    })
+    .then((activeResult)=> {
+        friends = friends.concat(activeResult)
+        friendsActive = activeResult
+    })
+    // offline friends
+    await getFriendOff()
+    .then((json)=>{
+        json.sort((a,b) => {
+            return a.last_login > b.last_login ? -1 : a.last_login > b.last_login ? 1 : 0;
+        })
+        return json;
+    })
+    .then((offResult)=> {
+        friends = friends.concat(offResult)
+        friendsOff = offResult
+    })
 
-        Promise.all([getFriendActive()])
-        .then((result) => {
-            friends = friends.concat(result[0]);
-            friendActive = friendActive.concat(result[0]);
-
-            let promiseOff = Promise.all([getFriendOff()])
-            .then((result) => {
-                friends = friends.concat(result[0]);
-                friendOff = friendOff.concat(result[0]);
-            });
-            
-            promiseOff.done(() => {
-                state.updateFunction();
-            });
-        });
-    });
+    return new Promise((resolve, reject) => {
+        state.updateFunction()
+        resolve(friends)
+    })
 }
 
 async function getFriendOn() {
