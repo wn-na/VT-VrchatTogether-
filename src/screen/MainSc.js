@@ -120,6 +120,26 @@ export default class MainSc extends Component {
         }
     }
 
+    userStateIcon(){
+        if(userInfo.status == "active")
+        {
+            return <Icon style={{color:"green"}} name="controller-record"/>
+        }
+        if(userInfo.status == "ask me")
+        {
+            return <Icon style={{color:"#e88134"}} name="controller-record"/>
+        }
+        if(userInfo.status == "join me")
+        {
+            return <Icon style={{color:"#42caff"}} name="controller-record"/>
+        }
+        // don't disturb(color red)
+        else(userInfo.status)
+        {
+            return <Icon style={{color:"#808080"}} name="controller-record"/>
+        }
+    }
+
     render() {
         return (
             <ScrollView
@@ -155,7 +175,7 @@ export default class MainSc extends Component {
                                 </View>
                                 <NetmarbleL style={[styles.myInfoText,{width:"55%"}]}>
                                     {userInfo.displayName}{"  "}
-                                    {userInfo.location != "offline" ? <Icon style={{color:"green"}} name="controller-record"/> : <Icon style={{color:"#b22222"}} name="controller-record"/>}{"\n"}
+                                    {this.userStateIcon()}{"\n"}
                                     {userInfo.statusDescription.length > 25 ? userInfo.statusDescription.substr(0,25)+"..." : userInfo.statusDescription}
                                 </NetmarbleL>
                                 <TouchableOpacity

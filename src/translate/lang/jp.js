@@ -97,4 +97,9 @@ export default {
     logout : 'ログアウト',
     changeStatus: 'ステータスメッセージ変更',
     statusLengthLimit: '最大200文字まで可能です。',
+    otp_check: 'OTP認証',
+    otp_check_info : '現在ログインしているアカウントは、OTP認証が必要です。',
+    otp_check_length_msg: 'OTPは6桁を入力してください。',
+    otp_check_success: 'OTP認証に成功し、しばらくしてメイン画面に移動します。',
+    otp_check_fail: 'OTP認証失敗',
 }

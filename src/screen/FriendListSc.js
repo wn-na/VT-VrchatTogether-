@@ -39,23 +39,6 @@ import AsyncStorage from "@react-native-community/async-storage";
 export default class FriendListSc extends Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            refreshing:false,
-            refreshTime:false,
-            option:this.props.option,
-            modalVisible:false,
-            refreshButton:false,
-            fake_image: "none",
-            high_image: "none",
-            friends: [],
-            update: false,
-            search: null,
-            updateFunction: () => this.setState({update:!this.state.update}),
-        };
-    }
-
-    async UNSAFE_componentWillMount() {
         AsyncStorage.getItem("user_high_image",(err,value)=>{
             this.setState({
                 high_image: value
@@ -66,6 +49,20 @@ export default class FriendListSc extends Component {
                 fake_image: value
             });
         });
+        this.state = {
+            refreshing:false,
+            refreshTime:false,
+            option:this.props.option,
+            modalVisible:false,
+            refreshButton:false,
+            friends: [],
+            update: false,
+            search: null,
+            updateFunction: () => this.setState({update:!this.state.update}),
+        };
+    }
+
+    async UNSAFE_componentWillMount() {
         this.filter(this.props.option)
     }
 
@@ -159,14 +156,10 @@ export default class FriendListSc extends Component {
                             <Image
                             style={{width: 100, height: 100, borderRadius:10}}
                             source={
-                                this.state.high_image == "check"
-                                ?
-                                VRChatImage(item.currentAvatarImageUrl)
-                                :
-                                this.state.fake_image == "check"
-                                ?
-                                require("../css/imgs/data_safe.png")
-                                :
+                                this.state.fake_image == "check" ?
+                                require("../css/imgs/data_safe.png") :
+                                this.state.high_image == "check" ?
+                                VRChatImage(item.currentAvatarImageUrl) :
                                 VRChatImage(item.currentAvatarThumbnailImageUrl)
                             }/>
                         </View>
@@ -182,11 +175,12 @@ export default class FriendListSc extends Component {
                                 <Icon style={{color:"#808080"}} name="controller-record"/>
                             }
                             {"\n"}
-                            {item.statusDescription != "" && (
+                            {
+                                item.statusDescription != "" && (
                                 item.statusDescription.length > 15 ?
                                 item.statusDescription.substr(0,15)+"...\n" :
-                                item.statusDescription+"\n"
-                            )}
+                                item.statusDescription+"\n")
+                            }
                             {item.last_login.substr(0,10)+"\n"}
                             {
                                 item.location == "private" ? "private" :

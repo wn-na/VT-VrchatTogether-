@@ -26,10 +26,11 @@ import {
     getAlerts,
     getFriends,
     getBlocks,
-    getAgainst
+    getAgainst,
+    userInfo
 } from './../utils/UserUtils';
 import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
-import {VRChatAPIGet, VRChatAPIGetAuth} from '../utils/ApiUtils';
+import {VRChatAPIGet, VRChatAPIGetAuth, VRChatAPIPostBody} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleB} from '../utils/CssUtils';
 import {translate, getLanguage, setLanguage, userLang} from '../translate/TranslateUtils';
@@ -68,6 +69,8 @@ export default class LoginSc extends Component {
         this.state = {
             id: null,
             pw: null,
+            otp: null,
+            otpCheck: false,
             autoLoginCheck: true,
             loginCheck: null,
             isPermit: false,
@@ -151,7 +154,14 @@ export default class LoginSc extends Component {
             await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGetAuth(user))
             .then((response) => response.json())
             .then((responseJson) => {
-                if(!responseJson.error)
+                if(responseJson.requiresTwoFactorAuth)
+                {
+                    this.setState({
+                        autoLoginCheck:false,
+                        otpCheck: true
+                    })
+                }
+                else if(!responseJson.error)
                 {
                     AsyncStorage.setItem("storage_id", this.state.id);
                     AsyncStorage.setItem("storage_pw", this.state.pw);
@@ -184,21 +194,28 @@ export default class LoginSc extends Component {
         await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGetAuth(user))
         .then(response => response.json())
         .then(responseJson => {
-            if(!responseJson.error)
+            if(responseJson.requiresTwoFactorAuth)
+            {
+                this.setState({
+                    autoLoginCheck:false,
+                    otpCheck: true
+                })
+            }
+            else if(!responseJson.error)
             {
                 AsyncStorage.setItem("storage_id", this.state.id);
                 AsyncStorage.setItem("storage_pw", this.state.pw);
                 this.setState({
-                    loginCheck: true
+                    autoLoginCheck:true,
+                    loadingText: translate('msg_redirect_main')
                 });
                 this.getData();
             }
-            else
+            else if(responseJson.error)
             {
                 this.setState({
-                    loginCheck: false
+                    autoLoginCheck:false
                 });
-                this.shakeAni();
             }
         });
     }
@@ -227,143 +244,229 @@ export default class LoginSc extends Component {
 
         this.autoLogin();
     }
+    
+    async checkOtpNumber() {
+        if(this.state.otp == null || this.state.otp == "" || this.state.otp.length != 6)
+        {
+            Alert.alert(
+                translate('error'),
+                translate('otp_check_length_msg'),
+                [{text: translate('ok')}]
+            );
+        }
+        else
+        {
+            await fetch("https://api.vrchat.cloud/api/1/auth/twofactorauth/totp/verify", VRChatAPIPostBody({
+                "code":this.state.otp,
+            }))
+            .then(response => response.json())
+            .then(responseJson => {
+                if(responseJson.verified)
+                {
+                    Alert.alert(
+                        translate('notice'),
+                        translate('otp_check_success'),
+                        [{text: translate('ok'), onPress: () => this.getData()}]
+                    );
+                }
+                else if(!responseJson.verified)
+                {
+                    Alert.alert(
+                        translate('error'),
+                        translate('otp_check_fail'),
+                        [{text: translate('ok')}]
+                    );
+                }
+            });
+        }
+    }
 
     render() {
-        return (
-            this.state.langCheck == true ?
-            // language check first time
-            <Modal
-            isVisible={this.state.langCheck}>
-                <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
-                    <View style={{alignItems:"center"}}>
-                        <View style={{flexDirection:"column",width:"100%"}}>
-                            <Button
-                            onPress={this.langSelect.bind(this,'kr')}
-                            style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
-                                <NetmarbleB style={{color:"white"}}>한국어</NetmarbleB>
-                            </Button>
-                            <Button
-                            onPress={this.langSelect.bind(this,'en')}
-                            style={[styles.requestButton,{marginTop:10,marginBottom:10,borderWidth:0,backgroundColor:"#279cff"}]}>
-                                <NetmarbleB style={{color:"white"}}>English</NetmarbleB>
-                            </Button>
-                            <Button
-                            onPress={this.langSelect.bind(this,'jp')}
-                            style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
-                                <NetmarbleB style={{color:"white"}}>日本語</NetmarbleB>
-                            </Button>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-            :
-            this.state.autoLoginCheck == false
-            // autologin == false
-            ?
-            <View style={{flex:1}}>
-                <ImageBackground
-                style={{width:"100%",height:"100%"}}
-                source={require('../css/imgs/login_background.png')}>
-                    <View style={styles.loginBox}>
-                        <View style={{height:100, justifyContent:"center"}}>
-                            {
-                                this.state.loginCheck == true ?
-                                <View>
-                                    <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
-                                        <Icon name={"check-circle"} size={80} style={{color:"#279cff"}} />
-                                    </Animated.View>
-                                    <NetmarbleL style={{color:"#279cff",fontSize:14,textAlign:"center"}}>{translate('login_success')}</NetmarbleL>
-                                </View>
-                                : this.state.loginCheck == false &&
-                                <View>
-                                    <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
-                                        <Icon name={"x-circle"} size={80} style={{color:"#fc9090"}} />
-                                    </Animated.View>
-                                    <NetmarbleL style={{color:"#fc9090",fontSize:14,textAlign:"center"}}>{translate('login_fail')}</NetmarbleL>
-                                </View>
-                            }
-                        </View>
-                        <NetmarbleB style={{color:"#279cff",fontSize:35}}>
-                            {translate('login')}
-                        </NetmarbleB>
-                        <View style={styles.loginTextBox}>
-                            <TextInput 
-                            placeholder={translate('email_placeholder')}
-                            value={this.state.id}
-                            onChangeText={(text)=>this.setState({id:text})}
-                            onSubmitEditing={() => { this.secondTextInput.focus(); }}
-                            style={{marginRight:"0%",width:"90%",fontFamily:"NetmarbleL"}}/>
-                            <Icon name="user" size={25} style={{marginTop:15,color:"#888c8b"}}/>
-                        </View>
-                        <View style={[styles.loginTextBox,{marginTop:20}]}>
-                            <TextInput 
-                            ref={(input) => { this.secondTextInput = input; }}
-                            placeholder={translate('password_placeholder')}
-                            value={this.state.pw}
-                            onChangeText={(text)=>this.setState({pw:text})}
-                            onSubmitEditing={this.login.bind(this)}
-                            secureTextEntry
-                            style={{marginRight:"0%",width:"90%",fontFamily:"NetmarbleL"}}/>
-                            <Icon name="lock" size={25} style={{marginTop:15,color:"#888c8b"}}/>
-                        </View>
-                        <View style={{flexDirection:"row",justifyContent:"space-around",marginTop:"10%",width:"80%"}}>
-                            <Button
-                            onPress={this.login.bind(this)}
-                            style={[styles.requestButton,{width:"48%",borderWidth:0,backgroundColor:"#279cff"}]}>
-                            <NetmarbleB style={{color:"white"}}>{translate('login')}</NetmarbleB>
-                            </Button>
-                            <Button
-                            onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
-                            style={[styles.requestButton,{width:"48%",borderWidth:0,elevation:0}]}>
-                            <NetmarbleB style={{color:"black"}}>{translate('register')}</NetmarbleB>
-                            </Button>
-                        </View>
-                    </View>
-                    <Modal
-                    isVisible={this.state.isPermit}>
-                        <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
-                            <View style={{alignItems:"center"}}>
-                                <NetmarbleB style={{fontSize:30}}>
-                                {translate('information')}
-                                </NetmarbleB>
-                                <NetmarbleL style={{textAlign:"center"}}>
-                                    {translate('msg_agreement_first')}<NetmarbleB>{translate('msg_agreement_unoffice')}</NetmarbleB>{translate('msg_agreement_second')}{'\n'}
-                                    {translate('msg_agreement')}
-                                </NetmarbleL>
-                                <NetmarbleB>
-                                    {translate('msg_agree_yn')}
-                                </NetmarbleB>
-                                <View style={{flexDirection:"row"}}>
-                                    <Button 
-                                    onPress={this.permit.bind(this)}
-                                    style={[styles.requestButton,{width:"40%",height:40,margin:10,justifyContent:"center"}]}>
-                                        <NetmarbleL>{translate('agree')}</NetmarbleL>
-                                    </Button>
-                                    <Button 
-                                    onPress={()=>BackHandler.exitApp()}
-                                    style={[styles.requestButton,{width:"40%",height:40,margin:10,justifyContent:"center"}]}>
-                                        <NetmarbleL>{translate('disagree')}</NetmarbleL>
-                                    </Button>
-                                </View>
+        if(this.state.langCheck == true)
+        {
+            return (
+                <Modal
+                isVisible={this.state.langCheck}>
+                    <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
+                        <View style={{alignItems:"center"}}>
+                            <View style={{flexDirection:"column",width:"100%"}}>
+                                <Button
+                                onPress={this.langSelect.bind(this,'kr')}
+                                style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
+                                    <NetmarbleB style={{color:"white"}}>한국어</NetmarbleB>
+                                </Button>
+                                <Button
+                                onPress={this.langSelect.bind(this,'en')}
+                                style={[styles.requestButton,{marginTop:10,marginBottom:10,borderWidth:0,backgroundColor:"#279cff"}]}>
+                                    <NetmarbleB style={{color:"white"}}>English</NetmarbleB>
+                                </Button>
+                                <Button
+                                onPress={this.langSelect.bind(this,'jp')}
+                                style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
+                                    <NetmarbleB style={{color:"white"}}>日本語</NetmarbleB>
+                                </Button>
                             </View>
                         </View>
-                    </Modal>
-                </ImageBackground>
-            </View>
-            :
-            // autologin == true show the loading progress
-            <View style={{flex:1,height:"100%",justifyContent:"center",alignItems:"center"}}>
-                <ImageBackground
-                style={{width:"100%",height:"100%"}}
-                source={require('../css/imgs/logo.png')}>
-                    <View style={{flex:1,justifyContent:"flex-end",alignItems:"center"}}>
-                        <View style={{marginBottom:80}}>
-                            <ActivityIndicator color="#111459" size={100}/>
-                            <NetmarbleL style={{color:"#fff"}}>{this.state.loadingText}</NetmarbleL>
+                    </View>
+                </Modal>
+            )
+        }
+        if(this.state.autoLoginCheck == false && this.state.otpCheck == false)
+        {
+            return (
+                <View style={{flex:1}}>
+                    <ImageBackground
+                    style={{width:"100%",height:"100%"}}
+                    source={require('../css/imgs/login_background.png')}>
+                        <View style={styles.loginBox}>
+                            <View style={{height:100, justifyContent:"center"}}>
+                                {
+                                    this.state.loginCheck == true ?
+                                    <View>
+                                        <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
+                                            <Icon name={"check-circle"} size={80} style={{color:"#279cff"}} />
+                                        </Animated.View>
+                                        <NetmarbleL style={{color:"#279cff",fontSize:14,textAlign:"center"}}>{translate('login_success')}</NetmarbleL>
+                                    </View>
+                                    : this.state.loginCheck == false &&
+                                    <View>
+                                        <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
+                                            <Icon name={"x-circle"} size={80} style={{color:"#fc9090"}} />
+                                        </Animated.View>
+                                        <NetmarbleL style={{color:"#fc9090",fontSize:14,textAlign:"center"}}>{translate('login_fail')}</NetmarbleL>
+                                    </View>
+                                }
+                            </View>
+                            <NetmarbleB style={{color:"#279cff",fontSize:35}}>
+                                {translate('login')}
+                            </NetmarbleB>
+                            <View style={styles.loginTextBox}>
+                                <TextInput 
+                                placeholder={translate('email_placeholder')}
+                                value={this.state.id}
+                                onChangeText={(text)=>this.setState({id:text})}
+                                onSubmitEditing={() => { this.secondTextInput.focus(); }}
+                                style={{marginRight:"0%",width:"90%",fontFamily:"NetmarbleL"}}/>
+                                <Icon name="user" size={25} style={{marginTop:15,color:"#888c8b"}}/>
+                            </View>
+                            <View style={[styles.loginTextBox,{marginTop:20}]}>
+                                <TextInput 
+                                ref={(input) => { this.secondTextInput = input; }}
+                                placeholder={translate('password_placeholder')}
+                                value={this.state.pw}
+                                onChangeText={(text)=>this.setState({pw:text})}
+                                onSubmitEditing={this.login.bind(this)}
+                                secureTextEntry
+                                style={{marginRight:"0%",width:"90%",fontFamily:"NetmarbleL"}}/>
+                                <Icon name="lock" size={25} style={{marginTop:15,color:"#888c8b"}}/>
+                            </View>
+                            <View style={{flexDirection:"row",justifyContent:"space-around",marginTop:"3%",width:"80%"}}>
+                                <Button
+                                onPress={this.login.bind(this)}
+                                style={[styles.requestButton,{width:"48%",borderWidth:0,backgroundColor:"#279cff"}]}>
+                                <NetmarbleB style={{color:"white"}}>{translate('login')}</NetmarbleB>
+                                </Button>
+                                <Button
+                                onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
+                                style={[styles.requestButton,{width:"48%",borderWidth:0,elevation:0}]}>
+                                <NetmarbleB style={{color:"black"}}>{translate('register')}</NetmarbleB>
+                                </Button>
+                            </View>
+                        </View>
+                        <Modal
+                        isVisible={this.state.isPermit}>
+                            <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
+                                <View style={{alignItems:"center"}}>
+                                    <NetmarbleB style={{fontSize:30}}>
+                                    {translate('information')}
+                                    </NetmarbleB>
+                                    <NetmarbleL style={{textAlign:"center"}}>
+                                        {translate('msg_agreement_first')}<NetmarbleB>{translate('msg_agreement_unoffice')}</NetmarbleB>{translate('msg_agreement_second')}{'\n'}
+                                        {translate('msg_agreement')}
+                                    </NetmarbleL>
+                                    <NetmarbleB>
+                                        {translate('msg_agree_yn')}
+                                    </NetmarbleB>
+                                    <View style={{flexDirection:"row"}}>
+                                        <Button 
+                                        onPress={this.permit.bind(this)}
+                                        style={[styles.requestButton,{width:"40%",height:40,margin:10,justifyContent:"center"}]}>
+                                            <NetmarbleL>{translate('agree')}</NetmarbleL>
+                                        </Button>
+                                        <Button 
+                                        onPress={()=>BackHandler.exitApp()}
+                                        style={[styles.requestButton,{width:"40%",height:40,margin:10,justifyContent:"center"}]}>
+                                            <NetmarbleL>{translate('disagree')}</NetmarbleL>
+                                        </Button>
+                                    </View>
+                                </View>
+                            </View>
+                        </Modal>
+                    </ImageBackground>
+                </View>
+            )
+        }
+        if(this.state.autoLogin == true)
+        {
+            return (
+                <View style={{flex:1,height:"100%",justifyContent:"center",alignItems:"center"}}>
+                    <ImageBackground
+                    style={{width:"100%",height:"100%"}}
+                    source={require('../css/imgs/logo.png')}>
+                        <View style={{flex:1,justifyContent:"flex-end",alignItems:"center"}}>
+                            <View style={{marginBottom:80}}>
+                                <ActivityIndicator color="#111459" size={100}/>
+                                <NetmarbleL style={{color:"#fff"}}>{this.state.loadingText}</NetmarbleL>
+                            </View>
+                        </View>
+                    </ImageBackground>
+                </View>
+            )
+        }
+        if(this.state.autoLoginCheck == false && this.state.otpCheck == true)
+        {
+            return (
+                <Modal
+                isVisible={this.state.otpCheck}>
+                    <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
+                        <View>
+                            <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
+                                <Icon name={"alert-circle"} size={80} style={{color:"#0fb74c"}} />
+                            </Animated.View>
+                            <NetmarbleL style={{color:"#0fb74c",fontSize:14,textAlign:"center"}}>
+                                {translate('otp_check_info')}
+                            </NetmarbleL>
+                            <View style={[styles.loginTextBox,{width:"100%"}]}>
+                                <TextInput 
+                                    placeholder={translate('otp_check_length_msg')}
+                                    value={this.state.otp}
+                                    onChangeText={(text)=>this.setState({otp:text})}
+                                    onSubmitEditing={() => this.checkOtpNumber()}
+                                    keyboardType={"numeric"}
+                                    style={{marginRight:"0%",width:"100%",fontFamily:"NetmarbleL"}}/>
+                            </View>
+                            <View style={{flexDirection:"row",justifyContent:"space-around",marginTop:"3%",width:"100%"}}>
+                                <Button
+                                onPress={this.checkOtpNumber.bind(this)}
+                                style={[styles.requestButton,{width:"48%",borderWidth:0,backgroundColor:"#279cff"}]}>
+                                <NetmarbleB style={{color:"white"}}>{translate('otp_check')}</NetmarbleB>
+                                </Button>
+                                <Button
+                                onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
+                                style={[styles.requestButton,{width:"48%",borderWidth:0,elevation:0}]}>
+                                <NetmarbleB style={{color:"black"}}>{translate('logout')}</NetmarbleB>
+                                </Button>
+                            </View>
                         </View>
                     </View>
-                </ImageBackground>
-            </View>
-        );
+                </Modal>
+            )
+        }
+        else
+        {
+            return (
+                <></>
+            )
+        }
     }
 }

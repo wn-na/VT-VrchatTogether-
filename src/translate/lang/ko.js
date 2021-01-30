@@ -17,7 +17,7 @@ export default {
     loading : '로딩중...',
     msg_redirect_main : '잠시후 메인화면으로 이동합니다.',
     msg_friend_list : '친구들을 찾고있습니다.',
-    login_success : '로그인 성공',
+    login_success : '로그인 성공, 잠시후 메인화면으로 이동합니다.',
     login_fail : '아이디 혹은 비밀번호가 일치하지 않습니다.',
     login : '로그인',
     email_placeholder : '이메일을 입력해주세요.',
@@ -97,4 +97,9 @@ export default {
     logout : '로그아웃',
     changeStatus: '상태메세지 변경',
     statusLengthLimit: '최대 200글자까지 가능합니다.',
+    otp_check: 'OTP인증',
+    otp_check_info : '현재 로그인된 계정은 OTP인증이 필요합니다.',
+    otp_check_length_msg: 'OTP는 6자리를 입력해주세요.',
+    otp_check_success: 'OTP인증 성공, 잠시후 메인화면으로 이동합니다.',
+    otp_check_fail: 'OTP인증 실패'
 }

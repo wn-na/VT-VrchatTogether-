@@ -398,12 +398,7 @@ export default class UserDetail extends Component {
                             <View style={{marginTop:"2%"}}>
                                 <NetmarbleL style={{marginLeft:"5%",fontSize:20}}>{translate('now_world')}</NetmarbleL>
                                 <View style={styles.worldInfoDetail}>
-                                    <View style={{
-                                        position:"absolute",
-                                        top:"17%",
-                                        right:"10%",
-                                        zIndex:1
-                                    }}>
+                                    <View style={{alignItems:"flex-end"}}>
                                         {
                                             this.state.isFavorite == true ? 
                                             <TouchableOpacity
