@@ -102,4 +102,5 @@ export default {
     otp_check_length_msg: 'OTPは6桁を入力してください。',
     otp_check_success: 'OTP認証に成功し、しばらくしてメイン画面に移動します。',
     otp_check_fail: 'OTP認証失敗',
+    otp_request_error: 'とても多くの要請を試みました。 しばらくしてからもう一度やり直してください。',
 }

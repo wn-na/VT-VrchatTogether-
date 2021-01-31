@@ -102,4 +102,5 @@ export default {
     otp_check_length_msg: 'Please enter 6 digits for OTP.',
     otp_check_success: 'OTP authentication successful, will be on the main screen shortly',
     otp_check_fail: 'OTP verify failed',
+    otp_request_error: 'Too many requests have been attempted. Please try again soon.',
 }

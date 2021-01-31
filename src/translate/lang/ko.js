@@ -101,5 +101,6 @@ export default {
     otp_check_info : '현재 로그인된 계정은 OTP인증이 필요합니다.',
     otp_check_length_msg: 'OTP는 6자리를 입력해주세요.',
     otp_check_success: 'OTP인증 성공, 잠시후 메인화면으로 이동합니다.',
-    otp_check_fail: 'OTP인증 실패'
+    otp_check_fail: 'OTP인증 실패',
+    otp_request_error: '너무많은 요청을 시도했습니다. 잠시후 다시 시도해 주세요.',
 }

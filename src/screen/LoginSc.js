@@ -30,7 +30,7 @@ import {
     userInfo
 } from './../utils/UserUtils';
 import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
-import {VRChatAPIGet, VRChatAPIGetAuth, VRChatAPIPostBody} from '../utils/ApiUtils';
+import {VRChatAPIGet, VRChatAPIGetAuth, VRChatAPIPostBody, VRChatAPIPut} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL,NetmarbleB} from '../utils/CssUtils';
 import {translate, getLanguage, setLanguage, userLang} from '../translate/TranslateUtils';
@@ -71,6 +71,7 @@ export default class LoginSc extends Component {
             pw: null,
             otp: null,
             otpCheck: false,
+            autoLogin: null,
             autoLoginCheck: true,
             loginCheck: null,
             isPermit: false,
@@ -146,9 +147,11 @@ export default class LoginSc extends Component {
     }
 
     async autoLogin() {
-        
         if(this.state.pw != null)
         {
+            this.setState({
+                autoLogin: true
+            })
             const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
 
             await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGetAuth(user))
@@ -167,14 +170,16 @@ export default class LoginSc extends Component {
                     AsyncStorage.setItem("storage_pw", this.state.pw);
                     this.setState({
                         autoLoginCheck:true,
-                        loadingText: translate('msg_redirect_main')
+                        loadingText: translate('msg_redirect_main'),
+                        loginCheck: true
                     });
                     this.getData();
                 }
                 else if(responseJson.error)
                 {
                     this.setState({
-                        autoLoginCheck:false
+                        autoLoginCheck:false,
+                        loginCheck: false
                     });
                 }
             });
@@ -196,6 +201,8 @@ export default class LoginSc extends Component {
         .then(responseJson => {
             if(responseJson.requiresTwoFactorAuth)
             {
+                AsyncStorage.setItem("storage_id", this.state.id);
+                AsyncStorage.setItem("storage_pw", this.state.pw);
                 this.setState({
                     autoLoginCheck:false,
                     otpCheck: true
@@ -206,15 +213,16 @@ export default class LoginSc extends Component {
                 AsyncStorage.setItem("storage_id", this.state.id);
                 AsyncStorage.setItem("storage_pw", this.state.pw);
                 this.setState({
-                    autoLoginCheck:true,
-                    loadingText: translate('msg_redirect_main')
+                    loadingText: translate('msg_redirect_main'),
+                    loginCheck: true
                 });
                 this.getData();
             }
             else if(responseJson.error)
             {
                 this.setState({
-                    autoLoginCheck:false
+                    autoLoginCheck:false,
+                    loginCheck: false
                 });
             }
         });
@@ -277,8 +285,39 @@ export default class LoginSc extends Component {
                         [{text: translate('ok')}]
                     );
                 }
+                else
+                {
+                    Alert.alert(
+                        translate('error'),
+                        translate('otp_request_error'),
+                        [{text: translate('ok')}]
+                    );
+                }
             });
         }
+    }
+
+    logout = () => {
+        Alert.alert(
+            translate('information'),
+            translate('msg_logout'),
+            [
+                {text: translate('ok'), onPress: () => {
+                    fetch(`https://api.vrchat.cloud/api/1/logout`, VRChatAPIPut)
+                    .then((response) => response.json())
+                    .then(() => {
+                        AsyncStorage.removeItem("storage_pw");
+                        Actions.replace("loginSc");
+                        this.setState({
+                            autoLoginCheck:false,
+                            otpCheck: false,
+                            pw: ""
+                        })
+                    });
+                }},
+                {text: translate('cancel')}
+            ]
+        );
     }
 
     render() {
@@ -311,7 +350,46 @@ export default class LoginSc extends Component {
                 </Modal>
             )
         }
-        if(this.state.autoLoginCheck == false && this.state.otpCheck == false)
+        if(this.state.autoLoginCheck == false && this.state.otpCheck == true)
+        {
+            return (
+                <Modal
+                isVisible={this.state.otpCheck}>
+                    <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
+                        <View>
+                            <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
+                                <Icon name={"alert-circle"} size={80} style={{color:"#0fb74c"}} />
+                            </Animated.View>
+                            <NetmarbleL style={{color:"#0fb74c",fontSize:14,textAlign:"center"}}>
+                                {translate('otp_check_info')}
+                            </NetmarbleL>
+                            <View style={[styles.loginTextBox,{width:"100%"}]}>
+                                <TextInput 
+                                    placeholder={translate('otp_check_length_msg')}
+                                    value={this.state.otp}
+                                    onChangeText={(text)=>this.setState({otp:text})}
+                                    onSubmitEditing={() => this.checkOtpNumber()}
+                                    keyboardType={"numeric"}
+                                    style={{marginRight:"0%",width:"100%",fontFamily:"NetmarbleL"}}/>
+                            </View>
+                            <View style={{flexDirection:"row",justifyContent:"space-around",marginTop:"3%",width:"100%"}}>
+                                <Button
+                                onPress={this.checkOtpNumber.bind(this)}
+                                style={[styles.requestButton,{width:"48%",borderWidth:0,backgroundColor:"#279cff"}]}>
+                                <NetmarbleB style={{color:"white"}}>{translate('otp_check')}</NetmarbleB>
+                                </Button>
+                                <Button
+                                onPress={this.logout.bind(this)}
+                                style={[styles.requestButton,{width:"48%",borderWidth:0,elevation:0}]}>
+                                <NetmarbleB style={{color:"black"}}>{translate('logout')}</NetmarbleB>
+                                </Button>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            )
+        }
+        else if(this.state.autoLoginCheck == false && this.state.otpCheck == false)
         {
             return (
                 <View style={{flex:1}}>
@@ -421,45 +499,6 @@ export default class LoginSc extends Component {
                         </View>
                     </ImageBackground>
                 </View>
-            )
-        }
-        if(this.state.autoLoginCheck == false && this.state.otpCheck == true)
-        {
-            return (
-                <Modal
-                isVisible={this.state.otpCheck}>
-                    <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
-                        <View>
-                            <Animated.View style={{alignItems:"center",transform:[{translateX:this.state.aniPosition.x}]}}>
-                                <Icon name={"alert-circle"} size={80} style={{color:"#0fb74c"}} />
-                            </Animated.View>
-                            <NetmarbleL style={{color:"#0fb74c",fontSize:14,textAlign:"center"}}>
-                                {translate('otp_check_info')}
-                            </NetmarbleL>
-                            <View style={[styles.loginTextBox,{width:"100%"}]}>
-                                <TextInput 
-                                    placeholder={translate('otp_check_length_msg')}
-                                    value={this.state.otp}
-                                    onChangeText={(text)=>this.setState({otp:text})}
-                                    onSubmitEditing={() => this.checkOtpNumber()}
-                                    keyboardType={"numeric"}
-                                    style={{marginRight:"0%",width:"100%",fontFamily:"NetmarbleL"}}/>
-                            </View>
-                            <View style={{flexDirection:"row",justifyContent:"space-around",marginTop:"3%",width:"100%"}}>
-                                <Button
-                                onPress={this.checkOtpNumber.bind(this)}
-                                style={[styles.requestButton,{width:"48%",borderWidth:0,backgroundColor:"#279cff"}]}>
-                                <NetmarbleB style={{color:"white"}}>{translate('otp_check')}</NetmarbleB>
-                                </Button>
-                                <Button
-                                onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
-                                style={[styles.requestButton,{width:"48%",borderWidth:0,elevation:0}]}>
-                                <NetmarbleB style={{color:"black"}}>{translate('logout')}</NetmarbleB>
-                                </Button>
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
             )
         }
         else
