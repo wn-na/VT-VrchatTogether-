@@ -197,6 +197,8 @@ export default class Option extends Component {
                             <NetmarbleL style={{marginTop:20,color:"#b4b4b4",fontSize:14}}>{translate('designer')}</NetmarbleL>
                             <Komako>세르뀨 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> 세르뀨#1388)</Komako>
                             <Komako>은혜 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> 은혜#0372)</Komako>
+                            <NetmarbleL style={{marginTop:20,color:"#b4b4b4",fontSize:14}}>{translate('charater_designer')}</NetmarbleL>
+                            <Komako>민트실버 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> 민트실버#1131)</Komako>
                             <NetmarbleL style={{marginTop:20,color:"#b4b4b4",fontSize:14}}>{translate('tester')}</NetmarbleL>
                             <Komako>Excite / きゆ / 옌딩</Komako>
                         </View>

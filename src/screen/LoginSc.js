@@ -193,6 +193,24 @@ export default class LoginSc extends Component {
     }
 
     login = async() => {
+        if(this.state.id == null || this.state.id == "")
+        {
+            Alert.alert(
+                translate('error'),
+                translate('id_null_error'),
+                [{text: translate('ok')}]
+            );
+            return false
+        }
+        if(this.state.pw == null || this.state.pw == "")
+        {
+            Alert.alert(
+                translate('error'),
+                translate('pw_null_error'),
+                [{text: translate('ok')}]
+            );
+            return false
+        }
         // utf8 문자 감지 후 base64 변환
         const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
 
@@ -441,11 +459,13 @@ export default class LoginSc extends Component {
                             <View style={{flexDirection:"row",justifyContent:"space-around",marginTop:"3%",width:"80%"}}>
                                 <Button
                                 onPress={this.login.bind(this)}
+                                disabled={this.state.loginCheck == true ? true : false}
                                 style={[styles.requestButton,{width:"48%",borderWidth:0,backgroundColor:"#279cff"}]}>
                                 <NetmarbleB style={{color:"white"}}>{translate('login')}</NetmarbleB>
                                 </Button>
                                 <Button
                                 onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
+                                disabled={this.state.loginCheck == true ? true : false}
                                 style={[styles.requestButton,{width:"48%",borderWidth:0,elevation:0}]}>
                                 <NetmarbleB style={{color:"black"}}>{translate('register')}</NetmarbleB>
                                 </Button>
