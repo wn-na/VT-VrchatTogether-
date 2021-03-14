@@ -76,10 +76,12 @@ export default class LoginSc extends Component {
             loginCheck: null,
             isPermit: false,
             langCheck: true,
+            langReCheck: false,
             aniPosition: new Animated.ValueXY({x:0,y:0}),
             loadingText: translate('loading'),
             update: false,
             updateFunction: () => this.setState({update:!this.state.update}),
+            loginLoading: false,
         };
     }
 
@@ -200,7 +202,8 @@ export default class LoginSc extends Component {
                 translate('id_null_error'),
                 [{text: translate('ok')}]
             );
-            return false
+
+            return false;
         }
         if(this.state.pw == null || this.state.pw == "")
         {
@@ -209,10 +212,16 @@ export default class LoginSc extends Component {
                 translate('pw_null_error'),
                 [{text: translate('ok')}]
             );
-            return false
+
+            return false;
         }
+
         // utf8 문자 감지 후 base64 변환
         const user = base64.encode(utf8.encode(this.state.id+":"+this.state.pw));
+        
+        this.setState({
+            loginLoading: true
+        });
 
         await fetch(`https://api.vrchat.cloud/api/1/auth/user`, VRChatAPIGetAuth(user))
         .then(response => response.json())
@@ -240,14 +249,15 @@ export default class LoginSc extends Component {
             {
                 this.setState({
                     autoLoginCheck:false,
-                    loginCheck: false
+                    loginCheck: false,
+                    loginLoading: false
                 });
             }
         });
     }
 
     async getData() {
-        await getUserInfo(this.state)
+        await getUserInfo(this.state);
         Promise.all([
             getAlerts(this.state),
             getBlocks(this.state),
@@ -255,17 +265,21 @@ export default class LoginSc extends Component {
             getFavoriteMap(),
             getFavoriteWorldTag()
         ])
+        
         this.setState({
-            loadingText: translate('msg_friend_list')
+            loadingText: translate('msg_friend_list'),
+            loginLoading: false
         });
+
         await getFriends(this.state)
-        .then(() => Actions.mainSc())
+        .then(() => Actions.mainSc());
     }
     
     langSelect(lang) {
         userLang(lang);
         this.setState({
-            langCheck: false
+            langCheck: false,
+            langReCheck: false,
         });
 
         this.autoLogin();
@@ -349,18 +363,28 @@ export default class LoginSc extends Component {
                             <View style={{flexDirection:"column",width:"100%"}}>
                                 <Button
                                 onPress={this.langSelect.bind(this,'kr')}
-                                style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
+                                style={[styles.requestButton, { borderWidth:0, backgroundColor:"#279cff" }]}>
                                     <NetmarbleB style={{color:"white"}}>한국어</NetmarbleB>
                                 </Button>
                                 <Button
                                 onPress={this.langSelect.bind(this,'en')}
-                                style={[styles.requestButton,{marginTop:10,marginBottom:10,borderWidth:0,backgroundColor:"#279cff"}]}>
+                                style={[styles.requestButton, { marginTop:10, marginBottom:10, borderWidth:0, backgroundColor:"#279cff" }]}>
                                     <NetmarbleB style={{color:"white"}}>English</NetmarbleB>
                                 </Button>
                                 <Button
                                 onPress={this.langSelect.bind(this,'jp')}
-                                style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
+                                style={[styles.requestButton, { borderWidth:0, marginBottom:10, backgroundColor:"#279cff" }]}>
                                     <NetmarbleB style={{color:"white"}}>日本語</NetmarbleB>
+                                </Button>
+                                <Button
+                                onPress={this.langSelect.bind(this,'es')}
+                                style={[styles.requestButton, { borderWidth:0, marginBottom:10, backgroundColor:"#279cff" }]}>
+                                    <NetmarbleB style={{color:"white"}}>Español</NetmarbleB>
+                                </Button>
+                                <Button
+                                onPress={this.langSelect.bind(this,'br')}
+                                style={[styles.requestButton, { borderWidth:0, backgroundColor:"#279cff" }]}>
+                                    <NetmarbleB style={{color:"white"}}>Portugués</NetmarbleB>
                                 </Button>
                             </View>
                         </View>
@@ -461,16 +485,65 @@ export default class LoginSc extends Component {
                                 onPress={this.login.bind(this)}
                                 disabled={this.state.loginCheck == true ? true : false}
                                 style={[styles.requestButton,{width:"48%",borderWidth:0,backgroundColor:"#279cff"}]}>
-                                <NetmarbleB style={{color:"white"}}>{translate('login')}</NetmarbleB>
+                                    <NetmarbleB style={{color:"white",textAlign:"center"}}>{translate('login')}</NetmarbleB>
                                 </Button>
                                 <Button
                                 onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
                                 disabled={this.state.loginCheck == true ? true : false}
                                 style={[styles.requestButton,{width:"48%",borderWidth:0,elevation:0}]}>
-                                <NetmarbleB style={{color:"black"}}>{translate('register')}</NetmarbleB>
+                                    <NetmarbleB style={{color:"black",textAlign:"center"}}>{translate('register')}</NetmarbleB>
+                                </Button>
+                            </View>
+                            <View style={{width: "80%", marginTop: "3%", flexDirection: "row", justifyContent:"center" }}>
+                                <Button
+                                onPress={()=>this.setState({ langReCheck: true })}
+                                disabled={this.state.loginCheck == true ? true : false}
+                                style={[styles.requestButton,{borderWidth:0,elevation:0}]}>
+                                    <Image source={require('../css/imgs/trans_icon.png')} style={styles.settingMenuImage}/>
+                                    <NetmarbleB style={{ height:25 }}>{translate('lang_option')}</NetmarbleB>
                                 </Button>
                             </View>
                         </View>
+                        <Modal
+                        isVisible={this.state.langReCheck}
+                        onBackButtonPress={()=>this.setState({ langReCheck: false })}
+                        onBackdropPress={()=>this.setState({ langReCheck: false })}>
+                            <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
+                                <View style={{alignItems:"center"}}>
+                                    <View style={{flexDirection:"column",width:"100%"}}>
+                                        <Button
+                                        onPress={this.langSelect.bind(this,'kr')}
+                                        style={[styles.requestButton, { borderWidth:0, backgroundColor:"#279cff" }]}>
+                                            <NetmarbleB style={{color:"white"}}>한국어</NetmarbleB>
+                                        </Button>
+                                        <Button
+                                        onPress={this.langSelect.bind(this,'en')}
+                                        style={[styles.requestButton, { marginTop:10, marginBottom:10, borderWidth:0, backgroundColor:"#279cff" }]}>
+                                            <NetmarbleB style={{color:"white"}}>English</NetmarbleB>
+                                        </Button>
+                                        <Button
+                                        onPress={this.langSelect.bind(this,'jp')}
+                                        style={[styles.requestButton, { borderWidth:0, marginBottom:10, backgroundColor:"#279cff" }]}>
+                                            <NetmarbleB style={{color:"white"}}>日本語</NetmarbleB>
+                                        </Button>
+                                        <Button
+                                        onPress={this.langSelect.bind(this,'es')}
+                                        style={[styles.requestButton, { borderWidth:0, marginBottom:10, backgroundColor:"#279cff" }]}>
+                                            <NetmarbleB style={{color:"white"}}>Español</NetmarbleB>
+                                        </Button>
+                                        <Button
+                                        onPress={this.langSelect.bind(this,'br')}
+                                        style={[styles.requestButton, { borderWidth:0, backgroundColor:"#279cff" }]}>
+                                            <NetmarbleB style={{color:"white"}}>Portugués</NetmarbleB>
+                                        </Button>
+                                    </View>
+                                </View>
+                            </View>
+                        </Modal>
+                        <Modal
+                        isVisible={this.state.loginLoading}>
+                            <ActivityIndicator size={100}/>
+                        </Modal>
                         <Modal
                         isVisible={this.state.isPermit}>
                             <View style={{backgroundColor:"#fff",padding:"5%",borderRadius:10}}>
@@ -488,12 +561,12 @@ export default class LoginSc extends Component {
                                     <View style={{flexDirection:"row"}}>
                                         <Button 
                                         onPress={this.permit.bind(this)}
-                                        style={[styles.requestButton,{width:"40%",height:40,margin:10,justifyContent:"center"}]}>
+                                        style={[styles.requestButton,{width:"50%",height:40,margin:5,justifyContent:"center",textAlign:"center"}]}>
                                             <NetmarbleL>{translate('agree')}</NetmarbleL>
                                         </Button>
                                         <Button 
                                         onPress={()=>BackHandler.exitApp()}
-                                        style={[styles.requestButton,{width:"40%",height:40,margin:10,justifyContent:"center"}]}>
+                                        style={[styles.requestButton,{width:"50%",height:40,margin:5,justifyContent:"center",textAlign:"center"}]}>
                                             <NetmarbleL>{translate('disagree')}</NetmarbleL>
                                         </Button>
                                     </View>

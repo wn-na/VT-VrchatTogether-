@@ -1,3 +1,4 @@
+// 한글
 export default {
     information : '안내',
     msg_logout : '로그아웃 하시겠습니까?',
@@ -98,8 +99,7 @@ export default {
     lang_option : '언어 설정',
     homepage : '홈페이지',
     logout : '로그아웃',
-    changeStatus: '상태메세지 변경',
-    statusLengthLimit: '최대 200글자까지 가능합니다.',
+    change_status: '상태메세지 변경',
     otp_check: 'OTP인증',
     otp_check_info : '현재 로그인된 계정은 OTP인증이 필요합니다.',
     otp_check_length_msg: 'OTP는 6자리를 입력해주세요.',

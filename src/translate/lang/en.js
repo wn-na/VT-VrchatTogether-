@@ -1,3 +1,4 @@
+// 영어
 export default {
     information : 'Information',
     msg_logout : 'Are you sure you want to logout?',
@@ -98,8 +99,7 @@ export default {
     lang_option : 'language setting',
     homepage : 'homepage',
     logout : 'logout',
-    changeStatus: 'change status description',
-    statusLengthLimit: 'description limit is 200',
+    change_status: 'change status description',
     otp_check: 'OTP verify',
     otp_check_info : 'The currently logged-in account requires OTP authentication.',
     otp_check_length_msg: 'Please enter 6 digits for OTP.',

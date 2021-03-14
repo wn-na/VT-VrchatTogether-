@@ -213,18 +213,28 @@ export default class Option extends Component {
                             <View style={{flexDirection:"column",width:"100%"}}>
                                 <Button
                                 onPress={this.langSelect.bind(this,'kr')}
-                                style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
+                                style={[styles.requestButton, { borderWidth:0, backgroundColor:"#279cff" }]}>
                                     <NetmarbleB style={{color:"white"}}>한국어</NetmarbleB>
                                 </Button>
                                 <Button
                                 onPress={this.langSelect.bind(this,'en')}
-                                style={[styles.requestButton,{marginTop:10,marginBottom:10,borderWidth:0,backgroundColor:"#279cff"}]}>
+                                style={[styles.requestButton, { marginTop:10, marginBottom:10, borderWidth:0, backgroundColor:"#279cff" }]}>
                                     <NetmarbleB style={{color:"white"}}>English</NetmarbleB>
                                 </Button>
                                 <Button
                                 onPress={this.langSelect.bind(this,'jp')}
-                                style={[styles.requestButton,{borderWidth:0,backgroundColor:"#279cff"}]}>
+                                style={[styles.requestButton, { borderWidth:0, marginBottom:10, backgroundColor:"#279cff" }]}>
                                     <NetmarbleB style={{color:"white"}}>日本語</NetmarbleB>
+                                </Button>
+                                <Button
+                                onPress={this.langSelect.bind(this,'es')}
+                                style={[styles.requestButton, { borderWidth:0, marginBottom:10, backgroundColor:"#279cff" }]}>
+                                    <NetmarbleB style={{color:"white"}}>Español</NetmarbleB>
+                                </Button>
+                                <Button
+                                onPress={this.langSelect.bind(this,'br')}
+                                style={[styles.requestButton, { borderWidth:0, backgroundColor:"#279cff" }]}>
+                                    <NetmarbleB style={{color:"white"}}>Portugués</NetmarbleB>
                                 </Button>
                             </View>
                         </View>

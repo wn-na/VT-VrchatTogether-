@@ -6,15 +6,14 @@ import {
 } from "native-base";
 import {
     Image,
-    ScrollView,
     RefreshControl,
     View,
-    Alert,
     ToastAndroid,
     ActivityIndicator,
     ImageBackground,
     TouchableOpacity,
-    TextInput
+    TextInput,
+    Dimensions 
 } from "react-native";
 import Icon from "react-native-vector-icons/Entypo";
 import {
@@ -30,11 +29,11 @@ import {
 import Modal from 'react-native-modal';
 import { Actions } from "react-native-router-flux";
 import { Col, Row } from "react-native-easy-grid";
-import {VRChatImage} from '../utils/ApiUtils';
-import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
+import { VRChatImage } from '../utils/ApiUtils';
+import { getFavoriteMap, getFavoriteWorldTag } from '../utils/MapUtils';
 import styles from '../css/css';
-import {NetmarbleM,NetmarbleL, NetmarbleB} from '../utils/CssUtils';
-import {translate} from '../translate/TranslateUtils';
+import { NetmarbleM, NetmarbleL, NetmarbleB } from '../utils/CssUtils';
+import { translate } from '../translate/TranslateUtils';
 
 export default class MainSc extends Component {
     constructor(props) {
@@ -142,8 +141,7 @@ export default class MainSc extends Component {
 
     render() {
         return (
-            <ScrollView
-                contentContainerStyle={{flex:1}}
+            <View
                 refreshControl={
                     <RefreshControl
                         onRefresh={this.reset.bind(this)}
@@ -151,7 +149,7 @@ export default class MainSc extends Component {
                     />
                 }>
                 <ImageBackground
-                style={{width:"100%",height:"100%"}}
+                style={{width:"100%", height: Dimensions.get('window').height }}
                 source={require("../css/imgs/main_background.png")}>
                     <View style={{height:"35%"}}>
                         <View style={styles.myInfo}>
@@ -296,7 +294,7 @@ export default class MainSc extends Component {
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/avatar_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText}>{translate('avatar_list')}</NetmarbleM>
+                                        <NetmarbleM style={styles.infoButtonText,{textAlign:"center"}}>{translate('avatar_list')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -310,7 +308,7 @@ export default class MainSc extends Component {
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/block_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText}>{translate('block_manage')}</NetmarbleM>
+                                        <NetmarbleM style={styles.infoButtonText,{textAlign:"center"}}>{translate('block_manage')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -322,7 +320,7 @@ export default class MainSc extends Component {
                                         <Image 
                                         style={{width:50,height:50,resizeMode:"center"}}
                                         source={require("../css/imgs/world_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText}>{translate('world_list')}</NetmarbleM>
+                                        <NetmarbleM style={styles.infoButtonText,{textAlign:"center"}}>{translate('world_list')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -339,7 +337,7 @@ export default class MainSc extends Component {
                     isVisible={this.state.statusModal}>
                         <View style={{backgroundColor:"#fff",padding:"2%",justifyContent:"center",alignItems:"center",borderRadius:10}}>
                             <NetmarbleL style={{marginTop:"5%"}}>
-                                {translate('changeStatus')}
+                                {translate('change_status')}
                             </NetmarbleL>
                             <View style={{borderBottomWidth:1,width:"90%"}}>
                                 <TextInput 
@@ -372,7 +370,7 @@ export default class MainSc extends Component {
                         </View>
                     </Modal>
                 </ImageBackground>
-            </ScrollView>
+            </View>
         );
     }
 }

@@ -2,9 +2,17 @@ import {AsyncStorage} from "react-native";
 import ko from './lang/ko.js'
 import en from './lang/en.js'
 import jp from './lang/jp.js'
+import es from './lang/es.js'
+import br from './lang/br.js'
 import { exp } from "react-native-reanimated";
 
-let languagepack = {ko, en, jp}
+// ko = 한글
+// en = 영어
+// jp = 일본어
+// es = 스페인어
+// br = 포르투갈어
+
+let languagepack = {ko, en, jp, es, br}
 
 const defaultLanguage = {language : 'ko'}
 let language = defaultLanguage.language

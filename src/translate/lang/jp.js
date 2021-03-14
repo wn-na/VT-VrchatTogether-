@@ -1,3 +1,4 @@
+// 일본어
 export default {
     information : '案内',
     msg_logout : 'ログアウトしますか？',
@@ -98,8 +99,7 @@ export default {
     lang_option : '言語設定',
     homepage : 'ホームページ',
     logout : 'ログアウト',
-    changeStatus: 'ステータスメッセージ変更',
-    statusLengthLimit: '最大200文字まで可能です。',
+    change_status: 'ステータスメッセージ変更',
     otp_check: 'OTP認証',
     otp_check_info : '現在ログインしているアカウントは、OTP認証が必要です。',
     otp_check_length_msg: 'OTPは6桁を入力してください。',
