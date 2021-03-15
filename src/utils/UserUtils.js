@@ -101,52 +101,55 @@ export async function getAlerts(state) {
 }
 
 export async function getFriends(state) {
+    // reset value
     friends = new Array();
     friendOn = new Array();
     friendOff = new Array();
     friendActive = new Array();
     
-    // online friends
+    // Online friends
     await getFriendOn()
     .then((json)=>{
         json.sort((a,b) => {
             return a.last_login > b.last_login ? -1 : a.last_login > b.last_login ? 1 : 0;
-        })
+        });
         return json;
     })
     .then((onResult)=> {
-        friends = friends.concat(onResult)
-        friendsOn = onResult
-    })
-    // active friends
+        friendOn = onResult;
+        friends = friends.concat(onResult);
+    });
+
+    // Active friends
     await getFriendActive()
     .then((json)=>{
         json.sort((a,b) => {
             return a.last_login > b.last_login ? -1 : a.last_login > b.last_login ? 1 : 0;
-        })
+        });
         return json;
     })
     .then((activeResult)=> {
-        friends = friends.concat(activeResult)
-        friendsActive = activeResult
-    })
-    // offline friends
+        friendActive = activeResult;
+        friends = friends.concat(activeResult);
+    });
+
+    // Offline friends
     await getFriendOff()
     .then((json)=>{
         json.sort((a,b) => {
             return a.last_login > b.last_login ? -1 : a.last_login > b.last_login ? 1 : 0;
-        })
+        });
         return json;
     })
     .then((offResult)=> {
-        friends = friends.concat(offResult)
-        friendsOff = offResult
-    })
+        friendOff = offResult;
+        friends = friends.concat(offResult);
+    });
 
     return new Promise((resolve, reject) => {
-        state.updateFunction()
-        resolve(friends)
-    })
+        state.updateFunction();
+        resolve(friends);
+    });
 }
 
 async function getFriendOn() {
@@ -275,9 +278,10 @@ export async function getBlocks (state) {
 }
 
 export async function getAgainst(state) {
-    await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderated`, VRChatAPIGet)
+    await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderations`, VRChatAPIGet)
     .then((response) => response.json())
     .then(json => {
+        console.log(json)
         if(!json.error)
         {
             json.sort((a,b) =>{

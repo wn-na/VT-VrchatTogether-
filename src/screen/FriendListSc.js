@@ -62,8 +62,8 @@ export default class FriendListSc extends Component {
         };
     }
 
-    async UNSAFE_componentWillMount() {
-        this.filter(this.props.option)
+    UNSAFE_componentWillMount() {
+        this.filter(this.props.option);
     }
 
     componentWillUnmount() {
@@ -297,22 +297,28 @@ export default class FriendListSc extends Component {
                         <View style={{width:"100%",flexDirection:"row"}}>
                             <Row>
                                 <Col>
-                                    <NetmarbleL style={styles.friendsCount}>
-                                        {translate('online')}{"\n"}
-                                        {userInfo.onlineFriends.length+translate('people_count')}
-                                    </NetmarbleL>
+                                    <TouchableOpacity onPress={()=>this.filter("on")}>
+                                        <NetmarbleL style={styles.friendsCount}>
+                                            {translate('online')}{"\n"}
+                                            {userInfo.onlineFriends.length+translate('people_count')}
+                                        </NetmarbleL>
+                                    </TouchableOpacity>
                                 </Col>
                                 <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
-                                    <NetmarbleL style={styles.friendsCount}>
-                                        {translate('offline')}{"\n"}
-                                        {userInfo.offlineFriends.length+translate('people_count')}
-                                    </NetmarbleL>
+                                    <TouchableOpacity onPress={()=>this.filter("off")}>
+                                        <NetmarbleL style={styles.friendsCount}>
+                                            {translate('offline')}{"\n"}
+                                            {userInfo.offlineFriends.length+translate('people_count')}
+                                        </NetmarbleL>
+                                    </TouchableOpacity>
                                 </Col>
                                 <Col>
-                                    <NetmarbleL style={styles.friendsCount}>
-                                        {translate('active')}{"\n"}
-                                        {userInfo.activeFriends.length+translate('people_count')}
-                                    </NetmarbleL>
+                                    <TouchableOpacity onPress={()=>this.filter("active")}>
+                                        <NetmarbleL style={styles.friendsCount}>
+                                            {translate('active')}{"\n"}
+                                            {userInfo.activeFriends.length+translate('people_count')}
+                                        </NetmarbleL>
+                                    </TouchableOpacity>
                                 </Col>
                             </Row>
                         </View>

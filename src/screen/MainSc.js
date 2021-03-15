@@ -34,6 +34,7 @@ import { getFavoriteMap, getFavoriteWorldTag } from '../utils/MapUtils';
 import styles from '../css/css';
 import { NetmarbleM, NetmarbleL, NetmarbleB } from '../utils/CssUtils';
 import { translate } from '../translate/TranslateUtils';
+import { Alert } from "react-native";
 
 export default class MainSc extends Component {
     constructor(props) {
