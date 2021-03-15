@@ -22,11 +22,8 @@ import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {
     getBlocks,
-    getAgainst,
     blocks,
-    against
 } from './../utils/UserUtils';
-import {VRChatAPIGet} from '../utils/ApiUtils';
 import styles from '../css/css';
 import {NetmarbleL, NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
@@ -73,20 +70,11 @@ export default class BlockSc extends Component {
         }
         else
         {
-            if(this.state.option == "block")
-            {
-                serachCheck = blocks.filter((v) => v.targetDisplayName.indexOf(this.state.search) !== -1) 
-                this.setState({
-                    data:serachCheck
-                });
-            }
-            if(this.state.option == "against")
-            {
-                serachCheck = against.filter((v) => v.sourceDisplayName.indexOf(this.state.search) !== -1);
-                this.setState({
-                    data:serachCheck
-                });
-            }
+            serachCheck = blocks.filter((v) => v.targetDisplayName.indexOf(this.state.search) !== -1) 
+            this.setState({
+                data:serachCheck
+            });
+
             if(serachCheck.length == 0)
             {
                 Alert.alert(
@@ -98,70 +86,26 @@ export default class BlockSc extends Component {
         }
     }
 
-    filter = value => {
-        this.setState({
-            option: value,
-            search: null
-        });
-        if(value == "block")
-        {
-            this.setState({
-                data: blocks
-            });
-        }
-        else
-        {
-            this.setState({
-                data: against
-            });
-        }
-    }
-
     flist() {
-        if(this.state.option == "block")
-        {
-            return <FlatList
-                style={styles.list}
-                data={this.state.data}
-                renderItem={({item}) => 
-                    <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "blockSc" ? Actions.userDetail({userId:item.targetUserId, option:"block"}) : {}}
-                        style={{padding:"5%",borderWidth:1,marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
-                    >
-                        <View style={{flexDirection:"row",width:"100%"}}>
-                            <NetmarbleL style={{width:"63%"}}>
-                                {item.targetDisplayName}
-                            </NetmarbleL>
-                            <NetmarbleL style={{width:"37%"}}>
-                                {item.created.substring(0,10)}
-                            </NetmarbleL>
-                        </View>
-                    </TouchableOpacity>
-                }
-            />
-        }
-        else if(this.state.option == "against")
-        {
-            return <FlatList
-                style={styles.list}
-                data={this.state.data}
-                renderItem={({item}) => 
-                    <TouchableOpacity
-                        onPress={()=> Actions.currentScene == "blockSc" ? Actions.userDetail({userId:item.sourceUserId, option:"against"}) : {}}
-                        style={{padding:"5%",borderWidth:1,marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
-                    >
-                        <View style={{flexDirection:"row",width:"100%"}}>
-                            <NetmarbleL style={{width:"63%"}}>
-                                {item.sourceDisplayName}
-                            </NetmarbleL>
-                            <NetmarbleL style={{width:"37%"}}>
-                                {item.created.substring(0,10)}
-                            </NetmarbleL>
-                        </View>
-                    </TouchableOpacity>
-                }
-            />
-        }
+        return <FlatList
+            style={styles.list}
+            data={this.state.data}
+            renderItem={({item}) => 
+                <TouchableOpacity
+                    onPress={()=> Actions.currentScene == "blockSc" ? Actions.userDetail({userId:item.targetUserId, option:"block"}) : {}}
+                    style={{padding:"5%",borderWidth:1,marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
+                >
+                    <View style={{flexDirection:"row",width:"100%"}}>
+                        <NetmarbleL style={{width:"63%"}}>
+                            {item.targetDisplayName}
+                        </NetmarbleL>
+                        <NetmarbleL style={{width:"37%"}}>
+                            {item.created.substring(0,10)}
+                        </NetmarbleL>
+                    </View>
+                </TouchableOpacity>
+            }
+        />
     }
 
     reset() {
@@ -178,7 +122,7 @@ export default class BlockSc extends Component {
                 });
             }, 5000);
             
-            Promise.all([getBlocks(this.state),getAgainst(this.state)])
+            Promise.all([getBlocks(this.state)])
             .then(() => {
                 this.setState({
                     modalVisible : false,
@@ -276,20 +220,6 @@ export default class BlockSc extends Component {
 								name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
 						</View>
 					</View>
-                    <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%",height:70}}>
-                        <NetmarbleL style={{textAlignVertical:"center"}}>
-                            {this.state.data.length} {translate('people_count')}
-                        </NetmarbleL>
-                        <View style={[styles.selectView,{width:"45%"}]}>
-                            <Picker 
-                                selectedValue={this.state.option}
-                                onValueChange={this.filter}
-                            >
-                                <Picker.Item label = {translate('msg_block')} value = "block" />
-                                <Picker.Item label = {translate('msg_against')} value = "against" />
-                            </Picker>
-                        </View>
-                    </View>
                     {this.flist()}
                 </ScrollView>
                 <Modal

@@ -117,8 +117,8 @@ android {
         applicationId "com.vrct"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 15
-        versionName "1.1"
+        versionCode 16
+        versionName "1.2"
         multiDexEnabled true
     }
     splits {

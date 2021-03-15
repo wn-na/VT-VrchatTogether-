@@ -277,8 +277,9 @@ export async function getBlocks (state) {
     });
 }
 
+// deleted api
 export async function getAgainst(state) {
-    await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderations`, VRChatAPIGet)
+    await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderated`, VRChatAPIGet)
     .then((response) => response.json())
     .then(json => {
         console.log(json)
