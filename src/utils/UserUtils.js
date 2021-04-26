@@ -282,7 +282,6 @@ export async function getAgainst(state) {
     await fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderated`, VRChatAPIGet)
     .then((response) => response.json())
     .then(json => {
-        console.log(json)
         if(!json.error)
         {
             json.sort((a,b) =>{

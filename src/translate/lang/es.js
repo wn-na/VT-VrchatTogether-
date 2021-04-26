@@ -106,4 +106,5 @@ export default {
     otp_check_success: 'La autenticación OTP es exitosa y después de un tiempo, se mueve a la pantalla principal.',
     otp_check_fail: 'Error de autenticación OTP',
     otp_request_error: 'Se intentaron demasiadas solicitudes. Vuelva a intentarlo en unos minutos. ',
+    dark_mode: '다크모드',
 }

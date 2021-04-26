@@ -29,6 +29,16 @@ export default StyleSheet.create({
         fontFamily:"komaco",
         color:"#2b3956"
     },
+    placeholder: {
+        color: "white",
+        fontFamily: "NetmarbleL"
+    },
+    serachBox: {
+        borderBottomWidth:1,
+    },
+    mainBackground: {
+        backgroundColor:"#FFFFFF"
+    },
     loginLogo: {
         flex: 2,
         alignItems: 'center',
@@ -44,6 +54,14 @@ export default StyleSheet.create({
         borderBottomColor:"#888c8b",
         width:"80%",
         flexDirection:"row",
+    },
+    friendListInfo: {
+        backgroundColor: "#FFFFFF",
+        marginTop:"-10%",
+        margin:"5%",
+        padding:"2%",
+        elevation:15,
+        borderRadius:10,
     },
     freindLogo: {
         paddingTop:"4%",
@@ -107,6 +125,11 @@ export default StyleSheet.create({
         paddingBottom:10,
         paddingLeft:5,
         paddingRight:5
+    },
+    userCountBorder: {
+        borderLeftWidth:1,
+        borderRightWidth:1,
+        borderColor:"#4d221e1f"
     },
     menu: {
         height:"60%"
@@ -259,17 +282,6 @@ export default StyleSheet.create({
         borderWidth: 1,
         borderColor: "#b3e59f"
     },
-    selectedMenuGroup:{
-        color:"#2b3956",
-        paddingTop:"1%",
-        paddingBottom:"1%",
-        paddingLeft:"2%",
-        paddingRight:"2%",
-        marginLeft:"2%",
-        marginRight:"2%",
-        borderBottomWidth:1,
-        borderColor:"red"
-    },
     menuGroup:{
         color:"#2b3956",
         paddingTop:"1%",
@@ -305,5 +317,8 @@ export default StyleSheet.create({
         width:25,
         height:25,
         resizeMode:"contain"
+    },
+    mainIcon: {
+        color: "#333"
     }
 });

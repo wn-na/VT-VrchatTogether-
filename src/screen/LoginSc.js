@@ -31,7 +31,7 @@ import {
 } from './../utils/UserUtils';
 import {getFavoriteMap, getFavoriteWorldTag} from '../utils/MapUtils';
 import {VRChatAPIGet, VRChatAPIGetAuth, VRChatAPIPostBody, VRChatAPIPut} from '../utils/ApiUtils';
-import styles from '../css/css';
+import { styles, getUserCssOption } from '../css/css_setting';
 import {NetmarbleL,NetmarbleB} from '../utils/CssUtils';
 import {translate, getLanguage, setLanguage, userLang} from '../translate/TranslateUtils';
 
@@ -83,6 +83,7 @@ export default class LoginSc extends Component {
             updateFunction: () => this.setState({update:!this.state.update}),
             loginLoading: false,
         };
+        getUserCssOption(this.state);
     }
 
     UNSAFE_componentWillMount() {
@@ -488,7 +489,7 @@ export default class LoginSc extends Component {
                                     <NetmarbleB style={{color:"white",textAlign:"center"}}>{translate('login')}</NetmarbleB>
                                 </Button>
                                 <Button
-                                onPress={()=>Linking.openURL("https://api.vrchat.cloud/home/register")}
+                                onPress={()=>Linking.openURL("https://vrchat.com/home/register")}
                                 disabled={this.state.loginCheck == true ? true : false}
                                 style={[styles.requestButton,{width:"48%",borderWidth:0,elevation:0}]}>
                                     <NetmarbleB style={{color:"black",textAlign:"center"}}>{translate('register')}</NetmarbleB>

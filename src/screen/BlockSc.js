@@ -24,7 +24,7 @@ import {
     getBlocks,
     blocks,
 } from './../utils/UserUtils';
-import styles from '../css/css';
+import {styles} from '../css/css_setting';
 import {NetmarbleL, NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
 
@@ -100,7 +100,7 @@ export default class BlockSc extends Component {
                             {item.targetDisplayName}
                         </NetmarbleL>
                         <NetmarbleL style={{width:"37%"}}>
-                            {item.created.substring(0,10)}
+                            {item.created?.substring(0,10)}
                         </NetmarbleL>
                     </View>
                 </TouchableOpacity>
@@ -184,7 +184,7 @@ export default class BlockSc extends Component {
 
     render() {
         return (
-            <View style={{flex:1}}>
+            <View style={[styles.mainBackground,{flex:1}]}>
                 <View style={styles.logo}>
                     <Icon
 					onPress={()=>Actions.pop()}

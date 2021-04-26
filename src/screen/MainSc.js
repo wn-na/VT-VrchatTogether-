@@ -13,9 +13,11 @@ import {
     ImageBackground,
     TouchableOpacity,
     TextInput,
-    Dimensions 
+    Dimensions ,
+    AsyncStorage
 } from "react-native";
-import Icon from "react-native-vector-icons/Entypo";
+import EntypoIcon from "react-native-vector-icons/Entypo";
+import FontAIcon from "react-native-vector-icons/FontAwesome5";
 import {
     UserGrade,
     UserGradeName,
@@ -31,10 +33,9 @@ import { Actions } from "react-native-router-flux";
 import { Col, Row } from "react-native-easy-grid";
 import { VRChatImage } from '../utils/ApiUtils';
 import { getFavoriteMap, getFavoriteWorldTag } from '../utils/MapUtils';
-import styles from '../css/css';
+import { styles } from '../css/css_setting';
 import { NetmarbleM, NetmarbleL, NetmarbleB } from '../utils/CssUtils';
 import { translate } from '../translate/TranslateUtils';
-import { Alert } from "react-native";
 
 export default class MainSc extends Component {
     constructor(props) {
@@ -52,7 +53,16 @@ export default class MainSc extends Component {
             statusText:userInfo.statusDescription,
             statusTextLength:userInfo.statusDescription.length,
             updateFunction: () => this.setState({update:!this.state.update}),
+            backgroundImage: 'white',
         };
+        AsyncStorage.getItem("user_dark_mode",(err,value)=>{
+            if(value == "check")
+            {
+                this.setState({
+                    backgroundImage: 'dark'
+                });
+            }
+        });
     }
 
     UNSAFE_componentWillMount() {
@@ -123,20 +133,20 @@ export default class MainSc extends Component {
     userStateIcon(){
         if(userInfo.status == "active")
         {
-            return <Icon style={{color:"green"}} name="controller-record"/>
+            return <EntypoIcon style={{color:"green"}} name="controller-record"/>
         }
         if(userInfo.status == "ask me")
         {
-            return <Icon style={{color:"#e88134"}} name="controller-record"/>
+            return <EntypoIcon style={{color:"#e88134"}} name="controller-record"/>
         }
         if(userInfo.status == "join me")
         {
-            return <Icon style={{color:"#42caff"}} name="controller-record"/>
+            return <EntypoIcon style={{color:"#42caff"}} name="controller-record"/>
         }
         // don't disturb(color red)
         else(userInfo.status)
         {
-            return <Icon style={{color:"#808080"}} name="controller-record"/>
+            return <EntypoIcon style={{color:"#808080"}} name="controller-record"/>
         }
     }
 
@@ -151,7 +161,12 @@ export default class MainSc extends Component {
                 }>
                 <ImageBackground
                 style={{width:"100%", height: Dimensions.get('window').height }}
-                source={require("../css/imgs/main_background.png")}>
+                source={
+                    this.state.backgroundImage === 'white' ?
+                    require("../css/imgs/main_background.png")
+                    :
+                    require("../css/imgs/main_background_dark.png")
+                }>
                     <View style={{height:"35%"}}>
                         <View style={styles.myInfo}>
                             <View style={{flexDirection:"row"}}>
@@ -172,15 +187,15 @@ export default class MainSc extends Component {
                                         source={require('../css/imgs/option.png')}/>
                                     </TouchableOpacity>
                                 </View>
-                                <NetmarbleL style={[styles.myInfoText,{width:"55%"}]}>
+                                <NetmarbleL style={[styles.myInfoText,{width:"55%"}]} numberOfLines={2}>
                                     {userInfo.displayName}{"  "}
                                     {this.userStateIcon()}{"\n"}
-                                    {userInfo.statusDescription.length > 25 ? userInfo.statusDescription.substr(0,25)+"..." : userInfo.statusDescription}
+                                    {userInfo.statusDescription.length > 25 ? userInfo.statusDescription?.substr(0,25)+"..." : userInfo.statusDescription}
                                 </NetmarbleL>
                                 <TouchableOpacity
                                 style={{position:"absolute",top:"40%",right:"2%"}}
                                 onPress={()=>this.openChangeStatus()}>
-                                    <Icon 
+                                    <EntypoIcon 
                                     style={{color:"#666"}}
                                     name={"edit"} size={20}/>
                                 </TouchableOpacity>
@@ -197,7 +212,7 @@ export default class MainSc extends Component {
                                                 </NetmarbleL>
                                             </TouchableOpacity>
                                         </Col>
-                                        <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
+                                        <Col style={styles.userCountBorder}>
                                             <TouchableOpacity onPress={()=>Actions.currentScene == "mainSc" && Actions.friendListSc({option:"off"})}>
                                                 <NetmarbleL 
                                                 style={styles.friendsCount}>
@@ -227,9 +242,7 @@ export default class MainSc extends Component {
                                 onPress={() => Actions.currentScene == "mainSc" && Actions.alertSc({updateFunction:this.changeUpdate.bind(this)})}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
-                                        <Image 
-                                        style={{width:50,height:50,resizeMode:"center"}}
-                                        source={require("../css/imgs/alert_icon.png")}/>
+                                        <EntypoIcon name={"bell"} size={40} style={styles.mainIcon} />
                                         <NetmarbleM style={styles.infoButtonText}>{translate('notice')}</NetmarbleM>
                                         {alerts.length != 0 && 
                                             <View style={{
@@ -266,9 +279,7 @@ export default class MainSc extends Component {
                                 })}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
-                                        <Image 
-                                        style={{width:50,height:50,resizeMode:"center"}}
-                                        source={require("../css/imgs/friend_icon.png")}/>
+                                        <FontAIcon name={"user-friends"} size={40} style={styles.mainIcon} />
                                         <NetmarbleM style={styles.infoButtonText}>{translate('friend_list')}</NetmarbleM>
                                     </View>
                                 </Button>
@@ -280,9 +291,7 @@ export default class MainSc extends Component {
                                 onPress={() => Actions.currentScene == "mainSc" && Actions.favoriteSc({userId:userInfo.id})}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
-                                        <Image 
-                                        style={{width:50,height:50,resizeMode:"center"}}
-                                        source={require("../css/imgs/favorite_icon.png")}/>
+                                        <EntypoIcon name={"star"} size={40} style={styles.mainIcon} />
                                         <NetmarbleM style={[styles.infoButtonText,{textAlign:"center"}]}>{translate('favorite_manage')}</NetmarbleM>
                                     </View>
                                 </Button>
@@ -292,10 +301,8 @@ export default class MainSc extends Component {
                                 onPress={() => Actions.currentScene == "mainSc" && Actions.avatarListSc()}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
-                                        <Image 
-                                        style={{width:50,height:50,resizeMode:"center"}}
-                                        source={require("../css/imgs/avatar_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText,{textAlign:"center"}}>{translate('avatar_list')}</NetmarbleM>
+                                        <FontAIcon name={"street-view"} size={40} style={styles.mainIcon} />
+                                        <NetmarbleM style={[styles.infoButtonText,{textAlign:"center"}]}>{translate('avatar_list')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -306,10 +313,8 @@ export default class MainSc extends Component {
                                 onPress={() => Actions.currentScene == "mainSc" && Actions.blockSc()}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
-                                        <Image 
-                                        style={{width:50,height:50,resizeMode:"center"}}
-                                        source={require("../css/imgs/block_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText,{textAlign:"center"}}>{translate('block_manage')}</NetmarbleM>
+                                        <FontAIcon name={"ban"} size={40} style={styles.mainIcon} />
+                                        <NetmarbleM style={[styles.infoButtonText,{textAlign:"center"}]}>{translate('block_manage')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>
@@ -318,10 +323,8 @@ export default class MainSc extends Component {
                                 onPress={() => Actions.currentScene == "mainSc" && Actions.mapListSc({userId:userInfo.id})}
                                 style={styles.infoButton}>
                                     <View style={{alignItems:"center"}}>
-                                        <Image 
-                                        style={{width:50,height:50,resizeMode:"center"}}
-                                        source={require("../css/imgs/world_icon.png")}/>
-                                        <NetmarbleM style={styles.infoButtonText,{textAlign:"center"}}>{translate('world_list')}</NetmarbleM>
+                                        <FontAIcon name={"road"} size={40} style={styles.mainIcon} />
+                                        <NetmarbleM style={[styles.infoButtonText,{textAlign:"center"}]}>{translate('world_list')}</NetmarbleM>
                                     </View>
                                 </Button>
                             </Col>

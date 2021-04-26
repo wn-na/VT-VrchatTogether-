@@ -44,7 +44,7 @@ import {
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import {VRChatAPIDelete, VRChatAPIGet, VRChatAPIPostBody, VRChatAPIPut, VRChatImage} from '../utils/ApiUtils'
-import styles from '../css/css';
+import styles from '../css/css_white';
 import {NetmarbleL} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils'
 

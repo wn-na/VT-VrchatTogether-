@@ -23,7 +23,7 @@ import { Actions } from 'react-native-router-flux';
 import Carousel from 'react-native-snap-carousel';
 import Modal from 'react-native-modal';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
-import styles from '../css/css';
+import {styles} from '../css/css_setting';
 import {NetmarbleB, NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
 import AsyncStorage from "@react-native-community/async-storage";
@@ -390,7 +390,7 @@ export default class FavoriteSc extends Component {
                                     <NetmarbleB>
                                     {item.authorName}{"\n"}
                                     </NetmarbleB>
-                                    {item.updated_at.substring(0,10)}
+                                    {item.updated_at?.substring(0,10)}
                                 </NetmarbleL>
                             </View>
                         </View>
@@ -432,7 +432,7 @@ export default class FavoriteSc extends Component {
                                 <NetmarbleL style={{lineHeight:30}}>
                                     {item.name}{"\n"}
                                     {item.authorName}{"\n"}
-                                    {item.updated_at.substring(0,10)}
+                                    {item.updated_at?.substring(0,10)}
                                 </NetmarbleL>
                                 <View style={{position:"absolute",top:"-10%",left:"60%"}}>
                                     {
@@ -534,7 +534,7 @@ export default class FavoriteSc extends Component {
                                     <NetmarbleL style={{lineHeight:30}}>
                                         {translate('creator')} : {item.authorName}{"\n"}
                                         {translate('all')} : {item.occupants}{translate('people_count')}{"\n"}
-                                        {translate('update_date')} : {item.updated_at.substring(0, 10)}{"\n"}
+                                        {translate('update_date')} : {item.updated_at?.substring(0, 10)}{"\n"}
                                     </NetmarbleL>
                                 </View>
                             </View>
@@ -604,7 +604,7 @@ export default class FavoriteSc extends Component {
                                 <NetmarbleL style={{lineHeight:30}}>
                                     {translate('creator')} : {item.authorName}{"\n"}
                                     {translate('all')} : {item.occupants}{translate('people_count')}{"\n"}
-                                    {translate('update_date')} : {item.updated_at.substring(0, 10)}{"\n"}
+                                    {translate('update_date')} : {item.updated_at?.substring(0, 10)}{"\n"}
                                 </NetmarbleL>
                             </View>
                         </TouchableOpacity>}
@@ -786,7 +786,7 @@ export default class FavoriteSc extends Component {
 
     render() {
         return (
-            <View style={{flex:1}}>
+            <View style={[styles.mainBackground,{flex:1}]}>
                 <View style={styles.logo}>
                     <Icon
 					onPress={()=>Actions.pop()}

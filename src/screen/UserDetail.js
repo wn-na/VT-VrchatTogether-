@@ -18,7 +18,7 @@ import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
 import {UserGrade,UserGradeName} from '../utils/UserUtils';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPutBody, VRChatAPIPost, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
-import styles from '../css/css';
+import {styles} from '../css/css_setting';
 import {NetmarbleM,NetmarbleL,NetmarbleB,GodoR} from '../utils/CssUtils';
 import { translate } from "../translate/TranslateUtils";
 
@@ -327,7 +327,7 @@ export default class UserDetail extends Component {
             this.state.indiInfo = this.state.getUserWInfo.instances.filter((v) => v.indexOf(this.state.getUserInfo.instanceId) != -1);
         }
         return (
-            <View style={{flex:1}}>
+            <View style={[styles.mainBackground,{flex:1}]}>
                 <View style={[styles.logo,{justifyContent:"center"}]}>
                     <Icon
                     onPress={()=>Actions.pop()}
@@ -377,7 +377,7 @@ export default class UserDetail extends Component {
                                         {
                                             this.state.getUserInfo.statusDescription != "" && this.state.getUserInfo.statusDescription != null && (
                                             this.state.getUserInfo.statusDescription.length > 15 ?
-                                            this.state.getUserInfo.statusDescription.substr(0,15)+"...\n" :
+                                            this.state.getUserInfo.statusDescription?.substr(0,15)+"...\n" :
                                             this.state.getUserInfo.statusDescription+"\n"
                                         )}
                                         {this.userState()}
@@ -431,7 +431,7 @@ export default class UserDetail extends Component {
                                         {translate('online_world_user')} : {this.state.indiInfo.length != 0 ? this.state.indiInfo[0][1]+"/"+this.state.getUserWInfo.capacity : 
                                         this.state.getUserWInfo.capacity+"/"+this.state.getUserWInfo.capacity}{"\n"}
                                         {translate('all')} : {this.state.getUserWInfo.occupants+" " + translate('people_count')}{"\n"}
-                                        {translate('update_date')} : {this.state.getUserWInfo.updated_at.substring(0,10)}
+                                        {translate('update_date')} : {this.state.getUserWInfo.updated_at?.substring(0,10)}
                                         {this.state.getUserWInfo.description != "" && this.state.getUserWInfo.description != null &&
                                         "\n"+"\n"+this.state.getUserWInfo.description}
                                     </NetmarbleL>

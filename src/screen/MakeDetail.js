@@ -23,7 +23,7 @@ import Modal from 'react-native-modal';
 import { Actions } from 'react-native-router-flux';
 import Carousel from 'react-native-snap-carousel';
 import {VRChatAPIGet, VRChatImage, VRChatAPIPostBody, VRChatAPIDelete} from '../utils/ApiUtils';
-import styles from '../css/css';
+import {styles} from '../css/css_setting';
 import {NetmarbleM,NetmarbleL} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
 
@@ -32,14 +32,11 @@ export default class MakeDetail extends Component {
         super(props);
 
         this.state = {
-            getAvatars:[],
             getWorlds:[],
-            getFavoriteAvatars:[],
             getFavoriteWorlds:[],
             refreshing:false,
             refreshTime:false,
             refreshButton:false,
-            option:"avatar",
             modalVisible:false,
             modalLoading:true,
             fake_image: "none",
@@ -53,7 +50,7 @@ export default class MakeDetail extends Component {
 
         for(let i=0;i<10;i++)
         {
-            Promise.all([this.getAvatars(offset),this.getWorlds(offset)]);
+            Promise.all([this.getWorlds(offset)]);
         }
 
         for(let i=0;i<2;i++)
@@ -62,21 +59,6 @@ export default class MakeDetail extends Component {
         }
 
         checkPromise.done(()=>{
-            for(let i=0;i<this.state.getAvatars.length;i++)
-            {
-                this.state.getAvatars[i].isFavorite = false;
-                this.state.getAvatars[i].favoriteId = null;
-
-                for(let j=0;j<this.state.getFavoriteAvatars.length;j++)
-                {
-                    if(this.state.getAvatars[i].id == this.state.getFavoriteAvatars[j].favoriteId)
-                    {
-                        this.state.getAvatars[i].isFavorite = true;
-                        this.state.getAvatars[i].favoriteId = this.state.getFavoriteAvatars[j].id;
-                    }
-                }
-            }
-
             for(let i=0;i<this.state.getWorlds.length;i++)
             {
                 this.state.getWorlds[i].isFavorite = false;
@@ -115,14 +97,6 @@ export default class MakeDetail extends Component {
     }
 
     async checkFavorite(offset) {
-        await fetch(`https://api.vrchat.cloud/api/1/favorites?type=avatar&n=100&offset=${offset}`, VRChatAPIGet)
-        .then(res => res.json())
-        .then(json => {
-            this.setState({
-                getFavoriteAvatars: this.state.getFavoriteAvatars.concat(json)
-            });
-        });
-
         await fetch(`https://api.vrchat.cloud/api/1/favorites?type=world&n=100&offset=${offset}`, VRChatAPIGet)
         .then(res => res.json())
         .then(json => {
@@ -133,23 +107,6 @@ export default class MakeDetail extends Component {
 
         return new Promise((resolve, reject) =>
         resolve(this.state));
-    }
-
-    async getAvatars(avatarOffset) {
-        let fetc = [];
-        
-        await fetch(`https://api.vrchat.cloud/api/1/avatars?n=100&userId=${this.props.userId}&offset=${avatarOffset}`, VRChatAPIGet)
-        .then(response => response.json())
-        .then(json => {
-            fetc = fetc.concat(json);
-        });
-
-        this.setState({
-            getAvatars:fetc
-        });
-
-        return new Promise((resolve, reject) =>
-        resolve(this.state.getAvatars));
     }
 
     async getWorlds(worldOffset) {
@@ -167,69 +124,6 @@ export default class MakeDetail extends Component {
 
         return new Promise((resolve, reject) => {
         resolve(this.state.getWorlds)});
-    }
-
-    avatarList() {
-        if(this.state.getAvatars.length < 1)
-        {
-            return <View style={{paddingTop:"50%",paddingBottom:"2%",alignItems:"center"}}>
-                <View>
-                    <NetmarbleL>{translate('msg_avatar_list_not_found')}</NetmarbleL>
-                </View>
-            </View>
-        }
-
-        return <FlatList
-        style={styles.avatarListCon}
-        data={this.state.getAvatars}
-        extraData={this.state}
-        renderItem={({item}) => 
-            <View
-                style={styles.avatarList}>
-                <View style={styles.avatarListView}>
-                    <View>
-                        <Image
-                        style={{width: 100, height: 100, borderRadius:20}} 
-                        source={
-                            this.state.high_image == "check"
-                            ?
-                            VRChatImage(item.imageUrl)
-                            :
-                            this.state.fake_image == "check"
-                            ?
-                            require("../css/imgs/data_safe.png")
-                            :
-                            VRChatImage(item.thumbnailImageUrl)
-                        }/>
-                    </View>
-                    <View style={{width:"100%",marginLeft:"3%"}}>
-                        <NetmarbleL style={{width:"60%",lineHeight:30}}>
-                            {item.name}{"\n"}
-                            {item.authorName}{"\n"}
-                            {item.updated_at.substring(0,10)}
-                        </NetmarbleL>
-                        <View style={{position:"absolute",top:"-10%",left:"60%"}}>
-                            {
-                                item.isFavorite == true ? 
-                                <TouchableOpacity
-                                onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
-                                    <Image
-                                    source={require('../css/imgs/favorite_star.png')}
-                                    style={{width:30,height:30}}/>
-                                </TouchableOpacity>
-                                :
-                                <TouchableOpacity
-                                onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
-                                    <Image
-                                    source={require('../css/imgs/unfavorite_star.png')}
-                                    style={{width:30,height:30}}/>
-                                </TouchableOpacity> 
-                            }
-                        </View>
-                    </View>
-                </View>
-            </View>}
-        />
     }
 
     worldList() {
@@ -303,73 +197,13 @@ export default class MakeDetail extends Component {
                                 <NetmarbleL style={{lineHeight:30}}>
                                     {translate('creator')} : {item.authorName}{"\n"}
                                     {translate('all')} : {item.occupants}{translate('people_count')}{"\n"}
-                                    {translate('update_date')} : {item.updated_at.substring(0, 10)}{"\n"}
+                                    {translate('update_date')} : {item.updated_at?.substring(0, 10)}{"\n"}
                                 </NetmarbleL> 
                             </View>
                         </View>
                     </View>}
             />
         </View>
-    }
-
-    async favoriteAvatar(favoriteId, avatarId, isFavorite) {
-        if(isFavorite == false)
-        {
-            await fetch("https://api.vrchat.cloud/api/1/favorites", VRChatAPIPostBody({
-                "type":"avatar",
-                "tags":["avatars1"],
-                "favoriteId":avatarId
-            }))
-            .then((response) => response.json())
-            .then((json) => {
-                
-                if(!json.error)
-                {
-                    for(let i=0;i<this.state.getAvatars.length;i++)
-                    {
-                        if(this.state.getAvatars[i].id == avatarId)
-                        {
-                            this.state.getAvatars[i].isFavorite = true;
-                            this.state.getAvatars[i].favoriteId = json.id;
-                        }
-                    }
-
-                    ToastAndroid.show(translate('msg_add_success'), ToastAndroid.SHORT);
-                }
-                else
-                {
-                    ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
-                }
-            });
-        }
-        else if(isFavorite == true)
-        {
-            await fetch("https://api.vrchat.cloud/api/1/favorites/"+favoriteId, VRChatAPIDelete)
-            .then((response) => response.json())
-            .then((json) => {
-                if(!json.error)
-                {
-                    for(let i=0;i<this.state.getAvatars.length;i++)
-                    {
-                        if(this.state.getAvatars[i].id == avatarId)
-                        {
-                            this.state.getAvatars[i].isFavorite = false;
-                            this.state.getAvatars[i].favoriteId = null;
-                        }
-                    }
-
-                    ToastAndroid.show(translate('msg_delete_success'), ToastAndroid.SHORT);
-                }
-                else
-                {
-                    ToastAndroid.show(translate('msg_error'), ToastAndroid.SHORT);
-                }
-            });
-        }
-
-        this.setState({
-            getAvatars: this.state.getAvatars
-        })
     }
 
     async favoriteWorld(number, favoriteId, worldId, isFavorite) {
@@ -463,15 +297,8 @@ export default class MakeDetail extends Component {
 
         this.setState({
             favoriteId:favoriteId,
-            avatarId:avatarId,
             isFavorite:isFavorite,
         })
-    }
-
-    filter = value => {
-        this.setState({
-            option:value
-        });
     }
 
     search = () => {
@@ -487,16 +314,9 @@ export default class MakeDetail extends Component {
         }
         else
         {
-            if(this.state.getAvatars != null || this.state.getWorlds)
+            if(this.state.getWorlds)
             {
-                if(this.state.option == "avatar")
-                {
-                    serachCheck = this.state.getAvatars.filter((v) => v.name.indexOf(this.state.search) !== -1)
-                }
-                if(this.state.option == "world")
-                {
-                    serachCheck = this.state.getWorlds.filter((v) => v.name.indexOf(this.state.search) !== -1)
-                }
+                serachCheck = this.state.getWorlds.filter((v) => v.name.indexOf(this.state.search) !== -1);
             }
             if(serachCheck.length == 0)
             {
@@ -508,19 +328,9 @@ export default class MakeDetail extends Component {
             }
             else
             {
-                if(this.state.option == "avatar")
-                {
-                    this.setState({
-                        getAvatars:serachCheck
-                    });
-                }
-                if(this.state.option == "world")
-                {
-                    this.setState({
-                        getWorlds:serachCheck
-                    });
-                }
-                
+                this.setState({
+                    getWorlds:serachCheck
+                });
             }
         }
     }
@@ -540,7 +350,7 @@ export default class MakeDetail extends Component {
 
             for(let i=0;i<10;i++)
             {
-                Promise.all([this.getAvatars(offset),this.getWorlds(offset)]);
+                Promise.all([this.getWorlds(offset)]);
             }
 
             for(let i=0;i<2;i++)
@@ -549,20 +359,6 @@ export default class MakeDetail extends Component {
             }
 
             checkPromise.done(()=>{
-                for(let i=0;i<this.state.getAvatars.length;i++)
-                {
-                    this.state.getAvatars[i].isFavorite = false;
-                    this.state.getAvatars[i].favoriteId = null;
-
-                    for(let j=0;j<this.state.getFavoriteAvatars.length;j++)
-                    {
-                        if(this.state.getAvatars[i].id == this.state.getFavoriteAvatars[j].favoriteId)
-                        {
-                            this.state.getAvatars[i].isFavorite = true;
-                            this.state.getAvatars[i].favoriteId = this.state.getFavoriteAvatars[j].id;
-                        }
-                    }
-                }
 
                 for(let i=0;i<this.state.getWorlds.length;i++)
                 {
@@ -611,7 +407,7 @@ export default class MakeDetail extends Component {
 
             for(let i=0;i<10;i++)
             {
-                Promise.all([this.getAvatars(offset),this.getWorlds(offset)]);
+                Promise.all([this.getWorlds(offset)]);
             }
     
             for(let i=0;i<2;i++)
@@ -625,20 +421,6 @@ export default class MakeDetail extends Component {
                         refreshButton : false
                     });
                 }, 1000);
-                for(let i=0;i<this.state.getAvatars.length;i++)
-                {
-                    this.state.getAvatars[i].isFavorite = false;
-                    this.state.getAvatars[i].favoriteId = null;
-    
-                    for(let j=0;j<this.state.getFavoriteAvatars.length;j++)
-                    {
-                        if(this.state.getAvatars[i].id == this.state.getFavoriteAvatars[j].favoriteId)
-                        {
-                            this.state.getAvatars[i].isFavorite = true;
-                            this.state.getAvatars[i].favoriteId = this.state.getFavoriteAvatars[j].id;
-                        }
-                    }
-                }
     
                 for(let i=0;i<this.state.getWorlds.length;i++)
                 {
@@ -672,7 +454,7 @@ export default class MakeDetail extends Component {
 
     render() {
         return (
-            <View style={{flex:1}}>
+            <View style={[styles.mainBackground,{flex:1}]}>
                 <View style={styles.logo}>
                     <Icon
 					onPress={()=>Actions.pop()}
@@ -708,18 +490,7 @@ export default class MakeDetail extends Component {
 								name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
 						</View>
 					</View>
-                    <View style={{alignItems:"flex-end",marginRight:"2%"}}>
-                        <View style={styles.selectView}>
-                            <Picker 
-                                selectedValue = {this.state.option}
-                                onValueChange= {this.filter}
-                            >
-                                <Picker.Item label = {translate('avatar')} value = "avatar" />
-                                <Picker.Item label = {translate('world')} value = "world" />
-                            </Picker>
-                        </View>
-                    </View>
-                    {this.state.option == "avatar" ? this.avatarList() : this.worldList()}
+                    {this.worldList()}
                     <Modal
                     style={styles.modal}
                     isVisible={this.state.modalVisible}

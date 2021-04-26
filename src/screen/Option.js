@@ -21,7 +21,7 @@ import {
 import Icon from "react-native-vector-icons/Entypo";
 import Modal from 'react-native-modal';
 import { Actions } from "react-native-router-flux";
-import styles from '../css/css';
+import {styles, getUserCssOption} from '../css/css_setting';
 import {NetmarbleB,NetmarbleL,Komako} from '../utils/CssUtils';
 import {translate,userLang,getLanguage,setLanguage} from '../translate/TranslateUtils';
 import {VRChatAPIPut} from '../utils/ApiUtils';
@@ -34,6 +34,7 @@ export default class Option extends Component {
             fakeImage: false,
             highImage: false,
             langCheck: false,
+            darkMode: false,
         };
     }
 
@@ -51,6 +52,14 @@ export default class Option extends Component {
             {
                 this.setState({
                     highImage: true
+                });
+            }
+        });
+        AsyncStorage.getItem("user_dark_mode",(err,value)=>{
+            if(value == "check")
+            {
+                this.setState({
+                    darkMode: true
                 });
             }
         });
@@ -125,6 +134,26 @@ export default class Option extends Component {
         }
     }
 
+    setDarkMode() {
+        this.setState((state)=>{
+            if(!state.darkMode == true)
+            {
+                AsyncStorage.removeItem("user_dark_mode");
+                AsyncStorage.setItem("user_dark_mode","check");
+            }
+            else
+            {
+                AsyncStorage.removeItem("user_dark_mode");
+                AsyncStorage.setItem("user_dark_mode","none");
+            }
+            return {
+                darkMode: !state.darkMode,
+            }
+        });
+        getUserCssOption();
+        this.props.changeUpdate();
+    }
+
     langSelect(lang) {
         userLang(lang);
         setLanguage(lang)
@@ -136,7 +165,7 @@ export default class Option extends Component {
     
     render() {
         return (
-            <ScrollView style={{flex:1}}>
+            <ScrollView style={[styles.mainBackground,{flex:1}]}>
                 <View style={[styles.logo,{justifyContent:"center"}]}>
                     <Icon
                     onPress={()=>Actions.pop()}
@@ -161,6 +190,14 @@ export default class Option extends Component {
                         value={this.state.highImage}/>
                         <NetmarbleL style={{color:"#646464"}}>{translate('high_image')}</NetmarbleL>
                     </View>
+                    {/* <View style={styles.userOptionBox}>
+                        <Switch
+                        trackColor={{ false: "#767577", true: "#81b0ff" }}
+                        onValueChange={()=>this.setDarkMode()}
+                        thumbColor={"#f4f3f4"}
+                        value={this.state.darkMode}/>
+                        <NetmarbleL style={{color:"#646464"}}>{translate('dark_mode')}</NetmarbleL>
+                    </View> */}
                 </View>
                 <View style={styles.setting}>
                     <TouchableOpacity

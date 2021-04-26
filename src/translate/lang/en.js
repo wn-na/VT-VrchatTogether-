@@ -106,4 +106,5 @@ export default {
     otp_check_success: 'OTP authentication successful, will be on the main screen shortly',
     otp_check_fail: 'OTP verify failed',
     otp_request_error: 'Too many requests have been attempted. Please try again soon.',
+    dark_mode: '다크모드',
 }

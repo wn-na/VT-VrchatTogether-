@@ -22,7 +22,7 @@ import Carousel from 'react-native-snap-carousel'
 import Modal from 'react-native-modal';
 import {MapTags, updateFavoriteMap, FavoriteWorld, drawModal} from '../utils/MapUtils'
 import {VRChatAPIGet, VRChatImage} from '../utils/ApiUtils'
-import styles from '../css/css'
+import {styles} from '../css/css_setting';
 import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
 
@@ -206,6 +206,7 @@ export default class MapListSc extends Component {
     render() {
         return (
             <ScrollView
+            style={styles.mainBackground}
             refreshControl={
                 <RefreshControl
                     onRefresh={this.reset.bind(this)}
@@ -324,7 +325,7 @@ export default class MapListSc extends Component {
                                         <NetmarbleL style={{lineHeight:30}}>
                                             {translate('creator')} : {item.authorName}{"\n"}
                                             {translate('all')} : {item.occupants}{translate('people_count')}{"\n"}
-                                            {translate('update_date')} : {item.updated_at.substring(0, 10)}{"\n"}
+                                            {translate('update_date')} : {item.updated_at?.substring(0, 10)}{"\n"}
                                         </NetmarbleL> 
                                     </View>
                                 </View>

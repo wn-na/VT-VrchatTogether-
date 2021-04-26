@@ -31,7 +31,7 @@ import {
 } from './../utils/UserUtils';
 import { Col, Row } from "react-native-easy-grid";
 import {VRChatImage} from '../utils/ApiUtils';
-import styles from '../css/css';
+import {styles} from '../css/css_setting';
 import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
 import AsyncStorage from "@react-native-community/async-storage";
@@ -178,10 +178,10 @@ export default class FriendListSc extends Component {
                             {
                                 item.statusDescription != "" && (
                                 item.statusDescription.length > 15 ?
-                                item.statusDescription.substr(0,15)+"...\n" :
+                                item.statusDescription?.substr(0,15)+"...\n" :
                                 item.statusDescription+"\n")
                             }
-                            {item.last_login.substr(0,10)+"\n"}
+                            {item.last_login?.substr(0,10)+"\n"}
                             {
                                 item.location == "private" ? "private" :
                                 item.location != "private" && item.location != "offline" && item.location != "active" ? "public" :
@@ -270,7 +270,7 @@ export default class FriendListSc extends Component {
 
     render() {
         return (
-            <View style={{flex:1}}>
+            <View style={[styles.mainBackground,{flex:1}]}>
                 <ScrollView 
                     refreshControl={
                         <RefreshControl
@@ -293,7 +293,7 @@ export default class FriendListSc extends Component {
                         <ActivityIndicator size={20} color="white" style={{width:20,height:20}}/>
                         }
                     </View>
-                    <View style={{marginTop:"-10%",margin:"5%",padding:"2%",backgroundColor:"white",elevation:15,borderRadius:10}}>
+                    <View style={[styles.friendListInfo]}>
                         <View style={{width:"100%",flexDirection:"row"}}>
                             <Row>
                                 <Col>
@@ -304,7 +304,7 @@ export default class FriendListSc extends Component {
                                         </NetmarbleL>
                                     </TouchableOpacity>
                                 </Col>
-                                <Col style={{borderLeftWidth:1,borderRightWidth:1,borderColor:"#4d221e1f"}}>
+                                <Col style={styles.userCountBorder}>
                                     <TouchableOpacity onPress={()=>this.filter("off")}>
                                         <NetmarbleL style={styles.friendsCount}>
                                             {translate('offline')}{"\n"}
@@ -324,28 +324,32 @@ export default class FriendListSc extends Component {
                         </View>
                     </View>
                     <View style={{flexDirection:"row",justifyContent:"center"}}>
-                        <View style={{borderBottomWidth:1,width:"90%",flexDirection:"row",justifyContent:"space-between"}}>
+                        <View style={[styles.serachBox,{width:"90%",flexDirection:"row",justifyContent:"space-between"}]}>
                             <TextInput 
                                 value={this.state.search}
                                 onChangeText={(text) => this.setState({search:text})}
                                 onSubmitEditing={this.search}
                                 placeholder={translate('name_search')}
-                                style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
+                                placeholderTextColor={styles.placeholder.color}
+                                style={[styles.placeholder,{color:"red",width:"80%",height:50}]}/>
                             <Icon 
                                 onPress={this.search}
-                                name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
+                                name="magnifying-glass" size={25} style={{marginTop:15,color:styles.placeholder.color}}/>
                         </View>
                     </View>
                     <View style={{alignItems:"flex-end",marginRight:"5%"}}>
                         <View style={styles.selectView}>
                             <Picker 
+                                mode="dropdown"
                                 selectedValue = {this.state.option}
                                 onValueChange = {this.filter}
+                                itemStyle={{ backgroundColor: 'lightgrey', marginLeft: 0, paddingLeft: 15 }}
+                                itemTextStyle={{ fontSize: 18, color: 'white' }}
                             >
-                                <Picker.Item label = {translate('show_all')} value = "all" />
-                                <Picker.Item label = {translate('online')} value = "on" />
-                                <Picker.Item label = {translate('offline')} value = "off" />
-                                <Picker.Item label = {translate('active')} value = "active" />
+                                <Picker.Item label = {translate('show_all')} value = "all"  />
+                                <Picker.Item label = {translate('online')} value = "on"  />
+                                <Picker.Item label = {translate('offline')} value = "off"  />
+                                <Picker.Item label = {translate('active')} value = "active"  />
                             </Picker>
                         </View>
                     </View>

@@ -23,7 +23,7 @@ import {
 import Icon from "react-native-vector-icons/Entypo";
 import { Actions } from 'react-native-router-flux';
 import Modal from 'react-native-modal';
-import styles from '../css/css';
+import {styles} from '../css/css_setting';
 import {NetmarbleL,NetmarbleM} from '../utils/CssUtils';
 import {translate} from '../translate/TranslateUtils';
 
@@ -160,7 +160,7 @@ export default class AlertSc extends Component {
 
     render() {
         return (
-            <View style={{flex:1}}>
+            <View style={[styles.mainBackground,{flex:1}]}>
                 <View style={styles.logo}>
                     <Icon
 					onPress={()=>Actions.pop()}
@@ -208,7 +208,7 @@ export default class AlertSc extends Component {
                                         {item.senderUsername}
                                     </NetmarbleL>
                                     <NetmarbleL style={{width:"40%"}}>
-                                        {item.created_at.substring(0,10)}
+                                        {item.created_at?.substring(0,10)}
                                     </NetmarbleL>
                                 </View>
                                 <View style={{justifyContent:"space-around",flexDirection:"row",marginTop:"10%"}}>
