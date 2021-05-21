@@ -168,7 +168,7 @@ export default class MakeDetail extends Component {
                                             style={{width:30,height:30}}/>
                                         </TouchableOpacity>
                                     }
-                                    <NetmarbleM style={{textAlign:"center"}}>{item.name}</NetmarbleM>
+                                    <NetmarbleM style={[styles.mainColor, {textAlign:"center"}]}>{item.name}</NetmarbleM>
                                     <View>
                                         <Image
                                         style={{
@@ -194,7 +194,7 @@ export default class MakeDetail extends Component {
                                 </View>
                             </View>
                             <View>
-                                <NetmarbleL style={{lineHeight:30}}>
+                                <NetmarbleL style={[styles.mainColor, {lineHeight:30}]}>
                                     {translate('creator')} : {item.authorName}{"\n"}
                                     {translate('all')} : {item.occupants}{translate('people_count')}{"\n"}
                                     {translate('update_date')} : {item.updated_at?.substring(0, 10)}{"\n"}
@@ -478,16 +478,17 @@ export default class MakeDetail extends Component {
                     }
                 >
                    <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%"}}>
-						<View style={{borderBottomWidth:1,width:"100%",flexDirection:"row",justifyContent:"space-between",marginTop:"5%"}}>
+						<View style={{borderBottomWidth:1,width:"100%",borderColor:styles.placeholder.color,flexDirection:"row",justifyContent:"space-between",marginTop:"5%"}}>
 							<TextInput 
 								value={this.state.search}
 								onChangeText={(text) => this.setState({search:text})}
 								onSubmitEditing={this.search}
 								placeholder={translate('search')}
-								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
+                                placeholderTextColor={styles.placeholder.color}
+								style={{width:"80%",height:50,fontFamily:"NetmarbleL",color:styles.placeholder.color}}/>
 							<Icon 
 								onPress={this.search}
-								name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
+								name="magnifying-glass" size={25} style={{marginTop:15,color:styles.placeholder.color}}/>
 						</View>
 					</View>
                     {this.worldList()}

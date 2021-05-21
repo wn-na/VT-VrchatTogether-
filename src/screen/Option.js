@@ -25,6 +25,7 @@ import {styles, getUserCssOption} from '../css/css_setting';
 import {NetmarbleB,NetmarbleL,Komako} from '../utils/CssUtils';
 import {translate,userLang,getLanguage,setLanguage} from '../translate/TranslateUtils';
 import {VRChatAPIPut} from '../utils/ApiUtils';
+import RNRestart from 'react-native-restart'; 
 
 export default class Option extends Component {
     constructor(props) {
@@ -152,6 +153,12 @@ export default class Option extends Component {
         });
         getUserCssOption();
         this.props.changeUpdate();
+        Alert.alert(translate('information'), translate('dark_mode_info'),
+        [
+          {text: translate('ok'), onPress: () => RNRestart.Restart()},
+        ],
+        {cancelable: false}
+        )
     }
 
     langSelect(lang) {
@@ -201,7 +208,7 @@ export default class Option extends Component {
                 </View>
                 <View style={styles.setting}>
                     <TouchableOpacity
-                    onPress={()=>this.setState({langCheck:true})}>
+                    onPress={()=>{this.setState({langCheck:true})}}>
                         <View style={styles.settingMenu}>
                             <Icon name={"language"} size={25} style={styles.settingMenuImage} />
                             <NetmarbleL style={styles.optionTitle}>{translate('lang_option')}</NetmarbleL>

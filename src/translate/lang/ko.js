@@ -107,4 +107,5 @@ export default {
     otp_check_fail: 'OTP인증 실패',
     otp_request_error: '너무많은 요청을 시도했습니다. 잠시후 다시 시도해 주세요.',
     dark_mode: '다크모드',
+    dark_mode_info: '모드 변경 시 앱이 재시작됩니다.',
 }

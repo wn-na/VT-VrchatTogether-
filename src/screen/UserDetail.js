@@ -223,7 +223,6 @@ export default class UserDetail extends Component {
         fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderations`, VRChatAPIGet)
         .then(response => response.json())
         .then(json => {
-            console.log(json)
             json = json.filter((v) => v.type.indexOf("block") !== -1);
             if(json.filter((v) => v.targetUserId.indexOf(this.props.userId) !== -1)?.length > 0)
             {

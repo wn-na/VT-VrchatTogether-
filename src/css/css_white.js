@@ -30,7 +30,7 @@ export default StyleSheet.create({
         color:"#2b3956"
     },
     placeholder: {
-        color: "white",
+        color: "#2b3956",
         fontFamily: "NetmarbleL"
     },
     serachBox: {
@@ -38,6 +38,9 @@ export default StyleSheet.create({
     },
     mainBackground: {
         backgroundColor:"#FFFFFF"
+    },
+    mainColor: {
+        color: "#2b3956"
     },
     loginLogo: {
         flex: 2,

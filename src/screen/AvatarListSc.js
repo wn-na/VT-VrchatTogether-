@@ -296,22 +296,6 @@ export default class AvatarListSc extends Component {
 					onPress={()=> Actions.currentScene == "avatarListSc" ? Actions.userDetail({userId:item.authorId, isFriend:false}) : {}}
 					style={styles.avatarList}>
 					<View style={styles.avatarListView}>
-						{
-							item.isFavorite == true ?
-							<TouchableOpacity
-							onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
-								<Image
-								source={require('../css/imgs/favorite_star.png')}
-								style={{width:30,height:30}}/>
-							</TouchableOpacity>
-							:
-							<TouchableOpacity
-							onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
-								<Image
-								source={require('../css/imgs/unfavorite_star.png')}
-								style={{width:30,height:30}}/>
-							</TouchableOpacity>
-						}
 						<View>
 							<Image
 							style={{width: 100, height: 100, borderRadius:20}} 
@@ -334,6 +318,24 @@ export default class AvatarListSc extends Component {
 								{item.updated_at?.substring(0,10)}
 							</NetmarbleL>
 						</View>
+						<View style={{position:"absolute",top:"5%",right:"2%"}}>
+						{
+							item.isFavorite == true ?
+							<TouchableOpacity
+							onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+								<Image
+								source={require('../css/imgs/favorite_star.png')}
+								style={{width:30,height:30}}/>
+							</TouchableOpacity>
+							:
+							<TouchableOpacity
+							onPress={this.favoriteAvatar.bind(this, item.favoriteId, item.id, item.isFavorite)}>
+								<Image
+								source={require('../css/imgs/unfavorite_star.png')}
+								style={{width:30,height:30}}/>
+							</TouchableOpacity>
+						}
+					</View>
 					</View>
 				</TouchableOpacity>}
 			/>
