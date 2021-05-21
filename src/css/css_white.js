@@ -280,7 +280,10 @@ export default StyleSheet.create({
         borderRadius: 4.3,
         backgroundColor: "#ffffff",
         borderWidth: 1,
-        borderColor: "#b3e59f"
+        borderColor: "#4d221e1f"
+    },
+    requestButtonText: {
+        color: "#2b3956"
     },
     menuGroup:{
         color:"#2b3956",
@@ -301,6 +304,9 @@ export default StyleSheet.create({
     userOptionBox: {
         flexDirection:"row",
         marginTop:20
+    },
+    optionTitle: {
+        color: "#646464"
     },
     setting: {
         flex:5,

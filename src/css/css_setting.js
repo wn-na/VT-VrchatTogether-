@@ -9,15 +9,14 @@ export let styles = styles_dark;
 
 export const getUserCssOption = async(state) => {
     await AsyncStorage.getItem("user_dark_mode",(err,value)=>{
-        styles = styles_white;
-        // if(value === "check")
-        // {
-        //     styles = styles_dark;
-        // }
-        // else
-        // {
-        //     styles = styles_white;
-        // }
+        if(value === "check")
+        {
+            styles = styles_dark;
+        }
+        else
+        {
+            styles = styles_white;
+        }
     })
 }
 

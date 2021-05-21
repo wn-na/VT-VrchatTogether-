@@ -93,13 +93,13 @@ export default class BlockSc extends Component {
             renderItem={({item}) => 
                 <TouchableOpacity
                     onPress={()=> Actions.currentScene == "blockSc" ? Actions.userDetail({userId:item.targetUserId, option:"block"}) : {}}
-                    style={{padding:"5%",borderWidth:1,marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
+                    style={{padding:"5%",borderWidth:1,borderColor:styles.mainColor.color,marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
                 >
                     <View style={{flexDirection:"row",width:"100%"}}>
-                        <NetmarbleL style={{width:"63%"}}>
+                        <NetmarbleL style={[styles.mainColor, {width:"63%"}]}>
                             {item.targetDisplayName}
                         </NetmarbleL>
-                        <NetmarbleL style={{width:"37%"}}>
+                        <NetmarbleL style={[styles.mainColor, {width:"37%"}]}>
                             {item.created?.substring(0,10)}
                         </NetmarbleL>
                     </View>
@@ -208,16 +208,17 @@ export default class BlockSc extends Component {
                     }
                 >
                     <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%"}}>
-						<View style={{borderBottomWidth:1,width:"100%",flexDirection:"row",justifyContent:"space-between",marginTop:"5%",marginBottom:"5%"}}>
+						<View style={{borderBottomWidth:1,width:"100%",borderColor: styles.mainColor.color, flexDirection:"row",justifyContent:"space-between",marginTop:"5%",marginBottom:"5%"}}>
 							<TextInput 
 								value={this.state.search}
 								onChangeText={(text) => this.setState({search:text})}
 								onSubmitEditing={this.search}
 								placeholder={translate('name_search')}
-								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
+                                placeholderTextColor={styles.mainColor.color}
+								style={{width:"80%",height:50,fontFamily:"NetmarbleL",color:styles.mainColor.color}}/>
 							<Icon 
 								onPress={this.search}
-								name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
+								name="magnifying-glass" size={25} style={{marginTop:15,color:styles.mainColor.color}}/>
 						</View>
 					</View>
                     {this.flist()}

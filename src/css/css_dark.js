@@ -30,7 +30,7 @@ export default StyleSheet.create({
         color:"#2b3956"
     },
     placeholder: {
-        color: "#C1BFC2",
+        color: "#FFF",
         fontFamily: "NetmarbleL"
     },
     serachBox: {
@@ -39,6 +39,9 @@ export default StyleSheet.create({
     },
     mainBackground: {
         backgroundColor:"#303A45"
+    },
+    mainColor: {
+        color: "#FFF"
     },
     loginLogo: {
         flex: 2,
@@ -187,7 +190,7 @@ export default StyleSheet.create({
     mapTag: {
         textAlign: 'center',
         width:"20%",
-        color:"#3a4a6d",
+        color:"#FFF",
         minWidth: 90,
         justifyContent:"center",
         textAlignVertical:"center"
@@ -196,23 +199,23 @@ export default StyleSheet.create({
         textAlign: 'center',
         justifyContent:"center",
         width:"20%",
-        color:"#3a4a6d",
+        color:"#FFF",
         minWidth: 90,
         borderBottomWidth:4,
-        borderBottomColor:"#5a82dc",
+        borderBottomColor:"#FFF",
         textAlignVertical:"center",
         fontFamily:"NetmarbleB",
     },
     worldInfo: {
         borderWidth:1,
         borderRadius:2.8,
-        borderColor:"#4d221e1f",
+        borderColor:"#FFF",
         padding:"5%"
     },
     worldInfoDetail: {
         borderWidth:1,
         borderRadius:2.8,
-        borderColor:"#4d221e1f",
+        borderColor:"#FFF",
         padding:"5%",
         marginTop:"5%",
         margin:"7%"
@@ -245,13 +248,13 @@ export default StyleSheet.create({
         width:"97%",
         padding:"5%",
         borderRadius:9,
-        backgroundColor:"white"
+        backgroundColor:"#444444"
     },
     friendInfoText: {
         marginLeft:"3%",
         width:"70%",
         lineHeight:30,
-        color:"#2b3956"
+        color:"#FFF"
     },
     avatarList: {
         borderWidth:1,
@@ -264,12 +267,15 @@ export default StyleSheet.create({
         marginRight:"5%",
         elevation:5,
     },
+    avatarListText: {
+        color: "#FFF"
+    },
     avatarListView: {
         flexDirection:"row",
         width:"97%",
         padding:"5%",
         borderRadius:9,
-        backgroundColor:"white"
+        backgroundColor:"#444"
     },
     groupButton: {
         marginTop:10,
@@ -281,9 +287,10 @@ export default StyleSheet.create({
     requestButton: {
         justifyContent:"center",
         borderRadius: 4.3,
-        backgroundColor: "#ffffff",
-        borderWidth: 1,
-        borderColor: "#b3e59f"
+        backgroundColor: "#444",
+    },
+    requestButtonText: {
+        color: "#FFF"
     },
     menuGroup:{
         color:"#2b3956",
@@ -305,6 +312,9 @@ export default StyleSheet.create({
         flexDirection:"row",
         marginTop:20
     },
+    optionTitle: {
+        color: "#FFF"
+    },
     setting: {
         flex:5,
         padding:20
@@ -319,7 +329,8 @@ export default StyleSheet.create({
         marginRight: 15,
         width:25,
         height:25,
-        resizeMode:"contain"
+        resizeMode:"contain",
+        color: "#FFF"
     },
     mainIcon: {
         color: "#C1BFC2"

@@ -48,7 +48,7 @@ export default class UserDetail extends Component {
             this.setState({
                 getUserInfo:json
             });
-
+            this.isBlocked();
             if(json.location != "offline")
             {
                 fetch(`https://api.vrchat.cloud/api/1/worlds/${json.worldId}`, VRChatAPIGet)
@@ -60,8 +60,6 @@ export default class UserDetail extends Component {
                             getUserWInfo:json
                         });
                     }
-    
-                    this.isBlocked();
     
                     isFavorite = Promise.all([this.isFavorite(json.id)]);
     
@@ -94,7 +92,7 @@ export default class UserDetail extends Component {
             await fetch(`https://api.vrchat.cloud/api/1/favorites?type=world&n=100&offset=${offset}`, VRChatAPIGet)
             .then(res => res.json())
             .then(json => {
-                if(json.filter((v) => v.favoriteId.indexOf(id) !== -1).length > 0)
+                if(json.filter((v) => v.favoriteId.indexOf(id) !== -1)?.length > 0)
                 {
                     this.setState({
                         isFavorite : true,
@@ -225,8 +223,9 @@ export default class UserDetail extends Component {
         fetch(`https://api.vrchat.cloud/api/1/auth/user/playermoderations`, VRChatAPIGet)
         .then(response => response.json())
         .then(json => {
+            console.log(json)
             json = json.filter((v) => v.type.indexOf("block") !== -1);
-            if(json.filter((v) => v.targetUserId.indexOf(this.props.userId) !== -1).length > 0)
+            if(json.filter((v) => v.targetUserId.indexOf(this.props.userId) !== -1)?.length > 0)
             {
                 this.setState({
                     isBlocked : true
@@ -324,7 +323,7 @@ export default class UserDetail extends Component {
     render() {
         if(this.state.getUserWInfo != null)
         {
-            this.state.indiInfo = this.state.getUserWInfo.instances.filter((v) => v.indexOf(this.state.getUserInfo.instanceId) != -1);
+            this.state.indiInfo = this.state.getUserWInfo.instances?.filter((v) => v.indexOf(this.state.getUserInfo.instanceId) != -1);
         }
         return (
             <View style={[styles.mainBackground,{flex:1}]}>
@@ -376,7 +375,7 @@ export default class UserDetail extends Component {
                                         {this.userStateIcon()}{"\n"}
                                         {
                                             this.state.getUserInfo.statusDescription != "" && this.state.getUserInfo.statusDescription != null && (
-                                            this.state.getUserInfo.statusDescription.length > 15 ?
+                                            this.state.getUserInfo.statusDescription?.length > 15 ?
                                             this.state.getUserInfo.statusDescription?.substr(0,15)+"...\n" :
                                             this.state.getUserInfo.statusDescription+"\n"
                                         )}
@@ -390,13 +389,13 @@ export default class UserDetail extends Component {
                                 onPress={this.friendRequest.bind(this,this.state.getUserInfo.id,this.state.getUserInfo.isFriend)}
                                 style={[{marginRight:15,width:"100%"},styles.requestButton]}
                             >
-                                <NetmarbleL>{this.state.getUserInfo.isFriend == true ? translate('delete_friend') : translate('request_friend')}</NetmarbleL>
+                                <NetmarbleL style={styles.requestButtonText}>{this.state.getUserInfo.isFriend == true ? translate('delete_friend') : translate('request_friend')}</NetmarbleL>
                             </Button>
                         </View>
                         {/* now world info */}
-                        {this.state.getUserWInfo != null ?
+                        {this.state.getUserWInfo !== null && this.state.indiInfo !== undefined ?
                             <View style={{marginTop:"2%"}}>
-                                <NetmarbleL style={{marginLeft:"5%",fontSize:20}}>{translate('now_world')}</NetmarbleL>
+                                <NetmarbleL style={[styles.requestButtonText, {marginLeft:"5%",fontSize:20}]}>{translate('now_world')}</NetmarbleL>
                                 <View style={styles.worldInfoDetail}>
                                     <View style={{alignItems:"flex-end"}}>
                                         {
@@ -416,9 +415,9 @@ export default class UserDetail extends Component {
                                             </TouchableOpacity>
                                         }
                                     </View>
-                                    <NetmarbleM style={{textAlign:"center",fontFamily:"NetmarbleM",color:"#2b3956"}}>
+                                    <NetmarbleM style={[styles.requestButtonText, {textAlign:"center",fontFamily:"NetmarbleM"}]}>
                                         {this.state.getUserWInfo.name}
-                                        {this.state.getUserInfo.instanceId.length <= 5 ? "#"+this.state.getUserInfo.instanceId : null}
+                                        {this.state.getUserInfo.instanceId?.length <= 5 ? "#"+this.state.getUserInfo.instanceId : null}
                                     </NetmarbleM>
                                     <View style={{marginTop:"2%",marginBottom:"4%"}}>
                                         <Image
@@ -426,14 +425,14 @@ export default class UserDetail extends Component {
                                             source={VRChatImage(this.state.getUserWInfo.thumbnailImageUrl)}
                                         />
                                     </View>
-                                    <NetmarbleL style={{lineHeight:25}}>
-                                        {translate('creator')} : {this.state.getUserWInfo.authorName}{"\n"}
-                                        {translate('online_world_user')} : {this.state.indiInfo.length != 0 ? this.state.indiInfo[0][1]+"/"+this.state.getUserWInfo.capacity : 
-                                        this.state.getUserWInfo.capacity+"/"+this.state.getUserWInfo.capacity}{"\n"}
-                                        {translate('all')} : {this.state.getUserWInfo.occupants+" " + translate('people_count')}{"\n"}
-                                        {translate('update_date')} : {this.state.getUserWInfo.updated_at?.substring(0,10)}
-                                        {this.state.getUserWInfo.description != "" && this.state.getUserWInfo.description != null &&
-                                        "\n"+"\n"+this.state.getUserWInfo.description}
+                                    <NetmarbleL style={[styles.requestButtonText, {lineHeight:25}]}>
+                                        {translate('creator')} : {this.state.getUserWInfo?.authorName}{"\n"}
+                                        {translate('online_world_user')} : {this.state.indiInfo?.length != 0 ? this.state.indiInfo[0][1]+"/"+this.state.getUserWInfo?.capacity : 
+                                        this.state.getUserWInfo?.capacity+"/"+this.state.getUserWInfo?.capacity}{"\n"}
+                                        {translate('all')} : {this.state.getUserWInfo?.occupants+" " + translate('people_count')}{"\n"}
+                                        {translate('update_date')} : {this.state.getUserWInfo?.updated_at?.substring(0,10)}
+                                        {this.state.getUserWInfo?.description != "" && this.state.getUserWInfo?.description != null &&
+                                        "\n"+"\n"+this.state.getUserWInfo?.description}
                                     </NetmarbleL>
                                 </View>
                                 <Modal

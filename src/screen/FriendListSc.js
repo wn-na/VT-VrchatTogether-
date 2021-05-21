@@ -141,8 +141,10 @@ export default class FriendListSc extends Component {
     }
 
     flist() {
-        return <FlatList
+        return (
+        <FlatList
             data={this.state.friends}
+            keyExtractor={(item, index) => index.toString()}
             renderItem={({item}) => 
                 <TouchableOpacity
                     onPress={()=> Actions.currentScene == "friendListSc" ? Actions.userDetail({userId:item.id, isFriend:true}) : {}}
@@ -193,6 +195,7 @@ export default class FriendListSc extends Component {
                 </TouchableOpacity>
             }
         />
+        )
     }
     
     reset() {
@@ -331,7 +334,7 @@ export default class FriendListSc extends Component {
                                 onSubmitEditing={this.search}
                                 placeholder={translate('name_search')}
                                 placeholderTextColor={styles.placeholder.color}
-                                style={[styles.placeholder,{color:"red",width:"80%",height:50}]}/>
+                                style={[styles.placeholder,{width:"80%",height:50}]}/>
                             <Icon 
                                 onPress={this.search}
                                 name="magnifying-glass" size={25} style={{marginTop:15,color:styles.placeholder.color}}/>
@@ -343,8 +346,8 @@ export default class FriendListSc extends Component {
                                 mode="dropdown"
                                 selectedValue = {this.state.option}
                                 onValueChange = {this.filter}
-                                itemStyle={{ backgroundColor: 'lightgrey', marginLeft: 0, paddingLeft: 15 }}
-                                itemTextStyle={{ fontSize: 18, color: 'white' }}
+                                itemStyle={{ backgroundColor: 'lightgrey', marginLeft: 0, paddingLeft: 15, color: "#FFF" }}
+                                itemTextStyle={{ fontSize: 18, color: "#FFF" }}
                             >
                                 <Picker.Item label = {translate('show_all')} value = "all"  />
                                 <Picker.Item label = {translate('online')} value = "on"  />

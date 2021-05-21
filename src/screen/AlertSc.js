@@ -184,16 +184,17 @@ export default class AlertSc extends Component {
                     }
                 >
                     <View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%"}}>
-						<View style={{borderBottomWidth:1,width:"100%",flexDirection:"row",justifyContent:"space-between",marginTop:"5%",marginBottom:"5%"}}>
+						<View style={{borderBottomWidth:1,borderColor: styles.mainColor.color, width:"100%",flexDirection:"row",justifyContent:"space-between",marginTop:"5%",marginBottom:"5%"}}>
 							<TextInput 
 								value={this.state.search}
 								onChangeText={(text) => this.setState({search:text})}
 								onSubmitEditing={this.search}
 								placeholder={translate('name_search')}
-								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
+                                placeholderTextColor={styles.mainColor.color}
+								style={{width:"80%",height:50,fontFamily:"NetmarbleL",color:styles.mainColor.color}}/>
 							<Icon 
 								onPress={this.search}
-								name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
+								name="magnifying-glass" size={25} style={{marginTop:15,color:styles.mainColor.color}}/>
 						</View>
 					</View>
                     <FlatList
@@ -204,10 +205,10 @@ export default class AlertSc extends Component {
                                 style={{padding:"5%",borderWidth:1,borderRadius:10,borderColor:"#4d221e1f",marginLeft:"5%",marginRight:"5%",marginTop:"3%",marginBottom:"3%"}}
                             >
                                 <View style={{flexDirection:"row",width:"100%"}}>
-                                    <NetmarbleL style={{width:"60%"}}>
+                                    <NetmarbleL style={[styles.mainColor, {width:"60%"}]}>
                                         {item.senderUsername}
                                     </NetmarbleL>
-                                    <NetmarbleL style={{width:"40%"}}>
+                                    <NetmarbleL style={[styles.mainColor, {width:"40%"}]}>
                                         {item.created_at?.substring(0,10)}
                                     </NetmarbleL>
                                 </View>
@@ -215,12 +216,12 @@ export default class AlertSc extends Component {
                                     <Button 
                                     onPress={()=> this.alertSend(this.state, item.id, true)}
                                     style={[{width:"48%"},styles.requestButton]}>
-                                        <NetmarbleL>{translate('accept')}</NetmarbleL>
+                                        <NetmarbleL style={styles.mainColor}>{translate('accept')}</NetmarbleL>
                                     </Button>
                                     <Button 
                                     onPress={()=> this.alertSend(this.state, item.id, false)}
                                     style={[{width:"48%"},styles.requestButton]}>
-                                        <NetmarbleL>{translate('reject')}</NetmarbleL>
+                                        <NetmarbleL style={styles.mainColor}>{translate('reject')}</NetmarbleL>
                                     </Button>
                                 </View>
                             </TouchableOpacity>

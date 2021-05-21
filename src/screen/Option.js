@@ -180,7 +180,7 @@ export default class Option extends Component {
                         onValueChange={()=>this.setFakeImage()}
                         thumbColor={"#f4f3f4"}
                         value={this.state.fakeImage}/>
-                        <NetmarbleL style={{color:"#646464"}}>{translate('fake_image')}</NetmarbleL>
+                        <NetmarbleL style={styles.optionTitle}>{translate('fake_image')}</NetmarbleL>
                     </View>
                     <View style={styles.userOptionBox}>
                         <Switch
@@ -188,56 +188,56 @@ export default class Option extends Component {
                         onValueChange={()=>this.setHighImage()}
                         thumbColor={"#f4f3f4"}
                         value={this.state.highImage}/>
-                        <NetmarbleL style={{color:"#646464"}}>{translate('high_image')}</NetmarbleL>
+                        <NetmarbleL style={styles.optionTitle}>{translate('high_image')}</NetmarbleL>
                     </View>
-                    {/* <View style={styles.userOptionBox}>
+                    <View style={styles.userOptionBox}>
                         <Switch
                         trackColor={{ false: "#767577", true: "#81b0ff" }}
                         onValueChange={()=>this.setDarkMode()}
                         thumbColor={"#f4f3f4"}
                         value={this.state.darkMode}/>
-                        <NetmarbleL style={{color:"#646464"}}>{translate('dark_mode')}</NetmarbleL>
-                    </View> */}
+                        <NetmarbleL style={styles.optionTitle}>{translate('dark_mode')}</NetmarbleL>
+                    </View>
                 </View>
                 <View style={styles.setting}>
                     <TouchableOpacity
                     onPress={()=>this.setState({langCheck:true})}>
                         <View style={styles.settingMenu}>
-                            <Image source={require('../css/imgs/trans_icon.png')} style={styles.settingMenuImage}/>
-                            <NetmarbleL>{translate('lang_option')}</NetmarbleL>
+                            <Icon name={"language"} size={25} style={styles.settingMenuImage} />
+                            <NetmarbleL style={styles.optionTitle}>{translate('lang_option')}</NetmarbleL>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity
                     onPress={()=>Linking.openURL("http://www.vrct.kr")}>
                         <View style={styles.settingMenu}>
-                            <Image source={require('../css/imgs/homepage.png')} style={styles.settingMenuImage}/>
-                            <NetmarbleL>{translate('homepage')}</NetmarbleL>
+                            <Icon name={"browser"} size={25} style={styles.settingMenuImage} />
+                            <NetmarbleL style={styles.optionTitle}>{translate('homepage')}</NetmarbleL>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity
                     onPress={()=>this.logout()}>
                         <View style={styles.settingMenu}>
-                            <Image source={require('../css/imgs/logout.png')} style={styles.settingMenuImage}/>
-                            <NetmarbleL>{translate('logout')}</NetmarbleL>
+                            <Icon name={"log-out"} size={25} style={styles.settingMenuImage} />
+                            <NetmarbleL style={styles.optionTitle}>{translate('logout')}</NetmarbleL>
                         </View>
                     </TouchableOpacity>
                     <View style={{borderColor:"#4d221e1f",borderWidth:1,alignItems:"center",padding:25,marginTop:40}}>
                         <View style={{borderColor:"#b4b4b4",borderBottomWidth:1,alignItems:"center",paddingBottom:20,width:"100%"}}>
-                            <NetmarbleL>{translate('dev_info')}</NetmarbleL>
+                            <NetmarbleL style={styles.optionTitle}>{translate('dev_info')}</NetmarbleL>
                         </View>
                         <View style={{alignItems:"center"}}>
                             <NetmarbleL style={{marginTop:20,color:"#b4b4b4",fontSize:14}}>{translate('pm')}</NetmarbleL>
-                            <Komako>Aboa (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> Aboa#9076)</Komako>
+                            <Komako style={styles.optionTitle}>Aboa (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> Aboa#9076)</Komako>
                             <NetmarbleL style={{marginTop:20,color:"#b4b4b4",fontSize:14}}>{translate('developer')}</NetmarbleL>
-                            <Komako>Leth (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> Hana#4158)</Komako>
-                            <Komako>늦잠 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> sychoi#4273)</Komako>
+                            <Komako style={styles.optionTitle}>Leth (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> Hana#4158)</Komako>
+                            <Komako style={styles.optionTitle}>늦잠 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> sychoi#4273)</Komako>
                             <NetmarbleL style={{marginTop:20,color:"#b4b4b4",fontSize:14}}>{translate('designer')}</NetmarbleL>
-                            <Komako>세르뀨 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> 세르뀨#1388)</Komako>
-                            <Komako>은혜 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> 은혜#0372)</Komako>
+                            <Komako style={styles.optionTitle}>세르뀨 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> 세르뀨#1388)</Komako>
+                            <Komako style={styles.optionTitle}>은혜 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> 은혜#0372)</Komako>
                             <NetmarbleL style={{marginTop:20,color:"#b4b4b4",fontSize:14}}>{translate('charater_designer')}</NetmarbleL>
-                            <Komako>민트실버 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> 민트실버#1131)</Komako>
+                            <Komako style={styles.optionTitle}>민트실버 (<Image style={{width:20,height:20}} source={require('../css/imgs/discord.png')}/> 민트실버#1131)</Komako>
                             <NetmarbleL style={{marginTop:20,color:"#b4b4b4",fontSize:14}}>{translate('tester')}</NetmarbleL>
-                            <Komako>Excite / きゆ / 옌딩</Komako>
+                            <Komako style={styles.optionTitle}>Excite / きゆ / 옌딩</Komako>
                         </View>
                     </View>
                 </View>

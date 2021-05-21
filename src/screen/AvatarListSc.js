@@ -256,9 +256,9 @@ export default class AvatarListSc extends Component {
 							}/>
 						</View>
 						<View style={{width:"100%",marginLeft:"3%",flexDirection:"row"}}>
-							<NetmarbleL style={{width:"70%",lineHeight:30}}>
+							<NetmarbleL style={[styles.avatarListText, {width:"70%",lineHeight:30}]}>
 								{item.name}{"\n"}
-								<NetmarbleB>
+								<NetmarbleB style={styles.avatarListText}>
                                     {item.authorName}{"\n"}
 								</NetmarbleB>
 								{item.updated_at?.substring(0,10)}
@@ -328,7 +328,7 @@ export default class AvatarListSc extends Component {
 							}/>
 						</View>
 						<View style={{width:"100%",marginLeft:"3%"}}>
-							<NetmarbleL style={{width:"70%",lineHeight:30}}>
+							<NetmarbleL style={[styles.avatarListText, {width:"70%",lineHeight:30}]}>
 								{item.name}{"\n"}
 								{item.authorName}{"\n"}
 								{item.updated_at?.substring(0,10)}
@@ -421,16 +421,17 @@ export default class AvatarListSc extends Component {
 					/>
 				}>
 					<View style={{flexDirection:"row",justifyContent:"space-between",marginLeft:"5%",marginRight:"5%"}}>
-						<View style={{borderBottomWidth:1,width:"100%",flexDirection:"row",justifyContent:"space-between",marginTop:"5%",marginBottom:"5%"}}>
+						<View style={{borderBottomWidth:1,borderColor: styles.mainColor.color, width:"100%",flexDirection:"row",justifyContent:"space-between",marginTop:"5%",marginBottom:"5%"}}>
 							<TextInput 
 								value={this.state.search}
 								onChangeText={(text) => this.setState({search:text})}
 								onSubmitEditing={this.search}
 								placeholder={translate('name_search')}
-								style={{width:"80%",height:50,fontFamily:"NetmarbleL"}}/>
+								placeholderTextColor={styles.placeholder.color}
+								style={[styles.placeholder, {width:"80%",height:50,fontFamily:"NetmarbleL"}]}/>
 							<Icon 
 								onPress={this.search}
-								name="magnifying-glass" size={25} style={{marginTop:15,color:"#3a4a6d"}}/>
+								name="magnifying-glass" size={25} style={{marginTop:15,color:styles.placeholder.color}}/>
 						</View>
 					</View>
 					{this.flist()}
