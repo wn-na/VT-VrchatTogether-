@@ -1,61 +1,61 @@
 export const VRChatAPIGet = {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'User-Agent': 'VT'
-        }
-    }
+    method: 'GET',
+    headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'VT',
+    },
+};
 
 export const VRChatAPIDelete = {
     method: 'DELETE',
     headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'User-Agent': 'VT'
-    }
-}
+        'User-Agent': 'VT',
+    },
+};
 
 export const VRChatAPIPost = {
     method: 'POST',
     headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'User-Agent': 'VT'
-    }
-}
+        'User-Agent': 'VT',
+    },
+};
 
 export const VRChatAPIPut = {
     method: 'PUT',
     headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'User-Agent': 'VT'
-    }
-}
+        'User-Agent': 'VT',
+    },
+};
 
 export function VRChatAPIPostBody(body) {
     return {
-       method: 'POST',
-       headers: {
-           'Accept': 'application/json',
-           'Content-Type': 'application/json',
-           'User-Agent': 'VT'
-       },
-       body : JSON.stringify(body)
-   }
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'User-Agent': 'VT',
+        },
+        body: JSON.stringify(body),
+    };
 }
 
 export function VRChatAPIPutBody(body) {
-     return {
+    return {
         method: 'PUT',
         headers: {
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'Content-Type': 'application/json',
-            'User-Agent': 'VT'
+            'User-Agent': 'VT',
         },
-        body : JSON.stringify(body)
-    }
+        body: JSON.stringify(body),
+    };
 }
 
 export function VRChatImage(uri) {
@@ -63,19 +63,19 @@ export function VRChatImage(uri) {
         uri: uri,
         method: 'GET',
         headers: {
-            'User-Agent': 'VT'
-        }
-    }
+            'User-Agent': 'VT',
+        },
+    };
 }
 
 export function VRChatAPIGetAuth(key) {
     return {
         method: 'GET',
         headers: {
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'Content-Type': 'application/json',
             'User-Agent': 'VT',
-            'Authorization': `Basic ${key}`
-        }
-    }
+            Authorization: `Basic ${key}`,
+        },
+    };
 }
