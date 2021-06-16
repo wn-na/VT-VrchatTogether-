@@ -18,6 +18,7 @@ module.exports = {
   plugins: ['react'],
   rules: {
     'no-unused-vars': 1,
+    'react/prop-types': 1,
     'object-curly-spacing': ['error', 'always'],
     'require-jsdoc': [
       'error',
