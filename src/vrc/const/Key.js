@@ -1,3 +1,4 @@
 export const Key = {
-    LANGUAGE_KEY : 'key_user_language_td'
+    LANGUAGE_KEY : 'user_language_key',
+    USER_PERMISSION_KEY : 'user_agree_app',
 }

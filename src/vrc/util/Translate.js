@@ -4,7 +4,7 @@ import jp from './../../translate/lang/jp.js';
 import es from './../../translate/lang/es.js';
 import br from './../../translate/lang/br.js';
 
-import { LANGUAGE_KEY } from './../const/Key';
+import { Key as KEY } from './../const/Key';
 
 import {
     getItemAsync,
@@ -50,7 +50,7 @@ let language = defaultLanguage.language;
 const isContain = (key) => key in languagePack;
 
 export const getLanguage = () =>
-    getItemAsync(LANGUAGE_KEY).then(value => {
+    getItemAsync(KEY.LANGUAGE_KEY).then(value => {
         language = isContain(value) ? value : defaultLanguage.language;
     }).catch(err => {
         language = defaultLanguage.language;
@@ -58,7 +58,7 @@ export const getLanguage = () =>
 
 export const setLanguage = (lang) => {
     language = isContain(lang) ? lang : defaultLanguage.language;
-    setItemAsync(LANGUAGE_KEY, language);
+    setItemAsync(KEY.LANGUAGE_KEY, language).then(value => console.log(value), err => console.log(err));
 }
 
 export const translate = (key) =>

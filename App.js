@@ -3,6 +3,7 @@ import { ToastAndroid } from 'react-native';
 import { Scene, Router, Actions } from 'react-native-router-flux';
 
 import LanguageSetting from './src/vrc/component/LanguageSetting';
+import Agreement from './src/vrc/component/Agreement';
 
 import LoginSc from './src/screen/LoginSc';
 import MainSc from './src/screen/MainSc';
@@ -20,7 +21,7 @@ import Option from './src/screen/Option';
 
 console.disableYellowBox = true;
 
-const backHandlerList = ['loginSc', 'mainSc', 'languageSetting'];
+const backHandlerList = ['loginSc', 'mainSc', 'languageSetting', 'agreement'];
 export default  class App extends Component {
     
     constructor() {
@@ -32,7 +33,7 @@ export default  class App extends Component {
     }
 
     backHandler(){
-        if(Actions.currentScene in backHandlerList) {
+        if(backHandlerList.includes(Actions.currentScene)) {
             if (this.state.exitApp == false) {
                 ToastAndroid.show('한번 더 누르시면 종료됩니다.', ToastAndroid.SHORT);
                 this.setState({
@@ -60,7 +61,8 @@ export default  class App extends Component {
         return <Router
             backAndroidHandler={this.backHandler.bind(this)}>
             <Scene key="root">
-                <Scene key="languageSetting" hideNavBar={true} component={LanguageSetting}  initial={true}/>
+                <Scene key="languageSetting" hideNavBar={true} component={LanguageSetting} initial={true}/>
+                <Scene key="agreement" hideNavBar={true} component={Agreement}/>
                 <Scene key="loginSc" hideNavBar={true} component={LoginSc} />
                 <Scene key="mainSc" type={"replace"} hideNavBar={true} component={MainSc} />
                 <Scene key="alertSc" hideNavBar={true} component={AlertSc} />

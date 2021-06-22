@@ -13,7 +13,7 @@ flexDirection: column;
 width: 86%;
 padding: 5px;
 margin: 7%;
-borderRadius: 14;
+borderRadius: 14px;
 `;
 
 export const Text = styled.Text `
@@ -21,6 +21,6 @@ color: #fff;
 text-align: center;
 fontFamily: ${ prop => prop.bold ? 'NetmarbleB' : 'NetmarbleL' };
 color: ${ prop => prop.color ?? 'black' };
-fontSize: ${ prop => prop.fontSize ?? 16 };
+fontSize: ${ prop => prop.fontSize ?? 16 }px;
 textAlign: ${ prop => prop.textAlign ?? 'center' };
 `;

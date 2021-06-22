@@ -1,21 +1,20 @@
 import React, { Component } from "react";
-import { View } from "react-native";
 import { Actions } from 'react-native-router-flux';
 import { getItemAsync } from './../util/Strorage';
 import { DEBUG } from "./../util/Debug";
 import { LANGUAGE_LIST, setLanguage } from './../util/Translate';
 import { Button } from '../style/LanguageSettingStyle';
 import { Text, BackGroundView, ModalView } from '../style/Base';
-import { LANGUAGE_KEY } from './../const/Key';
+import { Key as KEY } from './../const/Key';
 
 export default class LanguageSetting extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-            checkLanguage: true
+            checkLanguage: false
         };
 
-        getItemAsync(LANGUAGE_KEY).then(value => {
+        getItemAsync(KEY.LANGUAGE_KEY).then(value => {
             this.setState({
                 checkLanguage: (value === null)
             }, () => {
@@ -54,7 +53,7 @@ export default class LanguageSetting extends Component {
             console.log(`this.state.langCheck ${this.state.checkLanguage}`);
         }
         if(!this.state.checkLanguage) {
-            return (<View></View>);
+            return (<BackGroundView></BackGroundView>);
         }
         return (<BackGroundView>
                     <ModalView>
