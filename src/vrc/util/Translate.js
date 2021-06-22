@@ -4,6 +4,8 @@ import jp from './../../translate/lang/jp.js';
 import es from './../../translate/lang/es.js';
 import br from './../../translate/lang/br.js';
 
+import { LANGUAGE_KEY } from './../const/Key';
+
 import {
     getItemAsync,
     setItemAsync
@@ -39,12 +41,14 @@ export const LANGUAGE_LIST = [{
 const defaultLanguage = {
     language: 'ko'
 };
-const languagePack = LANGUAGE_LIST.map(x => x.language);
+const languagePack = LANGUAGE_LIST.reduce((a, c) => ({
+    ...a,
+    [c.lang]: c.language
+}), {});
 let language = defaultLanguage.language;
 
 const isContain = (key) => key in languagePack;
 
-export const LANGUAGE_KEY = 'key_user_language_td';
 export const getLanguage = () =>
     getItemAsync(LANGUAGE_KEY).then(value => {
         language = isContain(value) ? value : defaultLanguage.language;

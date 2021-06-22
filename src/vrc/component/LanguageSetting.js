@@ -3,8 +3,10 @@ import { View } from "react-native";
 import { Actions } from 'react-native-router-flux';
 import { getItemAsync } from './../util/Strorage';
 import { DEBUG } from "./../util/Debug";
-import { LANGUAGE_LIST, setLanguage, LANGUAGE_KEY } from './../util/Translate';
-import { Button, Text, BackGroundView, ModalView } from '../style/LanguageSettingStyle';
+import { LANGUAGE_LIST, setLanguage } from './../util/Translate';
+import { Button } from '../style/LanguageSettingStyle';
+import { Text, BackGroundView, ModalView } from '../style/Base';
+import { LANGUAGE_KEY } from './../const/Key';
 
 export default class LanguageSetting extends Component {
     constructor(props) {
@@ -18,7 +20,7 @@ export default class LanguageSetting extends Component {
                 checkLanguage: (value === null)
             }, () => {
                 if(value !== null) {
-                     Actions.loginSc();
+                    Actions.agreement();
                 }
             });
         });
@@ -35,14 +37,14 @@ export default class LanguageSetting extends Component {
             if(DEBUG){
                 console.log(`this.state.langCheck1 ${this.state.checkLanguage}`);
             }
-            Actions.loginSc();
+            Actions.agreement();
         });
     }
     
     languageButton() {
         return [...LANGUAGE_LIST].map((language, idx) => (
             <Button key={idx} onPress={this.selectLanguage.bind(this, language.lang)} title={language.name}>
-                <Text>{language.name}</Text>
+                <Text bold={true}>{language.name}</Text>
             </Button>
         ))
     }
